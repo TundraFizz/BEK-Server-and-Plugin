@@ -1,0 +1,69 @@
+<!-- Regular desktop navbar, this is hidden from mobile devices -->
+<div class="hidden-xs"> <!-- Hide from mobile devices -->
+  <div id="nav" class="navbar-collapse" style="background: black;">
+    <span class="highlight" style="top: 3px; left: 72.5px; -webkit-filter: hue-rotate(0deg); filter: hue-rotate(0deg); z-index: 1;"></span>
+    <ul>
+      <span id="logo" class="navbar-brand noselect" style="position: relative; background: transparent url('../resources/fizz.png') repeat scroll 0% 0% / cover; width: 38px; height: 38px; margin: 0px 10px 0px 0px;" onclick="FizzE()"></span>
+      <li class="page_item"><a href="https://tundrafizz.com/">Home</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/about">About</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/pax">Pax</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/fek">Fek</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/projects">Projects</a></li>
+      <!--
+      <?php if(LoggedIn()){ ?>
+        <div class="navbar-account-button" onclick="Logout();">Logout</div>
+        <div class="navbar-account-button"><?php echo $_SESSION["boards_name"] . " (" . $_SESSION["boards_region"] . ")" ?></div>
+      <?php }else{ ?>
+        <div class="navbar-account-button" onclick="AccountRegister();">Register</div>
+        <div class="navbar-account-button" onclick="AccountSignIn();">Login</div>
+      <?php } ?>-->
+    </ul>  
+  </div>
+  <div id="subnav" style="position: relative; top: -1px; height: 48px; padding: 0px; background: transparent url(../resources/gfx/background-sub-nav.png) no-repeat scroll center center; margin: 0 auto;">
+    <span class="highlight" style="top: 2px; left: 376.5px; -webkit-filter: hue-rotate(0deg); filter: hue-rotate(0deg); z-index: 1;"></span>
+    <ul id="subnav-about" style="display: none; margin: 0 auto;">
+      <li class="page_item"><a href="https://tundrafizz.com/about/placeholder-1">Placeholder 1</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/about/placeholder-2">Placeholder 2</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/about/placeholder-3">Placeholder 3</a></li>
+    </ul>
+    <ul id="subnav-pax" style="display: none; margin: 0 auto;">
+      <li class="page_item"><a href="https://tundrafizz.com/pax/info">Info</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/pax/roster">Roster</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/pax/hotel-chart">Hotel Chart</a></li>
+  <!--<li class="page_item"><a href="https://tundrafizz.com/pax/days">Days</a></li>-->
+    </ul>
+    <ul id="subnav-fek" style="display: none; margin: 0 auto;">
+      <li class="page_item"><a href="https://tundrafizz.com/fek/account">Account</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/fek/events">Events</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/fek/fish-chips">Fish Chips</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/fek/badge-and-title">Badge and Title</a></li>
+    </ul>
+    <ul id="subnav-projects" style="display: none; margin: 0 auto;">
+      <li class="page_item"><a href="https://tundrafizz.com/projects/riot-randomizer">Riot Randomizer</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/projects/placeholder-2">Placeholder 2</a></li>
+      <li class="page_item"><a href="https://tundrafizz.com/projects/placeholder-3">Placeholder 3</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+if(yolo == "Home")
+{
+  $("#subnav").remove();
+}
+
+// Since all subnav links are disabled by default, make the correct one enabled (table)
+$("#subnav-" + yolo.toLowerCase()).css("display", "table");
+
+// Give the main navigation a class
+var sdlkf = $("li a:contains('" + yolo + "')")[0];
+$(sdlkf).parent().addClass("current_page_item");
+
+// Going to check each li a
+$("#subnav-" + yolo.toLowerCase() + " li a").each(function()
+{
+  // If the a's text matches with what page we're on, give it a class
+  if($(this).text() == swag)
+    $(this).parent().addClass("current_page_item");
+});
+</script>

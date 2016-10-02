@@ -1,0 +1,457 @@
+@-webkit-keyframes fadeIn {from {opacity:0;} to {opacity:1;}}
+@-moz-keyframes fadeIn    {from {opacity:0;} to {opacity:1;}}
+@keyframes fadeIn         {from {opacity:0;} to {opacity:1;}}
+
+body
+{
+//background-image: url(../resources/gfx/bg.gif);
+  background-image: url(../resources/gfx/noise.png);
+  color:            #bbb;
+}
+
+hr
+{
+  border-color: black;
+}
+
+button
+{
+  color: black;
+}
+
+input
+{
+  color: black;
+}
+
+select
+{
+  color: black;
+}
+
+table.tablesorter
+{
+  font-family:      arial;
+  background-color: #CDCDCD;
+  margin:           10px 0pt 15px;
+  font-size:        10pt;
+  width:            70%;
+  text-align:       left;
+}
+
+table.tablesorter thead tr th, table.tablesorter tfoot tr th
+{
+  background-color: #black;
+  border:           1px solid black;
+  font-size:        10pt;
+  padding:          4px;
+}
+
+table.tablesorter thead tr .header
+{
+  background-image:    url(../gfx/bg.gif);
+  background-repeat:   no-repeat;
+  background-position: center right;
+  cursor:              pointer;
+}
+
+table.tablesorter tbody td
+{
+  color:            black;
+  padding:          4px;
+  background-color: #FFF;
+  vertical-align:   top;
+}
+
+table.tablesorter tbody tr.odd td
+{
+  background-color: #F0F0F6;
+}
+
+table.tablesorter thead tr .headerSortUp
+{
+  background-image: url(../gfx/asc.gif);
+}
+
+table.tablesorter thead tr .headerSortDown
+{
+  background-image: url(../gfx/desc.gif);
+}
+
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp
+{
+  background-color: #005000;
+}
+
+
+
+
+
+
+
+
+.test
+{
+  text-align: left;
+  padding:    0px 5px !important;
+  height:     32px;
+}
+.attending-pax{background-color:green;}
+.in-seattle{background-color:blue;}
+
+#row-container
+{
+  position:     absolute;
+  width:        150px;
+  height:       30px;
+  top:          -50px;
+  padding-left: 0px;
+  z-index:      -1;
+}
+
+.special
+{
+  display:          block;
+  width:            150px;
+  height:           30px;
+  color:            #9d9d9d;
+  padding:          0px;
+  border:           1px solid black;
+  background-color: gray;
+  background:       url(gfx/bg-header.png) repeat-x;
+  margin-top:       -1px;
+}
+
+.special > a
+{
+  position:    absolute;
+  color:       #9d9d9d;
+  width:       100%;
+  height:      100%;
+  padding:     4px 0px 0px 4px;
+}
+
+.special > a:hover
+{
+  color:           #fff;
+  text-decoration: none;
+}
+
+ul.special
+{
+  top: -90px;
+}
+
+li.special
+{
+  position: absolute;
+  left:     0px;
+}
+
+@-webkit-keyframes multi_rotate1
+{
+  0%
+  {
+    -webkit-filter:hue-rotate(0deg);
+  }
+  100%
+  {
+    -webkit-filter:hue-rotate(90deg);
+  }
+}
+
+.current_page_item {color: #fff;}
+
+
+
+
+
+
+
+
+.highlight
+{
+  background: url(../resources/gfx/background-highlight.png);
+  height: 62px;
+  width: 124px;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+span {color: #0099ff;}
+
+#nav > ul, #subnav > ul
+{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#nav > ul > li, #subnav > ul > li
+{
+  float: left;
+}
+
+.page_item a
+{
+  display: block;
+  color: #999999;
+  text-align: center;
+  padding: 10px;
+//padding: 10px 15px;
+  text-decoration: none;
+}
+
+.current_page_item a
+{
+  color: #ffffff;
+}
+
+li a:hover
+{
+  color: #fefefe;
+  text-decoration: none;
+}
+.page_item
+{
+  position: relative;
+  z-index:  1;
+}
+
+
+
+
+
+
+
+
+
+
+
+.container-fluid
+{
+  max-width: 1000px;
+}
+
+.hidden-xs
+{
+  height:        100px;
+  margin-top:    -1px;
+}
+
+.hidden-sm
+{
+  height:        40px;
+  margin-bottom: 20px;
+}
+
+.hidden-md
+{
+  height:        40px;
+  margin-bottom: 20px;
+}
+
+.hidden-lg
+{
+  height:        40px;
+  margin-bottom: 20px;
+}
+
+.submenu
+{
+  position: absolute;
+  border-radius: 0px 0px 10px 10px;
+  list-style: outside none none;
+  background-color: #080808;
+  padding: 0px 10px 4px;
+  z-index: 1;
+}
+
+.navbar-nav > li > a
+{
+  padding-top:    10px;
+  padding-bottom: 10px;
+}
+
+.nav-column
+{
+  cursor:                pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select:   none;
+  -khtml-user-select:    none;
+  -moz-user-select:      none;
+  -ms-user-select:       none;
+  user-select:           none;
+}
+
+.table
+{
+  text-align:   center;
+  white-space:  nowrap;
+  border:       2px solid black;
+}
+
+.table > tbody > tr > td
+{
+  vertical-align: middle;
+  padding:        1px 0px 1px 3px;
+  border:         2px solid black;
+  font-size:      14px;
+}
+
+.table-bordered > thead > tr > th
+{
+  border: 2px solid black;
+}
+
+.table-responsive
+{
+  border: none;
+}
+
+.table-responsive > .table-bordered
+{
+  text-align:   center;
+  white-space:  nowrap;
+  border:       2px solid black;
+}
+
+.table-center
+{
+  width:         auto;
+  margin-right:  auto;
+  margin-left:   auto;
+}
+
+.navbar-account-button
+{
+  float:       right;
+  line-height: 40px;
+  cursor:      pointer;
+  padding:     0px 10px;
+}
+
+.navbar-collapse
+{
+  padding-left:  0px;
+  padding-right: 0px;
+}
+
+.noselect
+{
+  -webkit-touch-callout: none;
+  -webkit-user-select:   none;
+  -khtml-user-select:    none;
+  -moz-user-select:      none;
+  -ms-user-select:       none;
+  user-select:           none;
+  cursor:                default;
+}
+
+.container
+{
+  background: rgba(139,181,229,1);
+  background: -moz-radial-gradient(center, ellipse cover, rgba(139,181,229,1) 0%, rgba(108,160,218,1) 41%, rgba(63,128,202,1) 100%);
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(139,181,229,1)), color-stop(41%, rgba(108,160,218,1)), color-stop(100%, rgba(63,128,202,1)));
+  background: -webkit-radial-gradient(center, ellipse cover, rgba(139,181,229,1) 0%, rgba(108,160,218,1) 41%, rgba(63,128,202,1) 100%);
+  background: -o-radial-gradient(center, ellipse cover, rgba(139,181,229,1) 0%, rgba(108,160,218,1) 41%, rgba(63,128,202,1) 100%);
+  background: -ms-radial-gradient(center, ellipse cover, rgba(139,181,229,1) 0%, rgba(108,160,218,1) 41%, rgba(63,128,202,1) 100%);
+  background: radial-gradient(ellipse at center, rgba(139,181,229,1) 0%, rgba(108,160,218,1) 41%, rgba(63,128,202,1) 100%);
+  filter:     progid:DXImageTransform.Microsoft.gradient( startColorstr='#8bb5e5', endColorstr='#3f80ca', GradientType=1 );
+}
+
+#create-account-error
+{
+  color: black;
+}
+
+#login-error
+{
+  color: black;
+}
+
+#account-manage-box
+{
+  position:         fixed;
+  top:              30%;
+  left:             50%;
+  
+  width:            400px;
+  height:           26px;
+  margin-left:      -200px; /* Set to negative number 1/2 of width  */
+  margin-top:       -13px;  /* Set to negative number 1/2 of height */
+  
+  background: url(https://www.tundrafizz.com/pax/gfx/bg-header.png) repeat-x top;
+  
+  text-align:    center;
+  border-top:    2px solid black;
+  border-left:   2px solid black;
+  border-right:  2px solid black;
+  border-radius: 10px 10px 0px 0px;
+  z-index:       100;
+}
+
+#account-manage-x
+{
+  background:    url(https://www.tundrafizz.com/pax/gfx/bg-header.png) repeat-x top;
+  border:        1px solid #212121;
+  color:         #fff;
+  font:          10px Helvetica;
+  display:       inline-block;
+  cursor:        pointer;
+  position:      absolute;
+  bottom:        2px;
+  width:         20px;
+  height:        20px;
+  border-radius: 6px;
+  right:         3px;
+}
+
+.account-manage
+{
+//position:         relative;
+//top:              106px;
+//left:             50%;
+  
+//width:            400px;
+/*min-height:       172px;*/
+//margin-left:      -200px; /* Set to negative number 1/2 of width  */
+//margin-top:       -103px; /* Set to negative number 1/2 of height */
+  
+  background: url("../../gfx/bg-parchment.jpg");
+  
+  border-top:    2px solid black;
+  border-bottom: 2px solid black;
+  border-left:   2px solid black;
+  border-right:  2px solid black;
+}
+
+.button
+{
+  height:        26px;
+  background:    url("../../gfx/bg-header.png") repeat-x top;
+  border:        1px solid #212121;
+  color:         #fff;
+  font:          14px Helvetica;
+//line-height:   30px;
+//display:       inline-block;
+//cursor:        pointer;
+  position:      relative;
+  bottom:        2px;
+  width:         100px;
+  border-radius: 8px;
+  margin-left:   6px;
+}
+
+#account-error
+{
+  position:         absolute;
+  background-color: #990000;
+  bottom:           -27px;
+  border:           2px solid #DD0000;
+  border-radius:    8px;
+  width:            100%;
+}
