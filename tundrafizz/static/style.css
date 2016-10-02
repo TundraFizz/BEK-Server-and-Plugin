@@ -4,8 +4,8 @@
 
 body
 {
-//background-image: url(../resources/gfx/bg.gif);
-  background-image: url(../resources/gfx/noise.png);
+//background-image: url(../static/gfx/bg.gif);
+  background-image: url(../static/gfx/noise.png);
   color:            #bbb;
 }
 
@@ -171,7 +171,7 @@ li.special
 
 .highlight
 {
-  background: url(../resources/gfx/background-highlight.png);
+  background: url(../static/gfx/background-highlight.png);
   height: 62px;
   width: 124px;
   display: block;
