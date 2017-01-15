@@ -3,14 +3,29 @@ module.exports = function(app){
   // Include local libraries here //
   //////////////////////////////////
   var lib = require("./func-parser.js");
+  var mysql = require("mysql");
+  var fs = require("fs");
+
+  var desktop = fs.readFileSync("static/navbar.html", "utf8");
+  var mobile  = fs.readFileSync("static/navbar-mobile.html", "utf8");
 
   ///////////
   // Index //
   ///////////
   app.get("/", function(req, res){
 
-    GlobalTestingFunction();
-    lib.LocalTestingFunction();
+    // MySQL Test
+    var connection = mysql.createConnection({
+      host     : "localhost",
+      user     : "root",
+      password : "",
+      database : "fek"
+    });
+
+    sql = "SELECT * FROM users";
+    connection.query(sql, function(err, rows){
+      console.log(rows);
+    });
 
     var string = "A string from the server.";
     var people = [
@@ -20,8 +35,8 @@ module.exports = function(app){
     ];
 
     res.render("index.ejs", {
-      people: people,
-      string: string
+      desktop: desktop,
+      mobile: mobile
     });
   });
 
@@ -29,8 +44,35 @@ module.exports = function(app){
   // About //
   ///////////
   app.get("/about", function(req, res){
-    GlobalTestingFunction();
-    var people = lib.CsvToObject("data/people.csv");
-    res.render("about.ejs", {people: people});
+    res.render("about.ejs", {
+      desktop: desktop,
+      mobile: mobile});
+  });
+
+  /////////
+  // Pax //
+  /////////
+  app.get("/pax", function(req, res){
+    res.render("pax.ejs", {
+      desktop: desktop,
+      mobile: mobile});
+  });
+
+  /////////
+  // FEK //
+  /////////
+  app.get("/fek", function(req, res){
+    res.render("fek.ejs", {
+      desktop: desktop,
+      mobile: mobile});
+  });
+
+  //////////////
+  // Projects //
+  //////////////
+  app.get("/projects", function(req, res){
+    res.render("projects.ejs", {
+      desktop: desktop,
+      mobile: mobile});
   });
 }

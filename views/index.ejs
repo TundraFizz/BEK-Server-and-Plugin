@@ -1,62 +1,152 @@
+<script>var yolo = "Home";var swag = "";</script>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>NodeJS Example</title>
-    <meta charset="utf-8">
-    <meta name="description"  content="This is the index">
-    <meta name="author"       content="Tundra Fizz">
-    <link rel="shortcut icon" href="/img/icon.jpg">
-    <link rel="stylesheet"    href="/css/theme.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <title>Pax West</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <meta name="author"      content="Tundra Fizz"/>
+    <meta name="viewport"    content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Pax West hotel database for League of Legends General Discussion"/>
+    <meta name="keywords"    content="Pax, West, Penny, Arcade, Expo, League, Legends, General, Discussion, Hotel, Database"/>
+
+    <link rel="shortcut icon" href="icon/icon.jpg"/>                          <!-- Icon     -->
+    <link rel="stylesheet"    href="css/bootstrap/bootstrap.css"/>            <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet"    href="css/misc/style.css?v=7" type="text/css"/> <!-- Custom CSS         -->
+
+    <script src="js/jquery/jquery-2.1.4.js"></script>       <!-- jQuery                     -->
+    <script src="js/jquery/jquery-ui.js"></script>          <!-- jQuery                     -->
+    <script src="js/canvas/canvasjs.js"></script>           <!-- Draws graphs               -->
+    <script src="js/jquery/jquery.tablesorter.js"></script> <!-- Allows tables to be sorted -->
+    <script src="js/bootstrap/bootstrap.min.js"></script>   <!-- Bootstrap Core JavaScript  -->
+    <script src="js/misc/tundra.js"></script>               <!-- My custom JavaScript       -->
   </head>
 
-  <body>
-    <div class="content">
-      <p>Here is what the file structure looks like after installing this template.</p>
-      <p>
-        <code>NodeJS-Template
-├<bl>data</bl>           <gr>contains a .csv file that stores data to display to the user</gr>
-├<bl>node</bl>           <gr>contains server-side JavaScript files</gr>
-├<bl>node_modules</bl>   <gr>contains stuff needed for your app to run, don't bother looking in here</gr>
-├<bl>static</bl>         <gr>contains static files such as style sheets, JavaScript, images, fonts, etc.</gr>
-├<bl>views</bl>          <gr>contains .ejs files such as this one</gr>
-├<wh>package.json</wh>   <gr>used when installing the app</gr>
-├<wh>server</wh>         <gr>this makes it easy to start and stop your server with the command . server</gr>
-└<wh>server.js</wh>      <gr>where the application will begin running</gr></code>
-      </p>
-    </div>
+  <div id="account-manage-box" style="display: none;">
+    <div id="account-manage-header" class="noselect"></div>
+    <button id="account-manage-x" onclick="AccountBoxClose();">X</button>
 
-    <hr>
-
-    <div class="content">
-      <p>You can pass in variables from the server such as the one below.</p>
-      <p style="color: red"><%= string %></p>
-    </div>
-
-    <hr>
-
-    <div class="content">
-      <p>This table is made using JavaScript logic and the "people" variable that was passed in from the server.</p>
-      <table border="1">
+    <div id="account-manage">
+      <table class="table-center" style="border-collapse: separate; border-spacing: 6px;">
         <tr>
-          <th>Name</th>
-          <th>Age</th>
+          <td>Username</td>
+          <td><input id="c_username" autocomplete="off" type="text" size="18"></td>
         </tr>
-        <% for(var i = 0; i < people.length; i++) { %>
-          <tr>
-            <td><%= people[i].name %></td>
-            <td><%= people[i].age %></td>
-          </tr>
-        <% } %>
+        <tr>
+          <td>Password</td>
+          <td><input id="c_password" autocomplete="off" type="password" size="18"></td>
+        </tr>
+        <tr id="account-manage-confirm-password">
+          <td>Confirm Password</td>
+          <td><input id="c_passwordconfirm" autocomplete="off" type="password" size="18"></td>
+        </tr>
+        <tr id="account-manage-summoner-name">
+          <td>Summoner Name</td>
+          <td><input id="c_summonername" autocomplete="off" type="text" size="18"></td>
+          <td><select id="c_region" style="font-size: 12px;">
+                <option value="NA">NA</option>
+                <option value="EUW">EUW</option>
+                <option value="EUNE">EUNE</option>
+                <option value="OCE">OCE</option>
+              </select></td>
+        </tr>
       </table>
+      <button id="account-manage-button" class="button" onclick="AccountManageButton();"></button>
+      <button id="account-error" style="display: none; left: 0px; color: silver;" onclick="$(this).fadeOut('slow');"></button>
     </div>
+  </div>
 
-    <hr>
+  <body>
+    <!-- Menu bar for Desktop -->
+    <!-- <?php include("navbar.html");?>         -->
 
-    <div class="content">
-      <p>Click on <a href="about">this link</a> to go to the about page.</p>
-      <p>Click on <a href="abcde">this link</a> to go a page that doesn't exist, so you will get a 404 error.</p>
+    <!-- Menu bar for Mobile  -->
+    <!-- <?php include("navbar-mobile.html");?>  -->
+    <%- desktop %>
+    <%- mobile %>
+
+    <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <p>Fish fish fish!</p>
+        <p>This website is currently under construction.</p>
+      </div>
     </div>
-
+    </div>
   </body>
 </html>
+
+
+<!--
+
+<?php
+
+function GD($id)
+{
+  $avatar = GetAvatar($id);
+
+  if($avatar)
+  {
+    if(substr($avatar, -4) == "webm")
+    {
+      echo "<video width='100' height='100' autoplay loop muted>";
+      echo "<source src='" . $avatar . "' type='video/webm'>";
+      echo "</video>";
+    }
+    else
+    {
+      echo "<img src='" . $avatar . "' height='100' width='100'>";
+    }
+  }
+  else
+    echo "No";
+}
+
+///////////////////////////////////////////////////////////////////
+// GetAvatar: Retrieves an avatar given a user id. It will check //
+//            several different extension types. If no avatar is //
+//            found, it will try to pull one from the fek server //
+///////////////////////////////////////////////////////////////////
+function GetAvatar($id)
+{
+  // Define valid extensions
+  $extensions = array("jpg", "jpeg", "bmp", "png", "gif", "webm");
+
+  // First attempt to get the avatar from my tundra-fizz server
+  foreach($extensions as $extension)
+  {
+    if(file_exists("avatars/" . $id . "." . $extension))
+    {
+      return("avatars/" . $id . "." . $extension);
+    }
+  }
+
+  // If the function gets this far, it doesn't exist
+  // In that case, update it from the fek server
+
+  $file = "http://videomatic3.diskstation.me/~tundrafizz/avatars/NA/" . $id;
+
+  foreach($extensions as $extension)
+  {
+    $handle = curl_init($file . "." . $extension);
+
+    curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
+
+    $response = curl_exec($handle);
+    $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+
+    if($httpCode != 404)
+    {
+      copy($file . "." . $extension, "avatars/" . $id . "." . $extension);
+      return($file . "." . $extension);
+    }
+
+    curl_close($handle);
+  }
+
+  return false;
+}
+
+?>
+
+ -->

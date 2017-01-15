@@ -1,14 +1,15 @@
 {
-  "name": "nodejs-template",
+  "name": "tundra-fizz",
   "version": "1.0.0",
-  "description": "This is a description.",
+  "description": "My personal website.",
   "main": "server.js",
   "author": "Tundra Fizz",
   "license": "ISC",
   "dependencies": {
     "body-parser": "1.9.2",
-    "express": "^4.14.0",
-    "ejs": "^1.0.0"
+    "express":     "^4.14.0",
+    "mysql":       "latest",
+    "ejs":         "^1.0.0"
   },
   "scripts": {
     "start": "node server.js"
