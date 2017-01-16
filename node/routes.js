@@ -10,6 +10,13 @@ module.exports = function(app){
   var mobile  = fs.readFileSync("static/navbar-mobile.html", "utf8");
 
   ///////////
+  // About //
+  ///////////
+  app.get("/testing", function(req, res){
+    res.json("jskdfhs");
+  });
+
+  ///////////
   // Index //
   ///////////
   app.get("/", function(req, res){
