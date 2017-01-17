@@ -10,17 +10,10 @@ module.exports = function(app){
   var mobile  = fs.readFileSync("static/navbar-mobile.html", "utf8");
 
   ///////////
-  // About //
-  ///////////
-  app.get("/testing", function(req, res){
-    res.json("jskdfhs");
-  });
-
-  ///////////
   // Index //
   ///////////
   app.get("/", function(req, res){
-
+    console.log("Index");
     // MySQL Test
     var connection = mysql.createConnection({
       host     : "localhost",
@@ -31,7 +24,7 @@ module.exports = function(app){
 
     sql = "SELECT * FROM users";
     connection.query(sql, function(err, rows){
-      console.log(rows);
+      // console.log(rows);
     });
 
     var string = "A string from the server.";
