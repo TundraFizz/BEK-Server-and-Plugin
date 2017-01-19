@@ -15,4 +15,7 @@ require("./node/post.js");                        // Include POST requests secon
 
 app.listen(9001);                                 // Start the server
 
+// USEFUL DEBUG STUFF
 // http://www.http-post.com/
+// myName   = Tundra Fizz
+// myRegion = NA

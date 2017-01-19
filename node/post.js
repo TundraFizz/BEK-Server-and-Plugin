@@ -1,49 +1,136 @@
-var app = require("../server.js");
-var mysql = require("mysql");
+var app     = require("../server.js");
+var request = require("request");
+var mysql   = require("mysql");
+var obj     = new Obj;
 
-var connection = mysql.createConnection({
-  host     : "localhost",
-  user     : "root",
-  password : "Fizz",
-  database : "fek"
-});
-
-var obj = new Obj;
-function Obj(){}
-
-// var obj = {
-//   // YoloSwag : function() {
-//   //   console.log("This is a sample function");
-//   // }
-// };
-
-Obj.prototype.YoloSwag = function(){
-  console.log("===== START =====");
-
-  var sql = `SELECT * FROM users`;
-
-  connection.query(sql, function(err, rows){
-    console.log("Rows: ", rows);
-    console.log("\n");
-    console.log("Err: ", err);
-  });
-
-  console.log("====== END ======");
+function Obj(){
+  this.conn = mysql.createConnection({host     : "localhost",
+                                      user     : "root",
+                                      password : "Fizz",
+                                      database : "fek"});
+  this.response            = {};
+  this.response["records"] = {};
+  this.response["tweets"]  = {};
+  this.response["events"]  = {};
+  this.response["version"] = {};
 }
 
+Obj.prototype.GetBoardsInfo = function(name, region, callback){
+  // Get JSON data from Riot's Boards API
+  var uri = `http://boards.na.leagueoflegends.com/api/users/${region}/${name}`;
+  uri = encodeURI(uri);
 
+  var options = {
+    url     : uri,
+    json    : true,
+    headers : {
+      "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
+    }
+  };
+
+  request(options, function(err, res, body){
+    callback(body);
+  });
+}
+
+Obj.prototype.CheckIfUserExists = function(callback){
+  // Check if the Boards ID exists in the database
+  var self = this;
+  var sql = `SELECT * FROM users WHERE boards_id=?`;
+  var args = [self.boardsId];
+
+  self.conn.query(sql, args, function(err, rows){
+    if(rows.length == 0)
+      self.InsertUser(function(){callback()}); // Insert new user into database
+    else
+      self.UpdateUser(function(){callback()}); // Update existing user
+  });
+}
+
+Obj.prototype.InsertUser = function(callback){
+  var self = this;
+  var sql = `INSERT INTO users (boards_id) VALUES (?)`;
+  var args = [self.boardsId];
+
+  self.conn.query(sql, args, function(err, rows){
+    self.UpdateUser(function(){callback()});
+  });
+}
+
+Obj.prototype.UpdateUser = function(callback){
+  var self = this;
+  var lastLogin = new Date();
+  var sql = `UPDATE users SET username=?, region=?, last_login=? WHERE boards_id=?`;
+  var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
+  self.conn.query(sql, args, function(err, rows){
+    self.GetVersion(function(){callback()});
+  });
+}
+
+Obj.prototype.GetVersion = function(callback){
+  var self = this;
+  var sql = `SELECT version, details FROM version`;
+  var args = [];
+  self.conn.query(sql, args, function(err, rows){
+    self.response["version"] = rows;
+    self.GetEvent(function(){callback()});
+  });
+}
+
+Obj.prototype.GetEvent = function(callback){
+  var self = this;
+  var sql = `SELECT message, stream, thread, start, end FROM event;`;
+  var args = [];
+  self.conn.query(sql, args, function(err, rows){
+    self.response["events"] = rows;
+    callback();
+  });
+}
 
 app.post("/database", function(req, res){
-  obj.YoloSwag();
+  if(req.body.action == "GetMemberData"){} // Move each into their own app.post
+
+  obj.myName   = req.body.myName;
+  obj.myRegion = req.body.myRegion;
+  obj.users    = req.body.users;
+  obj.regions  = req.body.regions;
+
+  // If the user is logged in
+  if(obj.myName != null){
+    console.log(obj.myName, obj.myRegion);
+
+    if(obj.myRegion == "EU Oeste" ||
+       obj.myRegion == "EU Ouest" ||
+       obj.myRegion == "Eu Ovest" ||
+       obj.myRegion == "Westeuropa")
+      obj.myRegion = "EUW";
+
+    obj.GetBoardsInfo(obj.myName, obj.myRegion, function(data){
+      obj.boardsId     = data["id"];
+      obj.boardsName   = data["name"];
+      obj.boardsRegion = data["realm"];
+
+      obj.CheckIfUserExists(function(){
+        console.log(obj.response);
+        res.json(obj.response);
+      });
+    });
+  }
+  else{
+    obj.GetVersion();
+  }
+
+  // Get Twitter information
+  // TODO
+
+  // Send data back to client
+  // TODO
 });
 
 app.post("/placeholder", function(req, res){
   console.log("placeholder");
   console.log("placeholder");
 });
-
-
-
 
 /*
 module.exports = function(app){
