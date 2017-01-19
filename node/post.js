@@ -15,9 +15,23 @@ function Obj(){
   this.response["version"] = {};
 }
 
-Obj.prototype.GetBoardsInfo = function(name, region, callback){
+Obj.prototype.Abc = function(callback){
+  var self = this;
+
+  if(self.myRegion == "EU Oeste" ||
+     self.myRegion == "EU Ouest" ||
+     self.myRegion == "Eu Ovest" ||
+     self.myRegion == "Westeuropa")
+    self.myRegion = "EUW";
+
+  self.GetBoardsInfo(function(){callback()});
+}
+
+Obj.prototype.GetBoardsInfo = function(callback){
+  var self = this;
+
   // Get JSON data from Riot's Boards API
-  var uri = `http://boards.na.leagueoflegends.com/api/users/${region}/${name}`;
+  var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
   uri = encodeURI(uri);
 
   var options = {
@@ -28,8 +42,11 @@ Obj.prototype.GetBoardsInfo = function(name, region, callback){
     }
   };
 
-  request(options, function(err, res, body){
-    callback(body);
+  request(options, function(err, res, data){
+    self.boardsId     = data["id"];
+    self.boardsName   = data["name"];
+    self.boardsRegion = data["realm"];
+    self.CheckIfUserExists(function(){callback()});
   });
 }
 
@@ -83,6 +100,16 @@ Obj.prototype.GetEvent = function(callback){
   var args = [];
   self.conn.query(sql, args, function(err, rows){
     self.response["events"] = rows;
+    self.GetTwitterInfo(function(){callback()});
+  });
+}
+
+Obj.prototype.GetTwitterInfo = function(callback){
+  var self = this;
+  var sql = `SELECT * FROM tweets ORDER BY id DESC LIMIT 0, 2`;
+  var args = [];
+  self.conn.query(sql, args, function(err, rows){
+    self.response["tweets"] = rows;
     callback();
   });
 }
@@ -95,172 +122,19 @@ app.post("/database", function(req, res){
   obj.users    = req.body.users;
   obj.regions  = req.body.regions;
 
-  // If the user is logged in
-  if(obj.myName != null){
-    console.log(obj.myName, obj.myRegion);
-
-    if(obj.myRegion == "EU Oeste" ||
-       obj.myRegion == "EU Ouest" ||
-       obj.myRegion == "Eu Ovest" ||
-       obj.myRegion == "Westeuropa")
-      obj.myRegion = "EUW";
-
-    obj.GetBoardsInfo(obj.myName, obj.myRegion, function(data){
-      obj.boardsId     = data["id"];
-      obj.boardsName   = data["name"];
-      obj.boardsRegion = data["realm"];
-
-      obj.CheckIfUserExists(function(){
-        console.log(obj.response);
-        res.json(obj.response);
-      });
+  if(obj.myName != null){ // If the user is logged in
+    obj.Abc(function(){
+      res.json(obj.response);
     });
   }
   else{
-    obj.GetVersion();
+    obj.GetVersion(function(){
+      res.json(obj.response);
+    });
   }
-
-  // Get Twitter information
-  // TODO
-
-  // Send data back to client
-  // TODO
 });
 
 app.post("/placeholder", function(req, res){
   console.log("placeholder");
   console.log("placeholder");
 });
-
-/*
-module.exports = function(app){
-  //////////////////////////////////
-  // Include local libraries here //
-  //////////////////////////////////
-  var mysql = require("mysql");
-
-
-
-  ////////////////
-  // add-person //
-  ////////////////
-  app.post("/database", function(req, res){
-    console.log("!!!!!!!!!!");
-    var response        = {};
-    response["records"] = {};
-    response["tweets"]  = {};
-    response["events"]  = {};
-    // res.json(response);
-    var data = req.body;
-
-    if(data.action == "GetMemberData"){
-      var myName   = data.myName;
-      var myRegion = data.myRegion;
-      var users    = data.users;
-      var regions  = data.regions;
-      var table    = "users";
-
-      // If the user is logged in
-      if(myName != null){
-        if(myRegion == "EU Oeste" ||
-           myRegion == "EU Ouest" ||
-           myRegion == "Eu Ovest" ||
-           myRegion == "Westeuropa")
-          myRegion = "EUW";
-
-        // Use Name/Region to get Boards ID/Name/Region
-        var uri = `http://boards.na.leagueoflegends.com/api/users/${myRegion}/${myName}`;
-        encodeURI(uri);
-        // curl_init(uri);
-        // curl_setopt
-        // var result = curl_exec
-        // result = json_decode(result)
-        // curl_close
-
-        var boardsId     = result["id"];
-        var boardsName   = result["name"];
-        var boardsRegion = result["realm"];
-
-        // Check if the Boards ID exists in the database
-        var sql = `SELECT * FROM ${table} WHERE boards_id='${boardsId}'`;
-
-        connection.query(sql, function(err, rows){
-          // If there are no rows, then that means the user doesn't
-          // exist and needs to be inserted into the database
-          var sql = `INSERT INTO ${table} (boards_id) VALUES ('${boardsId}')`;
-
-          connection.query(sql, function(err, rows){
-            // No idea what these are for
-            // $response["records"]["top"]    = "14px";
-            // $response["records"]["color1"] = "#008000";
-            // $response["records"]["color2"] = "#006400";
-            // $response["records"]["font"]   = "#FFFFFF";
-
-            // Update FEK database
-            var lastLogin = new Date();
-            var sql = `UPDATE ${table} SET username='${boardsName}', region='${boardsRegion}', last_login='${lastLogin}' WHERE boards_id='${boardsId}'`;
-            connection.query(sql, function(err, rows){
-              PlaceholderFunction();
-            });
-          });
-        });
-      }
-
-      // Get the version number
-      // TODO
-
-      // Get FEK Events announcement
-      // TODO
-
-      // Get user information
-      if(users != null){
-        var sql   = `SELECT username, region, boards_id, staff, title, badge FROM ${table} WHERE`;
-        var first = true;
-
-        for(var i = 0; i < users.length; i++){
-          if(first){
-            first = false;
-            sql += ` username='${users[i]}' AND region='${regions[i]}'`;
-          }
-          else{
-            sql += ` OR username='${users[i]}' AND region='${regions[i]}'`;
-          }
-        }
-
-        connection.query(sql, function(err, rows){
-          for(var i = 0; i < rows.length; i++){
-            var obj = rows[i];
-            var u   = obj.username;
-            var r   = obj.region;
-            response["records"][u]                 = {};
-            response["records"][u][r]              = {};
-            response["records"][u][r]["boards_id"] = obj.boards_id;
-            response["records"][u][r]["staff"]     = obj.staff;
-            response["records"][u][r]["title"]     = obj.title;
-            response["records"][u][r]["badge"]     = obj.badge;
-
-            response["records"][u][r]["avatar"]    = "http://localhost:9001/avatars/NA/33897078.gif";
-          }
-
-          res.json(response);
-        });
-      }
-
-      // Get Twitter information
-      // TODO
-
-      // Send data back to client
-      // TODO
-    }
-
-    // res.end("name");
-    // res.json(name);
-  });
-}
-
-// ACTIONS
-// GetOnlyAvatars
-//
-//
-//
-*/
