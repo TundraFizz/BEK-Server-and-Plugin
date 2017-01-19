@@ -1,69 +1,30 @@
-var app = require("../server.js");
-var mysql = require("mysql");
-
-var connection = mysql.createConnection({
-  host     : "localhost",
-  user     : "root",
-  password : "Fizz",
-  database : "fek"
-});
-
-var obj = new Obj;
-function Obj(){}
-
-// var obj = {
-//   // YoloSwag : function() {
-//   //   console.log("This is a sample function");
-//   // }
-// };
-
-Obj.prototype.YoloSwag = function(){
-  console.log("===== START =====");
-
-  var sql = `SELECT * FROM users`;
-
-  connection.query(sql, function(err, rows){
-    console.log("Rows: ", rows);
-    console.log("\n");
-    console.log("Err: ", err);
-  });
-
-  console.log("====== END ======");
-}
-
-
-
-app.post("/database", function(req, res){
-  obj.YoloSwag();
-});
-
-app.post("/placeholder", function(req, res){
-  console.log("placeholder");
-  console.log("placeholder");
-});
-
-
-
-
-/*
 module.exports = function(app){
   //////////////////////////////////
   // Include local libraries here //
   //////////////////////////////////
   var mysql = require("mysql");
 
+  var connection = mysql.createConnection({
+    host     : "localhost",
+    user     : "root",
+    password : "Fizz",
+    database : "fek"
+  });
 
+  var obj = {
+    connection = con,
+    fullName : function() {
+       return this.firstName + " " + this.lastName;}
+  };
 
   ////////////////
   // add-person //
   ////////////////
   app.post("/database", function(req, res){
-    console.log("!!!!!!!!!!");
     var response        = {};
     response["records"] = {};
     response["tweets"]  = {};
     response["events"]  = {};
-    // res.json(response);
     var data = req.body;
 
     if(data.action == "GetMemberData"){
@@ -176,4 +137,3 @@ module.exports = function(app){
 //
 //
 //
-*/
