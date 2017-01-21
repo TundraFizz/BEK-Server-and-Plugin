@@ -32,7 +32,6 @@ Date.prototype.dst = function() {return this.getTimezoneOffset() < this.Standard
 
 var FEKversion       = "4.6.0";
 var FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
-var FEKavatars       = masterIP + "avatars/";
 var FEKgfx           = "http://tundrafizz.com/fek/gfx/misc/";
 var cIcons           = "http://tundrafizz.com/fek/gfx/iconsmallchampion/";
 var FEKgfxLargeChamp = "http://tundrafizz.com/fek/gfx/iconlargechampion/";
@@ -648,7 +647,7 @@ function IndexBlacklist()
 function LoadThread()
 {
   // Remove all "Posting as X" fields
-  $(document).find('.bottom-bar.clearfix.box').find('.left').remove();
+  $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
 
   // Make sure that the users/regions arrays are empty, since they will have
   // left-over data from when people switch pages in chronological view
@@ -701,6 +700,7 @@ function FormatSomePosts(FEKData = false)
   {
     $(".body-container").each(function()
     {
+
       // Only execute the function if the post is not deleted
       if(!$($(this).find(".deleted")[0]).is(":visible"))
         FormatSinglePost2(this, false);
@@ -1236,6 +1236,9 @@ function FormatSinglePost2(obj, op)
   var regionT       = obj.getElementsByClassName("realm")[0].textContent;
   regionT           = regionT.substring(1, regionT.length - 1);
 
+  if(typeof results[usernameT] === "undefined")
+    return;
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Define standard variables for this scope
@@ -1271,7 +1274,6 @@ function FormatSinglePost2(obj, op)
 
   // Define user data variables
   var avatar = results[usernameT][regionT].avatar;
-  var donor  = results[usernameT][regionT].donor;
   var staff  = results[usernameT][regionT].staff;
   var title  = results[usernameT][regionT].title;
   var badge  = results[usernameT][regionT].badge;
@@ -1439,7 +1441,7 @@ function FormatSinglePost2(obj, op)
     }
   }
 
-  GetBadgesAndTitle(usernameT, regionT, profHover, donor, staff, title, badge);
+  GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
 }
 
 //////////////////////////////////
@@ -3136,7 +3138,7 @@ function WaitAndRunManual(time, callback)
 ////////////////////////////////////////////////////////////////////////
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
-function GetBadgesAndTitle(usernameT, regionT, profHover, donor, staff, title, badge)
+function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
 {
   $.getJSON("http://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api)
   {
@@ -3188,18 +3190,6 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, donor, staff, title, b
 
         if(staff == "1")                                     {badges.push(FEKgfx + "fekbadge.png");}
         if((badge !== "") && (typeof badge !== "undefined")) {badges.push(badge);}
-
-        if(donor)
-        {
-          donor = donor.replace(/:| /g,"-");
-          var YMDhms = donor.split("-");
-          var donorDate = new Date();
-          donorDate.setFullYear(parseInt(YMDhms[0]), parseInt(YMDhms[1])-1, parseInt(YMDhms[2]));
-          donorDate.setHours(parseInt(YMDhms[3]), parseInt(YMDhms[4]), parseInt(YMDhms[5]), 0);
-
-          if(currentDate < donorDate)
-            {badges.push(FEKgfx + "donor.png");}
-        }
 
         var badgeContainer;
 

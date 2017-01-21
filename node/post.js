@@ -9,11 +9,11 @@ function Obj(){
                                       user     : "root",
                                       password : "Fizz",
                                       database : "fek"});
-  this.response            = {};
-  this.response["records"] = {};
-  this.response["tweets"]  = {};
-  this.response["events"]  = {};
-  this.response["version"] = {};
+  this.response                  = {};
+  this.response["records"]       = {};
+  this.response["announcements"] = [];
+  this.response["event"]         = {};
+  this.response["version"]       = {};
 }
 
 Obj.prototype.GetBoardsInfo = function(callback){
@@ -75,10 +75,13 @@ Obj.prototype.UpdateUser = function(callback){
 
 Obj.prototype.GetVersion = function(callback){
   var self = this;
-  var sql = `SELECT version, details FROM version`;
+  var sql = `SELECT number, link FROM version`;
   var args = [];
   self.conn.query(sql, args, function(err, rows){
-    self.response["version"] = rows;
+    // IMPORTANT!
+    // Change this from records to something else later
+    self.response["version"]["number"] = rows[0]["number"];
+    self.response["version"]["link"]   = rows[0]["link"];
     self.GetEvent(function(){callback()});
   });
 }
@@ -88,7 +91,11 @@ Obj.prototype.GetEvent = function(callback){
   var sql = `SELECT message, stream, thread, start, end FROM event`;
   var args = [];
   self.conn.query(sql, args, function(err, rows){
-    self.response["events"] = rows;
+    self.response["event"]["message"] = rows[0]["message"];
+    self.response["event"]["stream"]  = rows[0]["stream"];
+    self.response["event"]["thread"]  = rows[0]["thread"];
+    self.response["event"]["start"]   = rows[0]["start"];
+    self.response["event"]["end"]     = rows[0]["end"];
     self.GetTwitterInfo(function(){callback()});
   });
 }
@@ -98,12 +105,30 @@ Obj.prototype.GetTwitterInfo = function(callback){
   var sql = `SELECT * FROM tweets ORDER BY id DESC LIMIT 0, 2`;
   var args = [];
   self.conn.query(sql, args, function(err, rows){
-    self.response["tweets"] = rows;
+    for(var i = 0; i < rows.length; i++){
+      // console.log(rows[i]);
+      var data           = {};
+      data["id"]         = rows[i]["id"];
+      data["created_at"] = rows[i]["created_at"];
+      data["text"]       = rows[i]["text"];
+      data["user"]       = [rows[i]["name"],
+                            rows[i]["screen_name"],
+                            rows[i]["profile_image_url"]];
+
+      self.response["announcements"].push(data);
+    }
+
     self.GetAvatars(function(){callback()});
   });
 }
 
 Obj.prototype.GetAvatars = function(callback){
+  console.log(this.users);
+  if(!this.users){
+    callback();
+    return;
+  }
+
   var self = this;
   var sql = `SELECT name, region, boards_id, staff, title, badge FROM users`;
   var args = [];
@@ -124,7 +149,10 @@ Obj.prototype.GetAvatars = function(callback){
   }
 
   self.conn.query(sql, args, function(err, rows){
+    console.log(rows);
+    console.log(rows.length);
     for(var i = 0; i < rows.length; i++){
+      console.log(rows[i]);
 
       var row      = rows[i];
       var name     = row["name"];

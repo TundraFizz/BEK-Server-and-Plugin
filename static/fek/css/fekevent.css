@@ -1,0 +1,108 @@
+#fek-event-top
+{
+  line-height:           1.5;
+  display:               block;
+  width:                 250px;
+  padding:               4px;
+  border:                solid #0020ff;
+  border-top-width:      2px;
+  border-left-width:     2px;
+  border-right-width:    2px;
+  border-bottom-width:   0px;
+  color:                 rgb(207, 186, 107);
+  -webkit-border-radius: 4px 4px 0px 0px;
+  -moz-border-radius:    4px 4px 0px 0px;
+  border-radius:         4px 4px 0px 0px;
+  -webkit-box-shadow:    0px 0px 5px rgba(0, 0, 0, 0.9);
+  -moz-box-shadow:       0px 0px 5px rgba(0, 0, 0, 0.9);
+  box-shadow:            0px 0px 5px rgba(0, 0, 0, 0.9);
+  text-shadow:           1px 1px rgba(0, 0, 0, .8);
+  z-index:               10;
+
+  background:            url("https://cdn.leagueoflegends.com/apollo/assets/blue_magic.jpg");
+  background-position:   -210px -340px;
+}
+
+#fek-event-bottom-left
+{
+  position:              relative;
+  width:                 125px;
+  padding:               4px;
+  border:                solid #0020ff;
+  border-top-width:      2px;
+  border-left-width:     2px;
+  border-right-width:    2px;
+  border-bottom-width:   2px;
+  color:                 rgb(207, 186, 107);
+  -webkit-border-radius: 0px 0px 0px 4px;
+  -moz-border-radius:    0px 0px 0px 4px;
+  border-radius:         0px 0px 0px 4px;
+  -webkit-box-shadow:    0px 0px 5px rgba(0, 0, 0, 0.9);
+  -moz-box-shadow:       0px 0px 5px rgba(0, 0, 0, 0.9);
+  box-shadow:            0px 0px 5px rgba(0, 0, 0, 0.9);
+  text-shadow:           1px 1px rgba(0, 0, 0, .8);
+  z-index:               10;
+
+  background:            url("https://cdn.leagueoflegends.com/apollo/assets/blue_magic.jpg");
+  background-position:   -210px -340px;
+}
+
+#fek-event-bottom-right
+{
+  position:              relative;
+  width:                 125px;
+  top:                   -56px;
+  left:                  125px;
+  padding:               4px;
+  border:                solid #0020ff;
+  border-top-width:      2px;
+  border-left-width:     0px;
+  border-right-width:    2px;
+  border-bottom-width:   2px;
+  color:                 rgb(207, 186, 107);
+  -webkit-border-radius: 0px 0px 4px 0px;
+  -moz-border-radius:    0px 0px 4px 0px;
+  border-radius:         0px 0px 4px 0px;
+  -webkit-box-shadow:    0px 0px 5px rgba(0, 0, 0, 0.9);
+  -moz-box-shadow:       0px 0px 5px rgba(0, 0, 0, 0.9);
+  box-shadow:            0px 0px 5px rgba(0, 0, 0, 0.9);
+  text-shadow:           1px 1px rgba(0, 0, 0, .8);
+  z-index:               10;
+
+  background:            url("https://cdn.leagueoflegends.com/apollo/assets/blue_magic.jpg");
+  background-position:   -210px -340px;
+}
+
+#fek-event-bottom-left a,
+#fek-event-bottom-right a
+{
+  padding: 2px;
+}
+
+.touchpoint-event
+{
+  -webkit-transition: text-shadow 1.0s ease-in-out;
+  -moz-transition:    text-shadow 1.0s ease-in-out;
+  -o-transition:      text-shadow 1.0s ease-in-out;
+  -ms-transition:     text-shadow 1.0s ease-in-out;
+  transition:         text-shadow 1.0s ease-in-out;
+
+  text-shadow: 0px 0px 2px rgba(150, 150, 255, 1);
+}
+
+.touchpoint-event.pulse
+{
+  text-shadow: 0px 0px 10px rgba(150, 150, 255, 1),
+               0px 0px 10px rgba(150, 150, 255, 1),
+               0px 0px 10px rgba(150, 150, 255, 1),
+               0px 0px 10px rgba(150, 150, 255, 1),
+               0px 0px 10px rgba(150, 150, 255, 1);
+}
+
+/* ------------------------------------------- */
+
+.fek-staff-test {
+  background: linear-gradient(90deg, #68BAFF 30%, #008AFF 60%, #68BAFF 90%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
