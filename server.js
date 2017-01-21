@@ -17,5 +17,6 @@ app.listen(9001);                                 // Start the server
 
 // USEFUL DEBUG STUFF
 // http://www.http-post.com/
+// http://localhost:9001/database
 // myName   = Tundra Fizz
 // myRegion = NA

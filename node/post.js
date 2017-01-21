@@ -1,6 +1,7 @@
 var app     = require("../server.js");
 var request = require("request");
 var mysql   = require("mysql");
+var fs      = require("fs");
 var obj     = new Obj;
 
 function Obj(){
@@ -13,18 +14,6 @@ function Obj(){
   this.response["tweets"]  = {};
   this.response["events"]  = {};
   this.response["version"] = {};
-}
-
-Obj.prototype.Abc = function(callback){
-  var self = this;
-
-  if(self.myRegion == "EU Oeste" ||
-     self.myRegion == "EU Ouest" ||
-     self.myRegion == "Eu Ovest" ||
-     self.myRegion == "Westeuropa")
-    self.myRegion = "EUW";
-
-  self.GetBoardsInfo(function(){callback()});
 }
 
 Obj.prototype.GetBoardsInfo = function(callback){
@@ -77,7 +66,7 @@ Obj.prototype.InsertUser = function(callback){
 Obj.prototype.UpdateUser = function(callback){
   var self = this;
   var lastLogin = new Date();
-  var sql = `UPDATE users SET username=?, region=?, last_login=? WHERE boards_id=?`;
+  var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
   var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
   self.conn.query(sql, args, function(err, rows){
     self.GetVersion(function(){callback()});
@@ -96,7 +85,7 @@ Obj.prototype.GetVersion = function(callback){
 
 Obj.prototype.GetEvent = function(callback){
   var self = this;
-  var sql = `SELECT message, stream, thread, start, end FROM event;`;
+  var sql = `SELECT message, stream, thread, start, end FROM event`;
   var args = [];
   self.conn.query(sql, args, function(err, rows){
     self.response["events"] = rows;
@@ -110,20 +99,71 @@ Obj.prototype.GetTwitterInfo = function(callback){
   var args = [];
   self.conn.query(sql, args, function(err, rows){
     self.response["tweets"] = rows;
+    self.GetAvatars(function(){callback()});
+  });
+}
+
+Obj.prototype.GetAvatars = function(callback){
+  var self = this;
+  var sql = `SELECT name, region, boards_id, staff, title, badge FROM users`;
+  var args = [];
+  var firstRun = true;
+
+  for(var i = 0; i < self.users.length; i++){
+    if(firstRun){
+      firstRun = false;
+      sql += ` WHERE name=? AND region=?`;
+      args.push(self.users[i]);
+      args.push(self.regions[i]);
+    }
+    else{
+      sql += ` OR name=? AND region=?`;
+      args.push(self.users[i]);
+      args.push(self.regions[i]);
+    }
+  }
+
+  self.conn.query(sql, args, function(err, rows){
+    for(var i = 0; i < rows.length; i++){
+
+      var row      = rows[i];
+      var name     = row["name"];
+      var region   = row["region"];
+      var boardsId = row["boards_id"];
+      var staff    = row["staff"];
+      var title    = row["title"];
+      var badge    = row["badge"];
+
+      if(!self.response["records"][name])         self.response["records"][name]         = {};
+      if(!self.response["records"][name][region]) self.response["records"][name][region] = {};
+
+      self.response["records"][name][region]["staff"] = staff;
+      self.response["records"][name][region]["title"] = title;
+      self.response["records"][name][region]["badge"] = badge;
+
+      var avatar = FindAvatar(boardsId);
+      if(avatar)
+        self.response["records"][name][region]["avatar"] = avatar;
+    }
+
     callback();
   });
 }
 
 app.post("/database", function(req, res){
-  if(req.body.action == "GetMemberData"){} // Move each into their own app.post
-
   obj.myName   = req.body.myName;
   obj.myRegion = req.body.myRegion;
   obj.users    = req.body.users;
   obj.regions  = req.body.regions;
 
   if(obj.myName != null){ // If the user is logged in
-    obj.Abc(function(){
+    if(obj.myRegion == "EU Oeste" ||
+       obj.myRegion == "EU Ouest" ||
+       obj.myRegion == "Eu Ovest" ||
+       obj.myRegion == "Westeuropa")
+      obj.myRegion = "EUW";
+
+    obj.GetBoardsInfo(function(){
       res.json(obj.response);
     });
   }
@@ -134,7 +174,40 @@ app.post("/database", function(req, res){
   }
 });
 
-app.post("/placeholder", function(req, res){
+app.post("/getavatars", function(req, res){
+
+});
+
+app.post("/webpanel", function(req, res){
   console.log("placeholder");
   console.log("placeholder");
 });
+
+// getFriends
+// addFriend
+// acceptFriend
+// removeFriend
+// messages
+// writePM
+// sendPM
+// deletePM
+// wrenchmenIndex
+// wrenchmenThread
+// wrenchmenStatus
+
+//////////////////////
+// Helper Functions //
+//////////////////////
+function FindAvatar(boardsId){
+  var localPath = "static/avatars/" + boardsId;
+  var publicPath = "http://localhost:9001/avatars/" + boardsId;
+  var extensions = [".jpg", ".jpeg", ".png", ".gif", ".webm", ".bmp"];
+
+  for(var i = 0; i < extensions.length; i++){
+    if(fs.existsSync(localPath + extensions[i])){
+      return publicPath + extensions[i];
+    }
+  }
+
+  return false;
+}
