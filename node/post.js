@@ -106,7 +106,6 @@ Obj.prototype.GetTwitterInfo = function(callback){
   var args = [];
   self.conn.query(sql, args, function(err, rows){
     for(var i = 0; i < rows.length; i++){
-      // console.log(rows[i]);
       var data           = {};
       data["id"]         = rows[i]["id"];
       data["created_at"] = rows[i]["created_at"];
@@ -123,7 +122,6 @@ Obj.prototype.GetTwitterInfo = function(callback){
 }
 
 Obj.prototype.GetAvatars = function(callback){
-  console.log(this.users);
   if(!this.users){
     callback();
     return;
@@ -149,11 +147,7 @@ Obj.prototype.GetAvatars = function(callback){
   }
 
   self.conn.query(sql, args, function(err, rows){
-    console.log(rows);
-    console.log(rows.length);
     for(var i = 0; i < rows.length; i++){
-      console.log(rows[i]);
-
       var row      = rows[i];
       var name     = row["name"];
       var region   = row["region"];
