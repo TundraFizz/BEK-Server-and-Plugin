@@ -1,8 +1,8 @@
-var app     = require("../server.js");
-var request = require("request");
-var mysql   = require("mysql");
-var fs      = require("fs");
-var obj     = new Obj;
+var app        = require("../server.js");
+var formidable = require("formidable");
+var request    = require("request");
+var mysql      = require("mysql");
+var fs         = require("fs");
 
 function Obj(){
   this.conn = mysql.createConnection({host     : "localhost",
@@ -173,6 +173,7 @@ Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
 });}
 
 app.post("/database", function(req, res){
+  var obj     = new Obj;
   obj.name    = req.body.myName;
   obj.region  = req.body.myRegion;
   obj.users   = req.body.users;
@@ -208,6 +209,32 @@ app.post("/database", function(req, res){
 
 app.post("/getavatars", function(req, res){
 
+});
+
+app.post("/uploadavatar", function(req, res){
+  var form = new formidable.IncomingForm();
+  form.multiples = true;
+  // form.parse(req);
+  form.parse(req, function(err, fields, files) {
+    console.log(fields);
+    console.log(files)
+  });
+
+  // specify that we want to allow the user to upload multiple files in a single request
+
+  // store all uploads in the /uploads directory
+  form.uploadDir = "/";
+
+  // every time a file has been uploaded successfully rename it to it's orignal name
+  form.on("file", function(field, file){
+    fs.rename(file.path, "testing.jpg");
+    // fs.rename(file.path, path.join(form.uploadDir, file.name));
+  });
+
+
+
+  var yolo = {"Yolo": "Swag"};
+  res.json(yolo);
 });
 
 app.post("/webpanel", function(req, res){
