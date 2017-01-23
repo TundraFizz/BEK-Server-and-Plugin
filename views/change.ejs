@@ -23,19 +23,14 @@
     <div class="container-fluid">
     <div class="row">
       <div class="col-sm-12">
-        <form>
-          <table id="myTable" border="0">
-          <tr>
-            <td colspan="3">
-              <input type="button" id="btnAddRow" value="Add row">
-              <input type="button" id="btnSubmit" value="Submit">
-
-              <!-- <label for="upload_files" class="button">Upload Files</label> -->
-              <!-- <input id ="upload_files" type="file" name="files"> -->
-            </td>
-          </tr>
-          </table>
-        </form>
+        <table id="myTable" border="0">
+        <tr>
+          <td colspan="3">
+            <input type="button" id="btnAddRow" value="Add row">
+            <input type="button" id="btnSubmit" value="Submit">
+          </td>
+        </tr>
+        </table>
       </div>
     </div>
     </div>
@@ -43,8 +38,6 @@
 </html>
 
 <script>
-
-var row = 0;
 
 $(function(){
   AddRow();
@@ -57,14 +50,20 @@ $("#btnAddRow").click(function(){
 $("#btnSubmit").click(function(){
   $("tr").slice(1).each(function(){
     var formData = new FormData();
-    var key      = $(this).attr("data");
-    var name     = $(`[data=name${key}]`).val();
-    var region   = $(`[data=region${key}]`).val();
-    var file     = $(`[data=avatar${key}]`).get(0).files[0];
-    console.log(file);
+    var self     = this;
+    var name     = $("[data=name]",   this).val();
+    var region   = $("[data=region]", this).val();
+    var file     = $("[data=avatar]", this).get(0).files[0];
+
+    // Skip this row if it's disabled or has no file
+    var isDisabled = $("[data=name]", this).prop("disabled");
+    var noFile     = (typeof file === "undefined");
+    if(isDisabled || noFile)
+      return true;
+
     formData.append("name", name);
     formData.append("region", region);
-    formData.append("uploads[]", file, file.name);
+    formData.append("file", file, file.name);
 
     $.ajax({
       url: "uploadavatar",
@@ -73,27 +72,37 @@ $("#btnSubmit").click(function(){
       contentType: false,
       processData: false
     }).done(function(data){
-      console.log(data);
+      if(data["uploaded"]){
+        $("[data=name]",   self).prop("disabled", true);
+        $("[data=region]", self).prop("disabled", true);
+        $("[data=avatar]", self).prop("disabled", true);
+      }
     });
   });
 });
 
 function AddRow(){
+  AddRow.row = ++AddRow.row || 0;
+  var row = AddRow.row;
+
   $("#myTable").append(`
-  <tr data=${row}>
-    <td><input data="name${row}" type="text"></td>
+  <tr>
+    <td><input data="name" type="text"></td>
     <td>
-      <select data="region${row}">
+      <select data="region">
         <option value="NA">NA</option>
         <option value="OCE">OCE</option>
         <option value="EUW">EUW</option>
         <option value="EUNE">EUNE</option>
       </select>
     </td>
-    <td><input data="avatar${row}" type="file" name="file"></td>
+    <td>
+      <label for="av${row}" class="button">Upload Files</label>
+      <input  id="av${row}" data="avatar" type="file" name="file">
+    </td>
   </tr>`);
-
-  row++;
 }
 
 </script>
+<!-- <label for="upload_files" class="button">Upload Files</label> -->
+<!-- <input id ="upload_files" type="file" name="files"> -->

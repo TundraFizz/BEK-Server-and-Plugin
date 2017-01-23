@@ -37,7 +37,7 @@ Obj.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
     self.boardsRegion = data["realm"];
     resolve();
   });
-});}
+})}
 
 Obj.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
   // Check if the Boards ID exists in the database
@@ -51,7 +51,7 @@ Obj.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
     else
       self.UpdateUser().then(() => {resolve();}); // Update existing user
   });
-});}
+})}
 
 Obj.prototype.InsertUser = function(){return new Promise((resolve) => {
   var self = this;
@@ -61,7 +61,7 @@ Obj.prototype.InsertUser = function(){return new Promise((resolve) => {
   self.conn.query(sql, args, function(err, rows){
     self.UpdateUser().then(() => {resolve();}); // Update existing user
   });
-});}
+})}
 
 Obj.prototype.UpdateUser = function(){return new Promise((resolve) => {
   var self = this;
@@ -71,7 +71,7 @@ Obj.prototype.UpdateUser = function(){return new Promise((resolve) => {
   self.conn.query(sql, args, function(err, rows){
     resolve();
   });
-});}
+})}
 
 Obj.prototype.GetVersion = function(){return new Promise((resolve) => {
   var self = this;
@@ -84,7 +84,7 @@ Obj.prototype.GetVersion = function(){return new Promise((resolve) => {
     self.response["version"]["link"]   = rows[0]["link"];
     resolve();
   });
-});}
+})}
 
 Obj.prototype.GetEvent = function(){return new Promise((resolve) => {
   var self = this;
@@ -98,7 +98,7 @@ Obj.prototype.GetEvent = function(){return new Promise((resolve) => {
     self.response["event"]["end"]     = rows[0]["end"];
     resolve();
   });
-});}
+})}
 
 Obj.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
   var self = this;
@@ -119,7 +119,7 @@ Obj.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
 
     resolve();
   });
-});}
+})}
 
 Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
   if(!this.users){
@@ -170,7 +170,7 @@ Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
 
     resolve();
   });
-});}
+})}
 
 app.post("/database", function(req, res){
   var obj     = new Obj;
@@ -208,34 +208,51 @@ app.post("/database", function(req, res){
 });
 
 app.post("/getavatars", function(req, res){
-
+  console.log("placeholder");
+  console.log("placeholder");
 });
 
 app.post("/uploadavatar", function(req, res){
-  var form = new formidable.IncomingForm();
-  form.multiples = true;
-  // form.parse(req);
-  form.parse(req, function(err, fields, files) {
-    console.log(fields);
-    console.log(files)
-  });
+  var form       = new formidable.IncomingForm();
+  form.multiples = true; // Allow uploading multiple files at once
+  form.uploadDir = "/";  // Set the upload directory
 
-  // specify that we want to allow the user to upload multiple files in a single request
-
-  // store all uploads in the /uploads directory
-  form.uploadDir = "/";
-
-  // every time a file has been uploaded successfully rename it to it's orignal name
-  form.on("file", function(field, file){
-    fs.rename(file.path, "testing.jpg");
-    // fs.rename(file.path, path.join(form.uploadDir, file.name));
-  });
-
-
-
-  var yolo = {"Yolo": "Swag"};
-  res.json(yolo);
+  FormParse(req, form)
+  .then((data) => {
+    res.json({"uploaded": data});
+  })
 });
+
+FormParse = function(req, form){return new Promise((resolve) => {
+  form.parse(req, function(err, data, files){
+    var name     = data["name"];
+    var region   = data["region"];
+    var filePath = files["file"].path;
+    var fileExt  = files["file"].name.split(".").pop();
+
+    // Get JSON data from Riot's Boards API
+    var uri = `http://boards.na.leagueoflegends.com/api/users/${region}/${name}`;
+    uri = encodeURI(uri);
+
+    var options = {
+      url     : uri,
+      json    : true,
+      headers : {
+        "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
+      }
+    };
+
+    request(options, function(err, res, data){
+      if(typeof data["id"] !== "undefined"){
+        var fileName = data["id"] + "." + fileExt;
+        fs.rename(filePath, fileName);
+        resolve(true);
+      }
+      else
+        resolve(false);
+    });
+  });
+})}
 
 app.post("/webpanel", function(req, res){
   console.log("placeholder");
