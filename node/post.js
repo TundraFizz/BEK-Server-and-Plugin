@@ -16,7 +16,7 @@ function Obj(){
   this.response["version"]       = {};
 }
 
-Obj.prototype.GetBoardsInfo = function(callback){
+Obj.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
   var self = this;
 
   // Get JSON data from Riot's Boards API
@@ -35,11 +35,11 @@ Obj.prototype.GetBoardsInfo = function(callback){
     self.boardsId     = data["id"];
     self.boardsName   = data["name"];
     self.boardsRegion = data["realm"];
-    self.CheckIfUserExists(function(){callback()});
+    resolve();
   });
-}
+});}
 
-Obj.prototype.CheckIfUserExists = function(callback){
+Obj.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
   // Check if the Boards ID exists in the database
   var self = this;
   var sql = `SELECT * FROM users WHERE boards_id=?`;
@@ -47,33 +47,33 @@ Obj.prototype.CheckIfUserExists = function(callback){
 
   self.conn.query(sql, args, function(err, rows){
     if(rows.length == 0)
-      self.InsertUser(function(){callback()}); // Insert new user into database
+      self.InsertUser().then(() => {resolve();}); // Insert new user into database
     else
-      self.UpdateUser(function(){callback()}); // Update existing user
+      self.UpdateUser().then(() => {resolve();}); // Update existing user
   });
-}
+});}
 
-Obj.prototype.InsertUser = function(callback){
+Obj.prototype.InsertUser = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `INSERT INTO users (boards_id) VALUES (?)`;
   var args = [self.boardsId];
 
   self.conn.query(sql, args, function(err, rows){
-    self.UpdateUser(function(){callback()});
+    self.UpdateUser().then(() => {resolve();}); // Update existing user
   });
-}
+});}
 
-Obj.prototype.UpdateUser = function(callback){
+Obj.prototype.UpdateUser = function(){return new Promise((resolve) => {
   var self = this;
   var lastLogin = new Date();
   var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
   var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
   self.conn.query(sql, args, function(err, rows){
-    self.GetVersion(function(){callback()});
+    resolve();
   });
-}
+});}
 
-Obj.prototype.GetVersion = function(callback){
+Obj.prototype.GetVersion = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT number, link FROM version`;
   var args = [];
@@ -82,11 +82,11 @@ Obj.prototype.GetVersion = function(callback){
     // Change this from records to something else later
     self.response["version"]["number"] = rows[0]["number"];
     self.response["version"]["link"]   = rows[0]["link"];
-    self.GetEvent(function(){callback()});
+    resolve();
   });
-}
+});}
 
-Obj.prototype.GetEvent = function(callback){
+Obj.prototype.GetEvent = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT message, stream, thread, start, end FROM event`;
   var args = [];
@@ -96,11 +96,11 @@ Obj.prototype.GetEvent = function(callback){
     self.response["event"]["thread"]  = rows[0]["thread"];
     self.response["event"]["start"]   = rows[0]["start"];
     self.response["event"]["end"]     = rows[0]["end"];
-    self.GetTwitterInfo(function(){callback()});
+    resolve();
   });
-}
+});}
 
-Obj.prototype.GetTwitterInfo = function(callback){
+Obj.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT * FROM tweets ORDER BY id DESC LIMIT 0, 2`;
   var args = [];
@@ -117,13 +117,13 @@ Obj.prototype.GetTwitterInfo = function(callback){
       self.response["announcements"].push(data);
     }
 
-    self.GetAvatars(function(){callback()});
+    resolve();
   });
-}
+});}
 
-Obj.prototype.GetAvatars = function(callback){
+Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
   if(!this.users){
-    callback();
+    resolve();
     return;
   }
 
@@ -168,29 +168,39 @@ Obj.prototype.GetAvatars = function(callback){
         self.response["records"][name][region]["avatar"] = avatar;
     }
 
-    callback();
+    resolve();
   });
-}
+});}
 
 app.post("/database", function(req, res){
-  obj.myName   = req.body.myName;
-  obj.myRegion = req.body.myRegion;
-  obj.users    = req.body.users;
-  obj.regions  = req.body.regions;
+  obj.name    = req.body.myName;
+  obj.region  = req.body.myRegion;
+  obj.users   = req.body.users;
+  obj.regions = req.body.regions;
 
-  if(obj.myName != null){ // If the user is logged in
-    if(obj.myRegion == "EU Oeste" ||
-       obj.myRegion == "EU Ouest" ||
-       obj.myRegion == "Eu Ovest" ||
-       obj.myRegion == "Westeuropa")
-      obj.myRegion = "EUW";
+  if(obj.name != null){ // If the user is logged in
+    if(obj.region == "EU Oeste" ||
+       obj.region == "EU Ouest" ||
+       obj.region == "Eu Ovest" ||
+       obj.region == "Westeuropa")
+      obj.region = "EUW";
 
-    obj.GetBoardsInfo(function(){
+    obj.GetBoardsInfo()
+    .then(() => obj.CheckIfUserExists())
+    .then(() => obj.GetVersion())
+    .then(() => obj.GetEvent())
+    .then(() => obj.GetTwitterInfo())
+    .then(() => obj.GetAvatars())
+    .then(() => {
       res.json(obj.response);
     });
   }
   else{
-    obj.GetVersion(function(){
+    obj.GetVersion()
+    .then(() => obj.GetEvent())
+    .then(() => obj.GetTwitterInfo())
+    .then(() => obj.GetAvatars())
+    .then(() => {
       res.json(obj.response);
     });
   }
