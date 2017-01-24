@@ -1,3 +1,68 @@
+<style>
+
+#myTable td {
+  padding: 2px;
+}
+
+input[type=file] {
+  display: none;
+}
+
+label[data=active] {
+  border:              1px dashed black;
+  font-family:         Roboto;
+  cursor:              pointer;
+  padding:             0px 2px;
+  user-select:         none;
+  -moz-user-select:    none;
+  -webkit-user-select: none;
+  -ms-user-select:     none;
+}
+label[data=active]:hover {
+  border: 1px solid black;
+}
+label[data=active]:active {
+  border: 1px solid red;
+}
+label[data=disabled] {
+  border:           1px dashed gray;
+  font-family:      Roboto;
+  background-color: #ebebe4;
+  color:            gray;
+  cursor:           default;
+}
+
+.ico {
+  width:               28px;
+  height:              28px;
+  user-select:         none;
+  -moz-user-select:    none;
+  -webkit-user-select: none;
+  -ms-user-select:     none;
+}
+
+.loading{
+  display:     block;
+  font-size:   28px;
+  width:       28px;
+  height:      28px;
+  line-height: 1;
+}
+
+/* Don't allow the user to highlight certain things */
+input:disabled, label, select, .loading {
+  user-select:         none;
+  -moz-user-select:    none;
+  -webkit-user-select: none;
+  -ms-user-select:     none;
+}
+
+select:disabled {
+  background-color: #ebebe4;
+}
+
+</style>
+
 <!-- <script>var yolo = "Fek";var swag = "Account";</script> -->
 
 <!DOCTYPE html>
@@ -7,16 +72,17 @@
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
     <meta name="author"      content="Tundra Fizz"/>
 
-    <link rel="shortcut icon" href="icon/icon.jpg"/>                          <!-- Icon     -->
-    <!-- <link rel="stylesheet"    href="css/bootstrap/bootstrap.css"/>            <!-- Bootstrap Core CSS -->
-    <!-- <link rel="stylesheet"    href="css/misc/style.css?v=7" type="text/css"/> <!-- Custom CSS         -->
+    <link rel="shortcut icon" href="icon/icon.jpg"/>                                 <!-- Icon               -->
+    <link rel="stylesheet"    href="https://fonts.googleapis.com/css?family=Roboto"> <!-- Roboto font        -->
+    <!-- <link rel="stylesheet"    href="css/bootstrap/bootstrap.css"/>              <!-- Bootstrap Core CSS -->
+    <!-- <link rel="stylesheet"    href="css/misc/style.css?v=7" type="text/css"/>   <!-- Custom CSS         -->
 
-    <script src="js/jquery/jquery-2.1.4.js"></script>       <!-- jQuery                     -->
-    <script src="js/jquery/jquery-ui.js"></script>          <!-- jQuery                     -->
-    <script src="js/canvas/canvasjs.js"></script>           <!-- Draws graphs               -->
-    <script src="js/jquery/jquery.tablesorter.js"></script> <!-- Allows tables to be sorted -->
-    <script src="js/bootstrap/bootstrap.min.js"></script>   <!-- Bootstrap Core JavaScript  -->
-    <script src="js/misc/tundra.js"></script>               <!-- My custom JavaScript       -->
+    <script src="js/jquery/jquery-2.1.4.js"></script>                <!-- jQuery                     -->
+    <!-- <script src="js/jquery/jquery-ui.js"></script>          --> <!-- jQuery                     -->
+    <!-- <script src="js/canvas/canvasjs.js"></script>           --> <!-- Draws graphs               -->
+    <!-- <script src="js/jquery/jquery.tablesorter.js"></script> --> <!-- Allows tables to be sorted -->
+    <!-- <script src="js/bootstrap/bootstrap.min.js"></script>   --> <!-- Bootstrap Core JavaScript  -->
+    <!-- <script src="js/misc/tundra.js"></script>               --> <!-- My custom JavaScript       -->
   </head>
 
   <body>
@@ -27,7 +93,7 @@
         <tr>
           <td colspan="3">
             <input type="button" id="btnAddRow" value="Add row">
-            <input type="button" id="btnSubmit" value="Submit">
+            <input type="button" id="btnSubmit" value="Upload Avatars">
           </td>
         </tr>
         </table>
@@ -49,21 +115,27 @@ $("#btnAddRow").click(function(){
 
 $("#btnSubmit").click(function(){
   $("tr").slice(1).each(function(){
-    var formData = new FormData();
     var self     = this;
+    var formData = new FormData();
     var name     = $("[data=name]",   this).val();
     var region   = $("[data=region]", this).val();
     var file     = $("[data=avatar]", this).get(0).files[0];
 
-    // Skip this row if it's disabled or has no file
-    var isDisabled = $("[data=name]", this).prop("disabled");
-    var noFile     = (typeof file === "undefined");
-    if(isDisabled || noFile)
+    // Skip this row if it's disabled, already uploading, or has no file
+    var isDisabled  = $(this).attr("status") == "uploaded";
+    var isUploading = $(this).attr("status") == "uploading";
+    var noFile      = (typeof file === "undefined");
+    if(isDisabled || isUploading || noFile)
       return true;
+
+    $(".loading", self).css("background", "url(spin.svg)");
+    $(".loading", self).text("");
 
     formData.append("name", name);
     formData.append("region", region);
     formData.append("file", file, file.name);
+
+    $(self).attr("status", "uploading");
 
     $.ajax({
       url: "uploadavatar",
@@ -72,10 +144,21 @@ $("#btnSubmit").click(function(){
       contentType: false,
       processData: false
     }).done(function(data){
+      $(".loading").css("background", "url()");
+
       if(data["uploaded"]){
+        $(self).attr("status", "uploaded");
         $("[data=name]",   self).prop("disabled", true);
         $("[data=region]", self).prop("disabled", true);
         $("[data=avatar]", self).prop("disabled", true);
+        $("[data=active]", self).attr("data", "disabled");
+        $(".loading", self).css("color", "green");
+        $(".loading", self).text("✔");
+      }
+      else{
+        $(self).attr("status", "");
+        $(".loading", self).css("color", "red");
+        $(".loading", self).text("✘");
       }
     });
   });
@@ -87,7 +170,9 @@ function AddRow(){
 
   $("#myTable").append(`
   <tr>
-    <td><input data="name" type="text"></td>
+    <td>
+      <input data="name" type="text">
+    </td>
     <td>
       <select data="region">
         <option value="NA">NA</option>
@@ -97,12 +182,30 @@ function AddRow(){
       </select>
     </td>
     <td>
-      <label for="av${row}" class="button">Upload Files</label>
-      <input  id="av${row}" data="avatar" type="file" name="file">
+      <label for="av${row}" data="active" type="file">Select avatar</label>
+      <input  id="av${row}" data="avatar" type="file">
+    </td>
+    <td>
+      <img id="ico${row}" class="ico" draggable="false"></img>
+    </td>
+    <td>
+      <span id="load${row}" class="loading" draggable="false"></img>
     </td>
   </tr>`);
+
+  $(`#av${row}`).change(function(){
+    if(this.files && this.files[0]){ // If the user has selected a file
+      var reader = new FileReader(); // Create a FileReader object
+      reader.onload = function(e){   // When a file has been loaded...
+        $(`#ico${row}`).attr("src", e.target.result); // ...preview image file
+        $(`#load${row}`).text("");                    // ...remove any text
+      }
+      reader.readAsDataURL(this.files[0]); // Read a file as base64 data
+    }
+    else{
+      $(`#ico${row}`).attr("src", "");
+    }
+  });
 }
 
 </script>
-<!-- <label for="upload_files" class="button">Upload Files</label> -->
-<!-- <input id ="upload_files" type="file" name="files"> -->

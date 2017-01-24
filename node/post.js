@@ -4,16 +4,22 @@ var request    = require("request");
 var mysql      = require("mysql");
 var fs         = require("fs");
 
-function Obj(){
+function Obj(req){
   this.conn = mysql.createConnection({host     : "localhost",
                                       user     : "root",
                                       password : "Fizz",
                                       database : "fek"});
+
   this.response                  = {};
   this.response["records"]       = {};
   this.response["announcements"] = [];
   this.response["event"]         = {};
   this.response["version"]       = {};
+
+  this.name    = req.body.myName;
+  this.region  = req.body.myRegion;
+  this.users   = req.body.users;
+  this.regions = req.body.regions;
 }
 
 Obj.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
@@ -172,12 +178,82 @@ Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
   });
 })}
 
+function UploadAvatar(req){
+  this.req                  = req;
+  this.avatarDirectory      = "./";
+  this.response             = {};
+  this.response["uploaded"] = false;
+
+  this.form                 = new formidable.IncomingForm();
+  this.form.multiples       = true; // Form Option: Allow uploading multiple files at once
+  this.form.uploadDir       = "/";  // Form Option: Set the upload directory
+}
+
+UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
+  var self = this;
+  self.form.parse(self.req, function(err, data, files){
+    name          = data["name"];
+    region        = data["region"];
+    self.filePath = files["file"].path;
+    self.fileExt  = files["file"].name.split(".").pop();
+
+    // Get JSON data from Riot's Boards API
+    var uri = `http://boards.na.leagueoflegends.com/api/users/${region}/${name}`;
+    uri = encodeURI(uri);
+
+    self.options = {
+      url     : uri,
+      json    : true,
+      headers : {
+        "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
+      }
+    };
+    resolve();
+  });
+})}
+
+UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve) => {
+  var self = this;
+  request(self.options, function(err, res, data){
+    if(typeof data["id"] !== "undefined"){
+      self.id = data["id"];
+      self.fileName = self.id + "." + self.fileExt;
+
+      self.ReadDir()
+      .then(() => self.SaveAvatar())
+      .then(() => resolve())
+    }
+    else
+      resolve();
+  });
+})}
+
+UploadAvatar.prototype.ReadDir = function(){return new Promise((resolve) => {
+  var self = this;
+  fs.readdir(self.avatarDirectory, function(err, files){
+    self.files = files;
+    resolve();
+  });
+})}
+
+UploadAvatar.prototype.SaveAvatar = function(){return new Promise((resolve) => {
+  var self = this;
+  for(var i = 0; i < self.files.length; i++){
+    var dir = self.avatarDirectory;
+    var id  = self.files[i].split(".")[0];
+    var ext = self.files[i].split(".")[1];
+
+    if(id == self.id)
+      fs.unlinkSync(`${dir}${id}.${ext}`);
+  }
+
+  fs.rename(self.filePath, self.fileName);
+  self.response["uploaded"] = true;
+  resolve();
+})}
+
 app.post("/database", function(req, res){
-  var obj     = new Obj;
-  obj.name    = req.body.myName;
-  obj.region  = req.body.myRegion;
-  obj.users   = req.body.users;
-  obj.regions = req.body.regions;
+  var obj = new Obj(req);
 
   if(obj.name != null){ // If the user is logged in
     if(obj.region == "EU Oeste" ||
@@ -207,52 +283,18 @@ app.post("/database", function(req, res){
   }
 });
 
+app.post("/uploadavatar", function(req, res){
+  var uploadAvatar = new UploadAvatar(req);
+
+  uploadAvatar.FormParse()
+  .then(() => uploadAvatar.GetIdFromRiotApi())
+  .then(() => {res.json(uploadAvatar.response)})
+});
+
 app.post("/getavatars", function(req, res){
   console.log("placeholder");
   console.log("placeholder");
 });
-
-app.post("/uploadavatar", function(req, res){
-  var form       = new formidable.IncomingForm();
-  form.multiples = true; // Allow uploading multiple files at once
-  form.uploadDir = "/";  // Set the upload directory
-
-  FormParse(req, form)
-  .then((data) => {
-    res.json({"uploaded": data});
-  })
-});
-
-FormParse = function(req, form){return new Promise((resolve) => {
-  form.parse(req, function(err, data, files){
-    var name     = data["name"];
-    var region   = data["region"];
-    var filePath = files["file"].path;
-    var fileExt  = files["file"].name.split(".").pop();
-
-    // Get JSON data from Riot's Boards API
-    var uri = `http://boards.na.leagueoflegends.com/api/users/${region}/${name}`;
-    uri = encodeURI(uri);
-
-    var options = {
-      url     : uri,
-      json    : true,
-      headers : {
-        "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
-      }
-    };
-
-    request(options, function(err, res, data){
-      if(typeof data["id"] !== "undefined"){
-        var fileName = data["id"] + "." + fileExt;
-        fs.rename(filePath, fileName);
-        resolve(true);
-      }
-      else
-        resolve(false);
-    });
-  });
-})}
 
 app.post("/webpanel", function(req, res){
   console.log("placeholder");
