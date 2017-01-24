@@ -180,13 +180,13 @@ Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
 
 function UploadAvatar(req){
   this.req                  = req;
-  this.avatarDirectory      = "./";
+  this.avatarDirectory      = "./fek-avatars";
   this.response             = {};
   this.response["uploaded"] = false;
 
   this.form                 = new formidable.IncomingForm();
   this.form.multiples       = true; // Form Option: Allow uploading multiple files at once
-  this.form.uploadDir       = "/";  // Form Option: Set the upload directory
+  this.form.uploadDir       = "./fek-avatars";  // Form Option: Set the upload directory
 }
 
 UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
@@ -217,7 +217,7 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
   request(self.options, function(err, res, data){
     if(typeof data["id"] !== "undefined"){
       self.id = data["id"];
-      self.fileName = self.id + "." + self.fileExt;
+      self.fullFilePath = `${self.avatarDirectory}/${self.id}.${self.fileExt}`;
 
       self.ReadDir()
       .then(() => self.SaveAvatar())
@@ -239,15 +239,17 @@ UploadAvatar.prototype.ReadDir = function(){return new Promise((resolve) => {
 UploadAvatar.prototype.SaveAvatar = function(){return new Promise((resolve) => {
   var self = this;
   for(var i = 0; i < self.files.length; i++){
-    var dir = self.avatarDirectory;
+    var dir = self.avatarDirectory; // <-- CORRECT THIS!
     var id  = self.files[i].split(".")[0];
     var ext = self.files[i].split(".")[1];
+    var deleteThisFile = `${dir}${id}.${ext}`;
 
     if(id == self.id)
-      fs.unlinkSync(`${dir}${id}.${ext}`);
+      fs.unlinkSync(deleteThisFile);
+      // fs.unlinkSync(`${dir}${id}.${ext}`);
   }
 
-  fs.rename(self.filePath, self.fileName);
+  fs.rename(self.filePath, self.fullFilePath);
   self.response["uploaded"] = true;
   resolve();
 })}

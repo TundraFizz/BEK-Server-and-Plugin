@@ -10,7 +10,7 @@ app.set("views", "./views");                      // Define the views directory
 app.options("*", cors());                         // Allow CORS
 // require("./node/func-global.js");              // Include global functions first
 require("./node/post.js");                        // Include POST requests second
-require("./node/routes.js");                 // Include web routes third
+require("./node/routes.js");                      // Include web routes third
 // require("./node/routes-404.js")(app);          // Include 404 page last
 
 app.listen(9001);                                 // Start the server
