@@ -256,7 +256,7 @@ UploadAvatar.prototype.ReadDir = function(){return new Promise((resolve) => {
 UploadAvatar.prototype.SaveAvatar = function(){return new Promise((resolve) => {
   var self = this;
   for(var i = 0; i < self.files.length; i++){
-    var dir = self.avatarDirectory; // <-- CORRECT THIS!
+    var dir = self.avatarDirectory;
     var id  = self.files[i].split(".")[0];
     var ext = self.files[i].split(".")[1];
     var deleteThisFile = `${dir}/${id}.${ext}`;

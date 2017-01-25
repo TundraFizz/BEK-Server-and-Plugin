@@ -73,10 +73,13 @@ select:disabled {
 <html lang="en">
   <head>
     <title>TBD</title>
-    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-    <meta name="author"      content="Tundra Fizz"/>
+    <meta charset="utf-8">
+    <meta name="author"      content="Tundra Fizz">
+    <meta name="description" content="Free Web tutorials">
+    <meta name="keywords"    content="HTML,CSS,XML,JavaScript">
+    <meta name="viewport"    content="width=device-width, initial-scale=1.0">
 
-    <link rel="shortcut icon" href="icon/icon.jpg"/>                                 <!-- Icon               -->
+    <link rel="shortcut icon" href="icon/icon.jpg">                                  <!-- Icon               -->
     <link rel="stylesheet"    href="https://fonts.googleapis.com/css?family=Roboto"> <!-- Roboto font        -->
     <!-- <link rel="stylesheet"    href="css/bootstrap/bootstrap.css"/>              <!-- Bootstrap Core CSS -->
     <!-- <link rel="stylesheet"    href="css/misc/style.css?v=7" type="text/css"/>   <!-- Custom CSS         -->
@@ -95,7 +98,7 @@ select:disabled {
       <div class="col-sm-12">
         <table id="summoner-table" border="0">
           <tr>
-            <td colspan="3">
+            <td colspan="5">
               <input type="button" id="btnAddRow" value="Add row">
               <input type="button" id="btnSubmit" value="Upload Avatars">
             </td>
@@ -132,8 +135,8 @@ $("#btnSubmit").click(function(){
     if(isDisabled || isUploading || noFile)
       return true;
 
-    $(".loading", self).css("background", "url(spin.svg)");
-    $(".loading", self).text("");
+    $(".summoner-loading", self).css("background", "url(spin.svg)");
+    $(".summoner-loading", self).text("");
 
     formData.append("name", name);
     formData.append("region", region);
@@ -148,7 +151,7 @@ $("#btnSubmit").click(function(){
       contentType: false,
       processData: false
     }).done(function(data){
-      $(".loading").css("background", "url()");
+      $(".summoner-loading").css("background", "url()");
 
       if(data["uploaded"]){
         $(self).attr("status", "uploaded");
