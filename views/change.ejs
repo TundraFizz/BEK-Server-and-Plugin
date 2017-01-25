@@ -4,7 +4,7 @@ body {
   background-color: lightgray;
 }
 
-#myTable td {
+#summoner-table td {
   padding: 2px;
 }
 
@@ -93,13 +93,13 @@ select:disabled {
     <div class="container-fluid">
     <div class="row">
       <div class="col-sm-12">
-        <table id="myTable" border="0">
-        <tr>
-          <td colspan="3">
-            <input type="button" id="btnAddRow" value="Add row">
-            <input type="button" id="btnSubmit" value="Upload Avatars">
-          </td>
-        </tr>
+        <table id="summoner-table" border="0">
+          <tr>
+            <td colspan="3">
+              <input type="button" id="btnAddRow" value="Add row">
+              <input type="button" id="btnSubmit" value="Upload Avatars">
+            </td>
+          </tr>
         </table>
       </div>
     </div>
@@ -172,7 +172,7 @@ function AddRow(){
   AddRow.row = ++AddRow.row || 0;
   var row = AddRow.row;
 
-  $("#myTable").append(`
+  $("#summoner-table tbody").append(`
   <tr>
     <td>
       <input class="summoner-name" type="text">

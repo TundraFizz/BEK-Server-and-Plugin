@@ -229,7 +229,8 @@ UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
 UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve) => {
   var self = this;
   request(self.options, function(err, res, data){
-    if(typeof data["id"] !== "undefined"){
+    var summonerNameFound = (typeof data["id"] !== "undefined");
+    if(summonerNameFound){
       self.id = data["id"];
       self.fullFilePath = `${self.avatarDirectory}/${self.id}.${self.fileExt}`;
 
@@ -237,8 +238,10 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
       .then(() => self.SaveAvatar())
       .then(() => resolve())
     }
-    else
+    else{
+      fs.unlinkSync(self.filePath);
       resolve();
+    }
   });
 })}
 
@@ -292,7 +295,7 @@ app.post("/database", function(req, res){
     .then(() => fek.GetAvatars())
     .then(() => res.json(fek.response));
   }
-});
+})
 
 app.post("/uploadavatar", function(req, res){
   var uploadAvatar = new UploadAvatar(req);
@@ -300,17 +303,17 @@ app.post("/uploadavatar", function(req, res){
   uploadAvatar.FormParse()
   .then(() => uploadAvatar.GetIdFromRiotApi())
   .then(() => res.json(uploadAvatar.response))
-});
+})
 
 app.post("/getavatars", function(req, res){
   console.log("placeholder");
   console.log("placeholder");
-});
+})
 
 app.post("/webpanel", function(req, res){
   console.log("placeholder");
   console.log("placeholder");
-});
+})
 
 // getFriends
 // addFriend
