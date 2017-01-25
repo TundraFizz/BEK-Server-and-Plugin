@@ -4,7 +4,7 @@ var request    = require("request");
 var mysql      = require("mysql");
 var fs         = require("fs");
 
-function Obj(req){
+function FEK(req){
   this.conn = mysql.createConnection({host     : "localhost",
                                       user     : "root",
                                       password : "Fizz",
@@ -22,7 +22,7 @@ function Obj(req){
   this.regions = req.body.regions;
 }
 
-Obj.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
+FEK.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
   var self = this;
 
   // Get JSON data from Riot's Boards API
@@ -45,7 +45,7 @@ Obj.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
   });
 })}
 
-Obj.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
+FEK.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
   // Check if the Boards ID exists in the database
   var self = this;
   var sql = `SELECT * FROM users WHERE boards_id=?`;
@@ -53,23 +53,23 @@ Obj.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
 
   self.conn.query(sql, args, function(err, rows){
     if(rows.length == 0)
-      self.InsertUser().then(() => {resolve();}); // Insert new user into database
+      self.InsertUser().then(() => resolve()); // Insert new user into database
     else
-      self.UpdateUser().then(() => {resolve();}); // Update existing user
+      self.UpdateUser().then(() => resolve()); // Update existing user
   });
 })}
 
-Obj.prototype.InsertUser = function(){return new Promise((resolve) => {
+FEK.prototype.InsertUser = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `INSERT INTO users (boards_id) VALUES (?)`;
   var args = [self.boardsId];
 
   self.conn.query(sql, args, function(err, rows){
-    self.UpdateUser().then(() => {resolve();}); // Update existing user
+    self.UpdateUser().then(() => resolve()); // Update existing user
   });
 })}
 
-Obj.prototype.UpdateUser = function(){return new Promise((resolve) => {
+FEK.prototype.UpdateUser = function(){return new Promise((resolve) => {
   var self = this;
   var lastLogin = new Date();
   var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
@@ -79,7 +79,7 @@ Obj.prototype.UpdateUser = function(){return new Promise((resolve) => {
   });
 })}
 
-Obj.prototype.GetVersion = function(){return new Promise((resolve) => {
+FEK.prototype.GetVersion = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT number, link FROM version`;
   var args = [];
@@ -92,7 +92,7 @@ Obj.prototype.GetVersion = function(){return new Promise((resolve) => {
   });
 })}
 
-Obj.prototype.GetEvent = function(){return new Promise((resolve) => {
+FEK.prototype.GetEvent = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT message, stream, thread, start, end FROM event`;
   var args = [];
@@ -106,7 +106,7 @@ Obj.prototype.GetEvent = function(){return new Promise((resolve) => {
   });
 })}
 
-Obj.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
+FEK.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT * FROM tweets ORDER BY id DESC LIMIT 0, 2`;
   var args = [];
@@ -127,7 +127,7 @@ Obj.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
   });
 })}
 
-Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
+FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
   if(!this.users){
     resolve();
     return;
@@ -169,7 +169,7 @@ Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
       self.response["records"][name][region]["title"] = title;
       self.response["records"][name][region]["badge"] = badge;
 
-      var avatar = FindAvatar(boardsId);
+      var avatar = self.FindAvatar(boardsId);
       if(avatar)
         self.response["records"][name][region]["avatar"] = avatar;
     }
@@ -177,6 +177,20 @@ Obj.prototype.GetAvatars = function(){return new Promise((resolve) => {
     resolve();
   });
 })}
+
+FEK.prototype.FindAvatar = function(boardsId){
+  var localPath = "static/avatars/" + boardsId;
+  var publicPath = "http://localhost:9001/avatars/" + boardsId;
+  var extensions = [".jpg", ".jpeg", ".png", ".gif", ".webm", ".bmp"];
+
+  for(var i = 0; i < extensions.length; i++){
+    if(fs.existsSync(localPath + extensions[i])){
+      return publicPath + extensions[i];
+    }
+  }
+
+  return false;
+}
 
 function UploadAvatar(req){
   this.req                  = req;
@@ -242,11 +256,10 @@ UploadAvatar.prototype.SaveAvatar = function(){return new Promise((resolve) => {
     var dir = self.avatarDirectory; // <-- CORRECT THIS!
     var id  = self.files[i].split(".")[0];
     var ext = self.files[i].split(".")[1];
-    var deleteThisFile = `${dir}${id}.${ext}`;
+    var deleteThisFile = `${dir}/${id}.${ext}`;
 
     if(id == self.id)
       fs.unlinkSync(deleteThisFile);
-      // fs.unlinkSync(`${dir}${id}.${ext}`);
   }
 
   fs.rename(self.filePath, self.fullFilePath);
@@ -255,33 +268,29 @@ UploadAvatar.prototype.SaveAvatar = function(){return new Promise((resolve) => {
 })}
 
 app.post("/database", function(req, res){
-  var obj = new Obj(req);
+  var fek = new FEK(req);
 
-  if(obj.name != null){ // If the user is logged in
-    if(obj.region == "EU Oeste" ||
-       obj.region == "EU Ouest" ||
-       obj.region == "Eu Ovest" ||
-       obj.region == "Westeuropa")
-      obj.region = "EUW";
+  if(fek.name != null){ // If the user is logged in
+    if(fek.region == "EU Oeste" ||
+       fek.region == "EU Ouest" ||
+       fek.region == "Eu Ovest" ||
+       fek.region == "Westeuropa")
+      fek.region = "EUW";
 
-    obj.GetBoardsInfo()
-    .then(() => obj.CheckIfUserExists())
-    .then(() => obj.GetVersion())
-    .then(() => obj.GetEvent())
-    .then(() => obj.GetTwitterInfo())
-    .then(() => obj.GetAvatars())
-    .then(() => {
-      res.json(obj.response);
-    });
+    fek.GetBoardsInfo()
+    .then(() => fek.CheckIfUserExists())
+    .then(() => fek.GetVersion())
+    .then(() => fek.GetEvent())
+    .then(() => fek.GetTwitterInfo())
+    .then(() => fek.GetAvatars())
+    .then(() => res.json(fek.response));
   }
   else{
-    obj.GetVersion()
-    .then(() => obj.GetEvent())
-    .then(() => obj.GetTwitterInfo())
-    .then(() => obj.GetAvatars())
-    .then(() => {
-      res.json(obj.response);
-    });
+    fek.GetVersion()
+    .then(() => fek.GetEvent())
+    .then(() => fek.GetTwitterInfo())
+    .then(() => fek.GetAvatars())
+    .then(() => res.json(fek.response));
   }
 });
 
@@ -290,7 +299,7 @@ app.post("/uploadavatar", function(req, res){
 
   uploadAvatar.FormParse()
   .then(() => uploadAvatar.GetIdFromRiotApi())
-  .then(() => {res.json(uploadAvatar.response)})
+  .then(() => res.json(uploadAvatar.response))
 });
 
 app.post("/getavatars", function(req, res){
@@ -314,20 +323,3 @@ app.post("/webpanel", function(req, res){
 // wrenchmenIndex
 // wrenchmenThread
 // wrenchmenStatus
-
-//////////////////////
-// Helper Functions //
-//////////////////////
-function FindAvatar(boardsId){
-  var localPath = "static/avatars/" + boardsId;
-  var publicPath = "http://localhost:9001/avatars/" + boardsId;
-  var extensions = [".jpg", ".jpeg", ".png", ".gif", ".webm", ".bmp"];
-
-  for(var i = 0; i < extensions.length; i++){
-    if(fs.existsSync(localPath + extensions[i])){
-      return publicPath + extensions[i];
-    }
-  }
-
-  return false;
-}

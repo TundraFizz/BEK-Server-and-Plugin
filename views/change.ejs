@@ -1,5 +1,9 @@
 <style>
 
+body {
+  background-color: lightgray;
+}
+
 #myTable td {
   padding: 2px;
 }
@@ -32,7 +36,7 @@ label[data=disabled] {
   cursor:           default;
 }
 
-.ico {
+.summoner-icon {
   width:               28px;
   height:              28px;
   user-select:         none;
@@ -41,7 +45,7 @@ label[data=disabled] {
   -ms-user-select:     none;
 }
 
-.loading{
+.summoner-loading{
   display:     block;
   font-size:   28px;
   width:       28px;
@@ -50,7 +54,7 @@ label[data=disabled] {
 }
 
 /* Don't allow the user to highlight certain things */
-input:disabled, label, select, .loading {
+input:disabled, label, select, .summoner-loading {
   user-select:         none;
   -moz-user-select:    none;
   -webkit-user-select: none;
@@ -117,9 +121,9 @@ $("#btnSubmit").click(function(){
   $("tr").slice(1).each(function(){
     var self     = this;
     var formData = new FormData();
-    var name     = $("[data=name]",   this).val();
-    var region   = $("[data=region]", this).val();
-    var file     = $("[data=avatar]", this).get(0).files[0];
+    var name     = $(".summoner-name",   this).val();
+    var region   = $(".summoner-region", this).val();
+    var file     = $(".summoner-avatar", this).get(0).files[0];
 
     // Skip this row if it's disabled, already uploading, or has no file
     var isDisabled  = $(this).attr("status") == "uploaded";
@@ -148,17 +152,17 @@ $("#btnSubmit").click(function(){
 
       if(data["uploaded"]){
         $(self).attr("status", "uploaded");
-        $("[data=name]",   self).prop("disabled", true);
-        $("[data=region]", self).prop("disabled", true);
-        $("[data=avatar]", self).prop("disabled", true);
-        $("[data=active]", self).attr("data", "disabled");
-        $(".loading", self).css("color", "green");
-        $(".loading", self).text("✔");
+        $(".summoner-name",    self).prop("disabled", true);
+        $(".summoner-region",  self).prop("disabled", true);
+        $(".summoner-avatar",  self).prop("disabled", true);
+        $("[data=active]",     self).attr("data", "disabled");
+        $(".summoner-loading", self).css("color", "green");
+        $(".summoner-loading", self).text("✔");
       }
       else{
         $(self).attr("status", "");
-        $(".loading", self).css("color", "red");
-        $(".loading", self).text("✘");
+        $(".summoner-loading", self).css("color", "red");
+        $(".summoner-loading", self).text("✘");
       }
     });
   });
@@ -171,10 +175,10 @@ function AddRow(){
   $("#myTable").append(`
   <tr>
     <td>
-      <input data="name" type="text">
+      <input class="summoner-name" type="text">
     </td>
     <td>
-      <select data="region">
+      <select class="summoner-region">
         <option value="NA">NA</option>
         <option value="OCE">OCE</option>
         <option value="EUW">EUW</option>
@@ -183,13 +187,13 @@ function AddRow(){
     </td>
     <td>
       <label for="av${row}" data="active" type="file">Select avatar</label>
-      <input  id="av${row}" data="avatar" type="file">
+      <input  id="av${row}" type="file" class="summoner-avatar">
     </td>
     <td>
-      <img id="ico${row}" class="ico" draggable="false"></img>
+      <img id="ico${row}" class="summoner-icon" draggable="false"></img>
     </td>
     <td>
-      <span id="load${row}" class="loading" draggable="false"></img>
+      <span id="load${row}" class="summoner-loading" draggable="false"></img>
     </td>
   </tr>`);
 
