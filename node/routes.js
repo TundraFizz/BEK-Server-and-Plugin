@@ -62,6 +62,13 @@ app.get("/change", function(req, res){
   res.render("change.ejs");
 });
 
+/////////////////////////////
+// FEK Admin Control Panel //
+/////////////////////////////
+app.get("/admin", function(req, res){
+  res.render("admin.ejs");
+});
+
 //////////////////////////////////
 // 404: No route or file exists //
 //////////////////////////////////

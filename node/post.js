@@ -258,18 +258,15 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
 
 UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
   var self = this;
-
-  // Check if the ID exists in the database
-  // Insert it if it doesn't
-
-  var sql = `SELECT * FROM users WHERE boards_id=?`;
+  var sql  = `SELECT * FROM users WHERE boards_id=?`;
   var args = [self.id];
 
+  // Check if the ID exists in the database
   self.conn.query(sql, args, function(err, rows){
     var lastLogin = new Date();
 
     if(rows.length == 0){
-      // Insert new user into database
+      // Insert new user into database if they don't exist
       var sql = `INSERT INTO users (boards_id, name, region, last_login) VALUES (?,?,?,?)`;
       var args = [self.id, self.name, self.region, lastLogin];
       self.conn.query(sql, args, function(err, rows){
@@ -284,6 +281,26 @@ UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
         resolve();
       });
     }
+  });
+})}
+
+function UserSearch(req){
+  this.conn = mysql.createConnection({host     : "localhost",
+                                      user     : "root",
+                                      password : "Fizz",
+                                      database : "fek"});
+  this.name     = req.body.name;
+  this.response = {};
+}
+
+UserSearch.prototype.QuerySearch = function(){return new Promise((resolve) => {
+  var self = this;
+  var sql  = `SELECT * FROM users WHERE name LIKE ?`;
+  var args = ["%"+self.name+"%"];
+
+  self.conn.query(sql, args, function(err, rows){
+    self.response = rows;
+    resolve();
   });
 })}
 
@@ -323,14 +340,108 @@ app.post("/uploadavatar", function(req, res){
   .then(() => res.json(uploadAvatar.response))
 })
 
-app.post("/getavatars", function(req, res){
-  console.log("placeholder");
-  console.log("placeholder");
+app.post("/querysearch", function(req, res){
+  var userSearch = new UserSearch(req);
+  userSearch.QuerySearch()
+  .then(() => res.json(userSearch.response))
 })
 
-app.post("/webpanel", function(req, res){
-  console.log("placeholder");
-  console.log("placeholder");
+function ManageCosmetics(req){
+  this.conn = mysql.createConnection({host     : "localhost",
+                                      user     : "root",
+                                      password : "Fizz",
+                                      database : "fek"});
+  this.action   = req.body.action;
+  this.data     = req.body.data;
+  this.response = {};
+}
+
+ManageCosmetics.prototype.Testing = function(){return new Promise((resolve) => {
+  var self = this;
+
+  if(self.action == "Change Title"){
+    var title1 = false; // Current title
+    var title2 = false; // New title
+
+    self.data = self.data.trim();
+
+    if(self.data)
+      title2 = true;
+
+    // Check if there is no title
+    var sql  = `SELECT title FROM users WHERE name LIKE 'Tundra Fizz' AND region='NA'`;
+    // var sql  = `SELECT title FROM users WHERE name LIKE ?`;
+    var args = ["Tundra Fizz"];
+
+    self.conn.query(sql, /*args,*/ function(err, rows){
+      var row = rows[0];
+
+      if(row["title"])
+        title1 = true;
+
+      if(title1 == false && title2 == true){
+        console.log("Make sure user has enough FC");
+      }
+
+      var sql  = `UPDATE users SET title=? WHERE name LIKE 'Tundra Fizz' AND region='NA'`;
+      var args = [self.data];
+      self.conn.query(sql, args, function(err, rows){
+        console.log("DONE");
+        resolve();
+      });
+
+      resolve();
+    });
+
+  }else if(self.action == "Add Badge"){
+
+  }else if(self.action == "Remove Badge"){
+
+  }else if(self.action == "Advance Day Test"){
+    console.log("Advancing the day...");
+    // Check all non-staff and reduce the number of FC they have by this:
+
+    var sql  = `SELECT id, fish_chips, title, badge FROM users WHERE staff!=1`;
+
+    self.conn.query(sql, function(err, rows){
+      for(var i = 0; i < rows.length; i++){
+        var row       = rows[i];
+        var cosmetics = 0;
+
+        console.log(row);
+
+        if(row["title"])
+          cosmetics++;
+
+        if(row["badge"]){
+          var badges = row["badge"].split(",");
+          console.log(badges);
+          cosmetics += badges.length;
+        }
+
+        var upkeep = cosmetics * 3;
+        console.log(cosmetics, upkeep);
+
+        // Upkeep has been found
+        //   If user can pay for it, deduct FC
+        //   If user can't pay for it, DO NOT deduct FC and remove all cosmetics
+      }
+      resolve();
+    });
+
+    // Set new amount of FC
+  }else{
+    console.log("Invalid action");
+  }
+
+  self.response = "Testing";
+  resolve();
+})}
+
+app.post("/managecosmetics", function(req, res){
+  var manageCosmetics = new ManageCosmetics(req);
+  manageCosmetics.Testing()
+  .then(() => res.json(manageCosmetics.response))
 })
 
 // getFriends

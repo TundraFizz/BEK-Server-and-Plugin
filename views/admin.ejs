@@ -1,0 +1,163 @@
+<style>
+
+body {
+  background-color: lightgray;
+}
+
+td[data=hide] {
+  display: none;
+}
+
+td[data=show] {
+  display: table-cell;
+}
+
+</style>
+
+<!-- <script>var yolo = "Fek";var swag = "Account";</script> -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TBD</title>
+    <meta charset="utf-8">
+    <meta name="author"      content="Tundra Fizz">
+    <meta name="description" content="Free Web tutorials">
+    <meta name="keywords"    content="HTML,CSS,XML,JavaScript">
+    <meta name="viewport"    content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="icon/icon.jpg">                                  <!-- Icon               -->
+    <link rel="stylesheet"    href="https://fonts.googleapis.com/css?family=Roboto"> <!-- Roboto font        -->
+    <!-- <link rel="stylesheet"    href="css/bootstrap/bootstrap.css"/>              <!-- Bootstrap Core CSS -->
+    <!-- <link rel="stylesheet"    href="css/misc/style.css?v=7" type="text/css"/>   <!-- Custom CSS         -->
+
+    <script src="js/jquery/jquery-2.1.4.js"></script>                <!-- jQuery                     -->
+    <!-- <script src="js/jquery/jquery-ui.js"></script>          --> <!-- jQuery                     -->
+    <!-- <script src="js/canvas/canvasjs.js"></script>           --> <!-- Draws graphs               -->
+    <!-- <script src="js/jquery/jquery.tablesorter.js"></script> --> <!-- Allows tables to be sorted -->
+    <!-- <script src="js/bootstrap/bootstrap.min.js"></script>   --> <!-- Bootstrap Core JavaScript  -->
+    <!-- <script src="js/misc/tundra.js"></script>               --> <!-- My custom JavaScript       -->
+  </head>
+
+  <body>
+    <input id="search" type="text">
+    <label><input type="checkbox" id="chk-condensed">Condense</label><br>
+    <table id="search-table" border="1" style="margin: 10px 0px;">
+      <tbody id="table-body"></tbody>
+    </table>
+
+    <input id="change-title" type="text">
+    <input id="btn-change-title" type="button" value="Change Title">
+    <input id="btn-add-badge"    type="button" value="Add Badge">
+    <input id="btn-remove-badge" type="button" value="Remove Badge">
+    <input id="advance-day-test" type="button" value="Advance Day">
+  </body>
+</html>
+
+<script>
+
+var importantList = ["name", "region"];
+
+$(function(){
+  $("#search").on("input", QuerySearch);
+
+  $("#chk-condensed").on("input", QuerySearch);
+  $("#chk-condensed").change(ChangeCondensed);
+
+  $("#search-table").css("display", "none");
+})
+
+function ChangeCondensed(){
+  if($(this).is(":checked"))
+    $(".toggle").attr("data", "hide") // If condensed mode is active
+  else
+    $(".toggle").attr("data", "show") // If condensed mode is deactivated
+}
+
+function QuerySearch(){
+  $.post("/querysearch",{
+    name: $("#search").val()
+  }, function(data){
+    var html = ``;
+
+    // Create the table header
+    if(data.length){
+      // If there is data, display the table
+      $("#search-table").css("display", "table");
+
+      html += `<tr>`;
+      jQuery.each(data[0], function(key, val){
+        var tag = `<td>`;
+
+        if($.inArray(key, importantList) < 0)
+          tag = `<td class="toggle">`;
+
+        html += `${tag}${key}</td>`;
+      });
+      html += `</tr>`;
+    }else{
+      // Hide the table if there's no data
+      $("#search-table").css("display", "none");
+    }
+
+    // Add all rows to the table
+    for(var i = 0; i < data.length; i++){
+      html += `<tr>`;
+      jQuery.each(data[i], function(key, val){
+        var tag = `<td>`;
+
+        if($.inArray(key, importantList) < 0)
+          tag = `<td class="toggle">`;
+
+        html += `${tag}${val}</td>`;
+      });
+      html += `</tr>`;
+    }
+
+    // Assign html to the table's body
+    $("#table-body").html(html);
+
+    if($("#chk-condensed").is(":checked"))
+      $(".toggle").attr("data", "hide") // If condensed mode is active
+    else
+      $(".toggle").attr("data", "show") // If condensed mode is deactivated
+  });
+}
+
+$("#btn-change-title").click(function(){
+  $.post("/managecosmetics",{
+    action: "Change Title",
+    data:   $("#change-title").val()
+  }, function(data){
+    console.log(data);
+  });
+})
+
+$("#btn-add-badge").click(function(){
+  $.post("/managecosmetics",{
+    action: "Add Badge",
+    data:   $("#change-title").val()
+  }, function(data){
+    console.log(data);
+  });
+})
+
+$("#btn-remove-badge").click(function(){
+  $.post("/managecosmetics",{
+    action: "Remove Badge",
+    data: ""
+  }, function(data){
+    console.log(data);
+  });
+})
+
+$("#advance-day-test").click(function(){
+  $.post("/managecosmetics",{
+    action: "Advance Day Test",
+    data: ""
+  }, function(data){
+    console.log(data);
+  });
+})
+
+</script>
