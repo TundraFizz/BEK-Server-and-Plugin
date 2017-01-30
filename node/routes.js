@@ -61,3 +61,10 @@ app.get("/projects", function(req, res){
 app.get("/change", function(req, res){
   res.render("change.ejs");
 });
+
+//////////////////////////////////
+// 404: No route or file exists //
+//////////////////////////////////
+app.use(function (req, res){
+  res.render("404.ejs");
+});

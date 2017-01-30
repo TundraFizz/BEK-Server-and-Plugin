@@ -52,30 +52,23 @@ FEK.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
   var args = [self.boardsId];
 
   self.conn.query(sql, args, function(err, rows){
-    if(rows.length == 0)
-      self.InsertUser().then(() => resolve()); // Insert new user into database
-    else
-      self.UpdateUser().then(() => resolve()); // Update existing user
-  });
-})}
+    var lastLogin = new Date();
 
-FEK.prototype.InsertUser = function(){return new Promise((resolve) => {
-  var self = this;
-  var sql = `INSERT INTO users (boards_id) VALUES (?)`;
-  var args = [self.boardsId];
+    if(rows.length == 0){
+      var sql = `INSERT INTO users (boards_id, name, region, last_login) VALUES (?,?,?,?)`;
+      var args = [self.boardsId, self.boardsName, self.boardsRegion, lastLogin];
 
-  self.conn.query(sql, args, function(err, rows){
-    self.UpdateUser().then(() => resolve()); // Update existing user
-  });
-})}
-
-FEK.prototype.UpdateUser = function(){return new Promise((resolve) => {
-  var self = this;
-  var lastLogin = new Date();
-  var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
-  var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
-  self.conn.query(sql, args, function(err, rows){
-    resolve();
+      self.conn.query(sql, args, function(err, rows){
+        resolve();
+      });
+    }
+    else{
+      var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
+      var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
+      self.conn.query(sql, args, function(err, rows){
+        resolve();
+      });
+    }
   });
 })}
 
@@ -193,6 +186,11 @@ FEK.prototype.FindAvatar = function(boardsId){
 }
 
 function UploadAvatar(req){
+  this.conn = mysql.createConnection({host     : "localhost",
+                                      user     : "root",
+                                      password : "Fizz",
+                                      database : "fek"});
+
   this.req                  = req;
   this.avatarDirectory      = "./fek-avatars";
   this.response             = {};
@@ -200,19 +198,19 @@ function UploadAvatar(req){
 
   this.form                 = new formidable.IncomingForm();
   this.form.multiples       = true; // Form Option: Allow uploading multiple files at once
-  this.form.uploadDir       = "./fek-avatars";  // Form Option: Set the upload directory
+  this.form.uploadDir       = "./fek-avatars"; // Form Option: Set the upload directory
 }
 
 UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
   var self = this;
   self.form.parse(self.req, function(err, data, files){
-    name          = data["name"];
-    region        = data["region"];
+    self.name     = data["name"];
+    self.region   = data["region"];
     self.filePath = files["file"].path;
     self.fileExt  = files["file"].name.split(".").pop();
 
     // Get JSON data from Riot's Boards API
-    var uri = `http://boards.na.leagueoflegends.com/api/users/${region}/${name}`;
+    var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
     uri = encodeURI(uri);
 
     self.options = {
@@ -234,9 +232,22 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
       self.id = data["id"];
       self.fullFilePath = `${self.avatarDirectory}/${self.id}.${self.fileExt}`;
 
-      self.ReadDir()
-      .then(() => self.SaveAvatar())
-      .then(() => resolve())
+      fs.readdir(self.avatarDirectory, function(err, files){
+        self.files = files;
+        for(var i = 0; i < self.files.length; i++){
+          var dir = self.avatarDirectory;
+          var id  = self.files[i].split(".")[0];
+          var ext = self.files[i].split(".")[1];
+          var deleteThisFile = `${dir}/${id}.${ext}`;
+
+          if(id == self.id)
+            fs.unlinkSync(deleteThisFile);
+        }
+
+        fs.rename(self.filePath, self.fullFilePath);
+        self.response["uploaded"] = true;
+        resolve();
+      });
     }
     else{
       fs.unlinkSync(self.filePath);
@@ -245,29 +256,35 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
   });
 })}
 
-UploadAvatar.prototype.ReadDir = function(){return new Promise((resolve) => {
+UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
   var self = this;
-  fs.readdir(self.avatarDirectory, function(err, files){
-    self.files = files;
-    resolve();
+
+  // Check if the ID exists in the database
+  // Insert it if it doesn't
+
+  var sql = `SELECT * FROM users WHERE boards_id=?`;
+  var args = [self.id];
+
+  self.conn.query(sql, args, function(err, rows){
+    var lastLogin = new Date();
+
+    if(rows.length == 0){
+      // Insert new user into database
+      var sql = `INSERT INTO users (boards_id, name, region, last_login) VALUES (?,?,?,?)`;
+      var args = [self.id, self.name, self.region, lastLogin];
+      self.conn.query(sql, args, function(err, rows){
+        resolve();
+      });
+    }
+    else{
+      // Update existing user
+      var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
+      var args = [self.name, self.region, lastLogin, self.id];
+      self.conn.query(sql, args, function(err, rows){
+        resolve();
+      });
+    }
   });
-})}
-
-UploadAvatar.prototype.SaveAvatar = function(){return new Promise((resolve) => {
-  var self = this;
-  for(var i = 0; i < self.files.length; i++){
-    var dir = self.avatarDirectory;
-    var id  = self.files[i].split(".")[0];
-    var ext = self.files[i].split(".")[1];
-    var deleteThisFile = `${dir}/${id}.${ext}`;
-
-    if(id == self.id)
-      fs.unlinkSync(deleteThisFile);
-  }
-
-  fs.rename(self.filePath, self.fullFilePath);
-  self.response["uploaded"] = true;
-  resolve();
 })}
 
 app.post("/database", function(req, res){
@@ -302,6 +319,7 @@ app.post("/uploadavatar", function(req, res){
 
   uploadAvatar.FormParse()
   .then(() => uploadAvatar.GetIdFromRiotApi())
+  .then(() => uploadAvatar.UpdateUser())
   .then(() => res.json(uploadAvatar.response))
 })
 
