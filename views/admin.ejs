@@ -46,13 +46,17 @@ td[data=show] {
       <tbody id="table-body"></tbody>
     </table>
 
-    <input id="change-title" type="text">
-    <input id="btn-update-title" type="button" value="Update Title">
-    <input id="btn-remove-title" type="button" value="Remove Title"><br>
-    <input id="form-badge"       type="file">
-    <input id="btn-update-badge" type="button" value="Update Badge">
-    <input id="btn-remove-badge" type="button" value="Remove Badge"><br>
-    <input id="advance-day-test" type="button" value="Advance Day">
+    <input id="change-title"       type="text">
+    <input id="btn-update-title"   type="button" value="Update Title">
+    <input id="btn-remove-title"   type="button" value="Remove Title"><br>
+    <input id="form-badge"         type="file">
+    <input id="btn-update-badge"   type="button" value="Update Badge">
+    <input id="btn-remove-badge"   type="button" value="Remove Badge"><br>
+    <input id="advance-day-test"   type="button" value="Advance Day"><br>
+    Name  <input id="field-name"   type="text"><br>
+    Region<input id="field-region" type="text"><br>
+    Auth  <input id="field-auth"   type="text">
+    <div style="background-color: #ffabab">Error: <span id="error"></span></div>
   </body>
 </html>
 
@@ -128,83 +132,40 @@ function QuerySearch(){
     else
       $(".toggle").attr("data", "show") // If condensed mode is deactivated
   });
-
-/*
-  $.post("/querysearch",{
-    name: $("#search").val()
-  }, function(data){
-    var html = ``;
-
-    // Create the table header
-    if(data.length){
-      // If there is data, display the table
-      $("#search-table").css("display", "table");
-
-      html += `<tr>`;
-      jQuery.each(data[0], function(key, val){
-        var tag = `<td>`;
-
-        if($.inArray(key, importantList) < 0)
-          tag = `<td class="toggle">`;
-
-        html += `${tag}${key}</td>`;
-      });
-      html += `</tr>`;
-    }else{
-      // Hide the table if there's no data
-      $("#search-table").css("display", "none");
-    }
-
-    // Add all rows to the table
-    for(var i = 0; i < data.length; i++){
-      html += `<tr>`;
-      jQuery.each(data[i], function(key, val){
-        var tag = `<td>`;
-
-        if($.inArray(key, importantList) < 0)
-          tag = `<td class="toggle">`;
-
-        html += `${tag}${val}</td>`;
-      });
-      html += `</tr>`;
-    }
-
-    // Assign html to the table's body
-    $("#table-body").html(html);
-
-    if($("#chk-condensed").is(":checked"))
-      $(".toggle").attr("data", "hide") // If condensed mode is active
-    else
-      $(".toggle").attr("data", "show") // If condensed mode is deactivated
-  });
-*/
 }
 
 $("#btn-update-title").click(function(){
   var formData = new FormData();
   formData.append("action", "Update Title");
   formData.append("data",   $("#change-title").val());
-  formData.append("name",   "Tundra Fizz");
-  formData.append("region", "NA");
-  formData.append("auth",   "www");
+  formData.append("name",   $("#field-name").val());
+  formData.append("region", $("#field-region").val());
+  formData.append("auth",   $("#field-auth").val());
 
   SendToServer("managecosmetics", formData, function(data){
     console.log(data);
+    $("#error").text(data);
     QuerySearch();
   });
 })
 
 $("#btn-remove-title").click(function(){
-  var formData = new FormData();
-  formData.append("action", "Remove Title");
-  formData.append("name",   "Tundra Fizz");
-  formData.append("region", "NA");
-  formData.append("auth",   "www");
+  var msg = `
+  Are you sure that you want to remove your title? Adding
+  a new title will cost 3 Fish Chips, so if you wanted to
+  change it you should just do that instead of deleting this one.`;
+  if(confirm(msg)){
+    var formData = new FormData();
+    formData.append("action", "Remove Title");
+    formData.append("name",   $("#field-name").val());
+    formData.append("region", $("#field-region").val());
+    formData.append("auth",   $("#field-auth").val());
 
-  SendToServer("managecosmetics", formData, function(data){
-    console.log(data);
-    QuerySearch();
-  });
+    SendToServer("managecosmetics", formData, function(data){
+      console.log(data);
+      QuerySearch();
+    });
+  }
 })
 
 $("#btn-update-badge").click(function(){
@@ -212,9 +173,9 @@ $("#btn-update-badge").click(function(){
   var file     = $("#form-badge").get(0).files[0];
   formData.append("action", "Update Badge");
   formData.append("data",   "1");
-  formData.append("name",   "Tundra Fizz");
-  formData.append("region", "NA");
-  formData.append("auth",   "www");
+  formData.append("name",   $("#field-name").val());
+  formData.append("region", $("#field-region").val());
+  formData.append("auth",   $("#field-auth").val());;
   formData.append("file",   file, file.name);
 
   SendToServer("managecosmetics", formData, function(data){
@@ -224,17 +185,24 @@ $("#btn-update-badge").click(function(){
 })
 
 $("#btn-remove-badge").click(function(){
-  var formData = new FormData();
-  formData.append("action", "Remove Badge");
-  formData.append("data",   "1");
-  formData.append("name",   "Tundra Fizz");
-  formData.append("region", "NA");
-  formData.append("auth",   "www");
+  var msg = `
+  Are you sure that you want to remove this badge? Adding
+  a new badge will cost 3 Fish Chips, so if you wanted to
+  change it you should just upload a new badge instead of
+  deleting this one.`;
+  if(confirm(msg)){
+    var formData = new FormData();
+    formData.append("action", "Remove Badge");
+    formData.append("data",   "1");
+    formData.append("name",   $("#field-name").val());
+    formData.append("region", $("#field-region").val());
+    formData.append("auth",   $("#field-auth").val());
 
-  SendToServer("managecosmetics", formData, function(data){
-    console.log(data);
-    QuerySearch();
-  });
+    SendToServer("managecosmetics", formData, function(data){
+      console.log(data);
+      QuerySearch();
+    });
+  }
 })
 
 $("#advance-day-test").click(function(){

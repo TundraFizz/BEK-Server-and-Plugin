@@ -516,7 +516,7 @@ ManageCosmetics.prototype.UpdateBadge = function(){return new Promise((resolve) 
     var suffix = `${self.boardsId}-${self.data}.${self.fileExt}`;
     var newPath = `static/fek-badges/${suffix}`;
 
-    badge[self.data] = `http://localhost/fek-badges/${suffix}`;
+    badge[self.data] = `http://localhost:9001/fek-badges/${suffix}`;
     badge = badge.join(",");
 
     var sql  = `UPDATE users SET badge=? WHERE id=?`;
