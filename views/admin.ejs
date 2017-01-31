@@ -47,7 +47,7 @@ td[data=show] {
     </table>
 
     <input id="change-title" type="text">
-    <input id="btn-change-title" type="button" value="Update Title">
+    <input id="btn-update-title" type="button" value="Update Title">
     <input id="btn-remove-title" type="button" value="Remove Title"><br>
     <input id="form-badge"       type="file">
     <input id="btn-update-badge" type="button" value="Update Badge">
@@ -57,6 +57,9 @@ td[data=show] {
 </html>
 
 <script>
+
+// Minimized function I made which helps sending form POST data easily
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d)})}
 
 var importantList = ["name", "region"];
 
@@ -77,6 +80,56 @@ function ChangeCondensed(){
 }
 
 function QuerySearch(){
+  var formData = new FormData();
+  formData.append("name", $("#search").val());
+
+  SendToServer("querysearch", formData, function(data){
+    var html = ``;
+
+    // Create the table header
+    if(data.length){
+      // If there is data, display the table
+      $("#search-table").css("display", "table");
+
+      html += `<tr>`;
+      jQuery.each(data[0], function(key, val){
+        var tag = `<td>`;
+
+        if($.inArray(key, importantList) < 0)
+          tag = `<td class="toggle">`;
+
+        html += `${tag}${key}</td>`;
+      });
+      html += `</tr>`;
+    }else{
+      // Hide the table if there's no data
+      $("#search-table").css("display", "none");
+    }
+
+    // Add all rows to the table
+    for(var i = 0; i < data.length; i++){
+      html += `<tr>`;
+      jQuery.each(data[i], function(key, val){
+        var tag = `<td>`;
+
+        if($.inArray(key, importantList) < 0)
+          tag = `<td class="toggle">`;
+
+        html += `${tag}${val}</td>`;
+      });
+      html += `</tr>`;
+    }
+
+    // Assign html to the table's body
+    $("#table-body").html(html);
+
+    if($("#chk-condensed").is(":checked"))
+      $(".toggle").attr("data", "hide") // If condensed mode is active
+    else
+      $(".toggle").attr("data", "show") // If condensed mode is deactivated
+  });
+
+/*
   $.post("/querysearch",{
     name: $("#search").val()
   }, function(data){
@@ -124,10 +177,8 @@ function QuerySearch(){
     else
       $(".toggle").attr("data", "show") // If condensed mode is deactivated
   });
+*/
 }
-
-// Minimized function I made which helps sending form POST data easily
-function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d)})}
 
 $("#btn-update-title").click(function(){
   var formData = new FormData();
@@ -139,6 +190,7 @@ $("#btn-update-title").click(function(){
 
   SendToServer("managecosmetics", formData, function(data){
     console.log(data);
+    QuerySearch();
   });
 })
 
@@ -151,6 +203,7 @@ $("#btn-remove-title").click(function(){
 
   SendToServer("managecosmetics", formData, function(data){
     console.log(data);
+    QuerySearch();
   });
 })
 
@@ -166,6 +219,7 @@ $("#btn-update-badge").click(function(){
 
   SendToServer("managecosmetics", formData, function(data){
     console.log(data);
+    QuerySearch();
   });
 })
 
@@ -179,6 +233,7 @@ $("#btn-remove-badge").click(function(){
 
   SendToServer("managecosmetics", formData, function(data){
     console.log(data);
+    QuerySearch();
   });
 })
 
@@ -187,6 +242,7 @@ $("#advance-day-test").click(function(){
   formData.append("action", "Advance Day");
   SendToServer("managecosmetics", formData, function(data){
     console.log(data);
+    QuerySearch();
   });
 })
 

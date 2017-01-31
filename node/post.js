@@ -281,14 +281,33 @@ UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
   });
 })}
 
-function UserSearch(req){
-  this.conn = mysql.createConnection({host     : "localhost",
+function UserSearch(){}
+
+UserSearch.prototype.Initialize = function(req){return new Promise((resolve) => {
+  var self = this;
+
+  self.response = {};
+  self.conn = mysql.createConnection({host     : "localhost",
                                       user     : "root",
                                       password : "Fizz",
                                       database : "fek"});
-  this.name     = req.body.name;
-  this.response = {};
-}
+
+  self.form           = new formidable.IncomingForm();
+  self.form.uploadDir = "./static/fek-badges"; // Form Option: Set the upload directory
+
+  self.form.parse(req, function(err, data, files){
+    if(Object.keys(files).length){
+      self.filePath = files["file"].path;
+      self.fileName = files["file"].name;
+      self.fileExt  = files["file"].name.split(".").pop();
+    }
+
+    for(key in data)
+      self[key] = data[key];
+
+    resolve();
+  });
+})}
 
 UserSearch.prototype.QuerySearch = function(){return new Promise((resolve) => {
   var self = this;
@@ -337,8 +356,9 @@ app.post("/uploadavatar", function(req, res){
 })
 
 app.post("/querysearch", function(req, res){
-  var userSearch = new UserSearch(req);
-  userSearch.QuerySearch()
+  var userSearch = new UserSearch();
+  userSearch.Initialize(req)
+  .then(() => userSearch.QuerySearch())
   .then(() => res.json(userSearch.response))
 })
 
@@ -351,24 +371,33 @@ ManageCosmetics.prototype.Initialize = function(req){return new Promise((resolve
                                       user     : "root",
                                       password : "Fizz",
                                       database : "fek"});
-
   self.id       = -1;
   self.response = {};
 
   self.form           = new formidable.IncomingForm();
-  self.form.uploadDir = "./fek-badges"; // Form Option: Set the upload directory
+  self.form.uploadDir = "./static/fek-badges"; // Form Option: Set the upload directory
 
   self.form.parse(req, function(err, data, files){
+    if(Object.keys(files).length){
+      self.filePath = files["file"].path;
+      self.fileName = files["file"].name;
+      self.fileExt  = files["file"].name.split(".").pop();
+    }
+
     for(key in data)
       self[key] = data[key];
+
     resolve();
 
     // Debug
-    console.log("action", self.action);
-    console.log("data  ", self.data);
-    console.log("name  ", self.name);
-    console.log("region", self.region);
-    console.log("auth  ", self.auth);
+    // console.log("action", self.action);
+    // console.log("data  ", self.data);
+    // console.log("name  ", self.name);
+    // console.log("region", self.region);
+    // console.log("auth  ", self.auth);
+    // console.log(self.filePath);
+    // console.log(self.fileName);
+    // console.log(self.fileExt);
   });
 })}
 
@@ -384,12 +413,14 @@ ManageCosmetics.prototype.AuthenticateUser = function(){return new Promise((reso
     self.response = "You must have an auth code";
     resolve();
   }else{
-    var sql  = `SELECT id FROM users WHERE name=? AND region=? AND auth=?`;
+    var sql  = `SELECT id, boards_id FROM users WHERE name=? AND region=? AND auth=?`;
     var args = [self.name, self.region, self.auth];
 
     self.conn.query(sql, args, function(err, rows){
       if(rows[0]){
         self.id = rows[0]["id"];
+        self.boardsId = rows[0]["boards_id"];
+
         if(self.action == "Update Title")
           self.UpdateTitle().then(() => resolve())
         else if(self.action == "Remove Title")
@@ -427,7 +458,7 @@ ManageCosmetics.prototype.UpdateTitle = function(){return new Promise((resolve) 
         self.response = "Title changed";
         self.conn.query(sql, args, function(err, rows){resolve()});
       }else if(row["fish_chips"] >= 3){
-        self.response = "Title changed, 3 FC deducted";
+        self.response = "Title added, 3 FC deducted";
         self.conn.query(sql, args, function(err, rows){
           var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
           var args  = [row["fish_chips"] - 3, self.id];
@@ -473,24 +504,43 @@ ManageCosmetics.prototype.UpdateBadge = function(){return new Promise((resolve) 
   }
 
   // Check to see if they already have a badge in that slot
-  var sql  = `SELECT badge FROM users WHERE id=?`;
+  var sql  = `SELECT fish_chips, badge FROM users WHERE id=?`;
   var args = [self.id];
 
   self.conn.query(sql, args, function(err, rows){
-    var row   = rows[0];
-    var badge = row["badge"].split(",");
+    var row         = rows[0];
+    var badge       = row["badge"].split(",");
+    var badgeExists = badge[self.data] ? true : false;
 
-    if(badge[self.data]){
-      // User already has a badge in this slot. Change it and don't charge them
-      self.response = "User already has a badge in this slot. Change it and don't charge them";
+    var ext = ".jpg";
+    var suffix = `${self.boardsId}-${self.data}.${self.fileExt}`;
+    var newPath = `static/fek-badges/${suffix}`;
 
-      badge[self.data] = "YoloSwag";
-      badge = badge.join(",");
+    badge[self.data] = `http://localhost/fek-badges/${suffix}`;
+    badge = badge.join(",");
 
-      resolve();
+    var sql  = `UPDATE users SET badge=? WHERE id=?`;
+    var args = [badge, self.id];
+
+    if(badgeExists){
+      self.conn.query(sql, args, function(err, rows){
+        self.response = "Badge changed";
+        fs.rename(self.filePath, newPath);
+
+        resolve();
+      });
+    }else if(row["fish_chips"] >= 3){
+      self.conn.query(sql, args, function(err, rows){
+        var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
+        var args  = [row["fish_chips"] - 3, self.id];
+        self.response = "Badge added, 3 FC deducted";
+        fs.rename(self.filePath, newPath);
+
+        self.conn.query(sql, args, function(err, rows){resolve()});
+      });
     }else{
-      // User doesn't have a badge in this slot. Change it and charge them
-      self.response = "User doesn't have a badge in this slot. Change it and charge them";
+      self.response = "You don't have enough FC";
+      fs.unlinkSync(self.filePath);
       resolve();
     }
   });
@@ -514,6 +564,9 @@ ManageCosmetics.prototype.RemoveBadge = function(){return new Promise((resolve) 
     var badge = row["badge"].split(",");
 
     if(badge[self.data]){
+      var deleteBadge = badge[self.data].split("/").pop();
+      var deletePath = `static/fek-badges/${deleteBadge}`;
+
       badge[self.data] = "";
       badge = badge.join(",");
 
@@ -522,8 +575,7 @@ ManageCosmetics.prototype.RemoveBadge = function(){return new Promise((resolve) 
 
       self.response = "Badge removed. Fish Chip upkeep has been reduced by 3.";
       self.conn.query(sql, args, function(err, rows){
-        // Do something to delete the image from the server
-        console.log("Do something to delete the image from the server");
+        fs.unlinkSync(deletePath);
         resolve();
       });
     }else{
@@ -539,7 +591,7 @@ ManageCosmetics.prototype.AdvanceDay = function(){return new Promise((resolve) =
   // Check all non-staff and reduce the number of FC they have by this:
   var sql = `SELECT id, fish_chips, title, badge
              FROM users WHERE staff != 1 AND
-             (title != '' OR badge != '')`;
+             (title != '' OR badge != ',,')`;
 
   self.conn.query(sql, function(err, rows){
     for(var i = 0; i < rows.length; i++){
@@ -567,7 +619,7 @@ ManageCosmetics.prototype.AdvanceDay = function(){return new Promise((resolve) =
         self.conn.query(sql, args, function(err, rows){});
       }else{
         // Remove all cosmetics if the user can't pay for it
-        var sql  = `UPDATE users SET title='', badge='' WHERE id=?`;
+        var sql  = `UPDATE users SET title='', badge=',,' WHERE id=?`;
         var args = [row["id"]];
         self.conn.query(sql, args, function(err, rows){});
       }
