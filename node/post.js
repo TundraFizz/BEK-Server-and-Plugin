@@ -61,8 +61,7 @@ FEK.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
       self.conn.query(sql, args, function(err, rows){
         resolve();
       });
-    }
-    else{
+    }else{
       var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
       var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
       self.conn.query(sql, args, function(err, rows){
@@ -137,8 +136,7 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
       sql += ` WHERE name=? AND region=?`;
       args.push(self.users[i]);
       args.push(self.regions[i]);
-    }
-    else{
+    }else{
       sql += ` OR name=? AND region=?`;
       args.push(self.users[i]);
       args.push(self.regions[i]);
@@ -203,6 +201,7 @@ function UploadAvatar(req){
 
 UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
   var self = this;
+
   self.form.parse(self.req, function(err, data, files){
     self.name     = data["name"];
     self.region   = data["region"];
@@ -248,8 +247,7 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
         self.response["uploaded"] = true;
         resolve();
       });
-    }
-    else{
+    }else{
       fs.unlinkSync(self.filePath);
       resolve();
     }
@@ -272,8 +270,7 @@ UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
       self.conn.query(sql, args, function(err, rows){
         resolve();
       });
-    }
-    else{
+    }else{
       // Update existing user
       var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
       var args = [self.name, self.region, lastLogin, self.id];
@@ -321,8 +318,7 @@ app.post("/database", function(req, res){
     .then(() => fek.GetTwitterInfo())
     .then(() => fek.GetAvatars())
     .then(() => res.json(fek.response));
-  }
-  else{
+  }else{
     fek.GetVersion()
     .then(() => fek.GetEvent())
     .then(() => fek.GetTwitterInfo())
@@ -346,101 +342,245 @@ app.post("/querysearch", function(req, res){
   .then(() => res.json(userSearch.response))
 })
 
-function ManageCosmetics(req){
-  this.conn = mysql.createConnection({host     : "localhost",
+function ManageCosmetics(){}
+
+ManageCosmetics.prototype.Initialize = function(req){return new Promise((resolve) => {
+  var self = this;
+
+  self.conn = mysql.createConnection({host     : "localhost",
                                       user     : "root",
                                       password : "Fizz",
                                       database : "fek"});
-  this.action   = req.body.action;
-  this.data     = req.body.data;
-  this.response = {};
-}
 
-ManageCosmetics.prototype.Testing = function(){return new Promise((resolve) => {
+  self.id       = -1;
+  self.response = {};
+
+  self.form           = new formidable.IncomingForm();
+  self.form.uploadDir = "./fek-badges"; // Form Option: Set the upload directory
+
+  self.form.parse(req, function(err, data, files){
+    for(key in data)
+      self[key] = data[key];
+    resolve();
+
+    // Debug
+    console.log("action", self.action);
+    console.log("data  ", self.data);
+    console.log("name  ", self.name);
+    console.log("region", self.region);
+    console.log("auth  ", self.auth);
+  });
+})}
+
+ManageCosmetics.prototype.AuthenticateUser = function(){return new Promise((resolve) => {
   var self = this;
 
-  if(self.action == "Change Title"){
-    var title1 = false; // Current title
-    var title2 = false; // New title
-
-    self.data = self.data.trim();
-
-    if(self.data)
-      title2 = true;
-
-    // Check if there is no title
-    var sql  = `SELECT title FROM users WHERE name LIKE 'Tundra Fizz' AND region='NA'`;
-    // var sql  = `SELECT title FROM users WHERE name LIKE ?`;
-    var args = ["Tundra Fizz"];
-
-    self.conn.query(sql, /*args,*/ function(err, rows){
-      var row = rows[0];
-
-      if(row["title"])
-        title1 = true;
-
-      if(title1 == false && title2 == true){
-        console.log("Make sure user has enough FC");
-      }
-
-      var sql  = `UPDATE users SET title=? WHERE name LIKE 'Tundra Fizz' AND region='NA'`;
-      var args = [self.data];
-      self.conn.query(sql, args, function(err, rows){
-        console.log("DONE");
-        resolve();
-      });
-
-      resolve();
-    });
-
-  }else if(self.action == "Add Badge"){
-
-  }else if(self.action == "Remove Badge"){
-
-  }else if(self.action == "Advance Day Test"){
-    console.log("Advancing the day...");
-    // Check all non-staff and reduce the number of FC they have by this:
-
-    var sql  = `SELECT id, fish_chips, title, badge FROM users WHERE staff!=1`;
-
-    self.conn.query(sql, function(err, rows){
-      for(var i = 0; i < rows.length; i++){
-        var row       = rows[i];
-        var cosmetics = 0;
-
-        console.log(row);
-
-        if(row["title"])
-          cosmetics++;
-
-        if(row["badge"]){
-          var badges = row["badge"].split(",");
-          console.log(badges);
-          cosmetics += badges.length;
-        }
-
-        var upkeep = cosmetics * 3;
-        console.log(cosmetics, upkeep);
-
-        // Upkeep has been found
-        //   If user can pay for it, deduct FC
-        //   If user can't pay for it, DO NOT deduct FC and remove all cosmetics
-      }
-      resolve();
-    });
-
-    // Set new amount of FC
-  }else{
-    console.log("Invalid action");
+  if(self.action == "Advance Day"){
+    self.AdvanceDay().then(() => resolve())
+    return;
   }
 
-  self.response = "Testing";
+  if(!self.auth){
+    self.response = "You must have an auth code";
+    resolve();
+  }else{
+    var sql  = `SELECT id FROM users WHERE name=? AND region=? AND auth=?`;
+    var args = [self.name, self.region, self.auth];
+
+    self.conn.query(sql, args, function(err, rows){
+      if(rows[0]){
+        self.id = rows[0]["id"];
+        if(self.action == "Update Title")
+          self.UpdateTitle().then(() => resolve())
+        else if(self.action == "Remove Title")
+          self.RemoveTitle().then(() => resolve())
+        else if(self.action == "Update Badge")
+          self.UpdateBadge().then(() => resolve())
+        else if(self.action == "Remove Badge")
+          self.RemoveBadge().then(() => resolve())
+        else{
+          self.response = "Invalid action";
+          resolve();
+        }
+      }else{
+        self.response = "Your auth code is incorrect";
+        resolve();
+      }
+    });
+  }
+})}
+
+ManageCosmetics.prototype.UpdateTitle = function(){return new Promise((resolve) => {
+  var self  = this;
+  self.data = self.data.trim();
+
+  if(self.data){
+    var sql  = `SELECT fish_chips, title FROM users WHERE id=?`;
+    var args = [self.id];
+
+    self.conn.query(sql, args, function(err, rows){
+      var row  = rows[0];
+      var sql  = `UPDATE users SET title=? WHERE id=?`;
+      var args = [self.data, self.id];
+
+      if(row["title"]){
+        self.response = "Title changed";
+        self.conn.query(sql, args, function(err, rows){resolve()});
+      }else if(row["fish_chips"] >= 3){
+        self.response = "Title changed, 3 FC deducted";
+        self.conn.query(sql, args, function(err, rows){
+          var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
+          var args  = [row["fish_chips"] - 3, self.id];
+          self.conn.query(sql, args, function(err, rows){resolve()});
+        });
+      }else{
+        self.response = "You don't have enough FC";
+        resolve();
+      }
+    });
+  }else{
+    self.response = "You can't have a blank title. If you wish to remove it, please use the Remove Title button.";
+    resolve();
+  }
+})}
+
+ManageCosmetics.prototype.RemoveTitle = function(){return new Promise((resolve) => {
+  var self = this;
+  var sql  = `SELECT title FROM users WHERE id=?`;
+  var args = [self.id];
+
+  self.conn.query(sql, args, function(err, rows){
+    if(rows[0]["title"]){
+      var sql       = `UPDATE users SET title='' WHERE id=?`;
+      var args      = [self.id];
+      self.response = "Title removed. Fish Chip upkeep has been reduced by 3.";
+      self.conn.query(sql, args, function(err, rows){resolve()});
+    }else{
+      self.response = "You don't have a title to remove.";
+      resolve();
+    }
+  });
+})}
+
+ManageCosmetics.prototype.UpdateBadge = function(){return new Promise((resolve) => {
+  var self  = this;
+  self.data = parseInt(self.data);
+
+  if(!(self.data >= 0 && self.data <= 2)){
+    self.response = "Invalid badge";
+    resolve();
+    return;
+  }
+
+  // Check to see if they already have a badge in that slot
+  var sql  = `SELECT badge FROM users WHERE id=?`;
+  var args = [self.id];
+
+  self.conn.query(sql, args, function(err, rows){
+    var row   = rows[0];
+    var badge = row["badge"].split(",");
+
+    if(badge[self.data]){
+      // User already has a badge in this slot. Change it and don't charge them
+      self.response = "User already has a badge in this slot. Change it and don't charge them";
+
+      badge[self.data] = "YoloSwag";
+      badge = badge.join(",");
+
+      resolve();
+    }else{
+      // User doesn't have a badge in this slot. Change it and charge them
+      self.response = "User doesn't have a badge in this slot. Change it and charge them";
+      resolve();
+    }
+  });
+})}
+
+ManageCosmetics.prototype.RemoveBadge = function(){return new Promise((resolve) => {
+  var self  = this;
+  self.data = parseInt(self.data);
+
+  if(!(self.data >= 0 && self.data <= 2)){
+    self.response = "Invalid badge";
+    resolve();
+    return;
+  }
+
+  var sql  = `SELECT badge FROM users WHERE id=?`;
+  var args = [self.id];
+
+  self.conn.query(sql, args, function(err, rows){
+    var row   = rows[0];
+    var badge = row["badge"].split(",");
+
+    if(badge[self.data]){
+      badge[self.data] = "";
+      badge = badge.join(",");
+
+      var sql  = `UPDATE users SET badge=? WHERE id=?`;
+      var args = [badge, self.id];
+
+      self.response = "Badge removed. Fish Chip upkeep has been reduced by 3.";
+      self.conn.query(sql, args, function(err, rows){
+        // Do something to delete the image from the server
+        console.log("Do something to delete the image from the server");
+        resolve();
+      });
+    }else{
+      self.response = "You don't have a badge in that slot.";
+      resolve();
+    }
+  });
+})}
+
+ManageCosmetics.prototype.AdvanceDay = function(){return new Promise((resolve) => {
+  var self = this;
+
+  // Check all non-staff and reduce the number of FC they have by this:
+  var sql = `SELECT id, fish_chips, title, badge
+             FROM users WHERE staff != 1 AND
+             (title != '' OR badge != '')`;
+
+  self.conn.query(sql, function(err, rows){
+    for(var i = 0; i < rows.length; i++){
+      var row       = rows[i];
+      var cosmetics = 0;
+
+      if(row["title"])
+        cosmetics++;
+
+      if(row["badge"]){
+        var badges = row["badge"].split(",");
+        for(var i = 0; i < badges.length; i++){
+          if(badges[i])
+            cosmetics++;
+        }
+      }
+
+      var upkeep = cosmetics * 3;
+
+      if(row["fish_chips"] >= upkeep){
+        // Deduct Fish Chips if the user can pay for it
+        var newFC = row["fish_chips"] - upkeep;
+        var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
+        var args  = [newFC, row["id"]];
+        self.conn.query(sql, args, function(err, rows){});
+      }else{
+        // Remove all cosmetics if the user can't pay for it
+        var sql  = `UPDATE users SET title='', badge='' WHERE id=?`;
+        var args = [row["id"]];
+        self.conn.query(sql, args, function(err, rows){});
+      }
+    }
+  });
   resolve();
 })}
 
 app.post("/managecosmetics", function(req, res){
-  var manageCosmetics = new ManageCosmetics(req);
-  manageCosmetics.Testing()
+  var manageCosmetics = new ManageCosmetics();
+
+  manageCosmetics.Initialize(req)
+  .then(() => manageCosmetics.AuthenticateUser())
   .then(() => res.json(manageCosmetics.response))
 })
 

@@ -47,9 +47,11 @@ td[data=show] {
     </table>
 
     <input id="change-title" type="text">
-    <input id="btn-change-title" type="button" value="Change Title">
-    <input id="btn-add-badge"    type="button" value="Add Badge">
-    <input id="btn-remove-badge" type="button" value="Remove Badge">
+    <input id="btn-change-title" type="button" value="Update Title">
+    <input id="btn-remove-title" type="button" value="Remove Title"><br>
+    <input id="form-badge"       type="file">
+    <input id="btn-update-badge" type="button" value="Update Badge">
+    <input id="btn-remove-badge" type="button" value="Remove Badge"><br>
     <input id="advance-day-test" type="button" value="Advance Day">
   </body>
 </html>
@@ -124,38 +126,66 @@ function QuerySearch(){
   });
 }
 
-$("#btn-change-title").click(function(){
-  $.post("/managecosmetics",{
-    action: "Change Title",
-    data:   $("#change-title").val()
-  }, function(data){
+// Minimized function I made which helps sending form POST data easily
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d)})}
+
+$("#btn-update-title").click(function(){
+  var formData = new FormData();
+  formData.append("action", "Update Title");
+  formData.append("data",   $("#change-title").val());
+  formData.append("name",   "Tundra Fizz");
+  formData.append("region", "NA");
+  formData.append("auth",   "www");
+
+  SendToServer("managecosmetics", formData, function(data){
     console.log(data);
   });
 })
 
-$("#btn-add-badge").click(function(){
-  $.post("/managecosmetics",{
-    action: "Add Badge",
-    data:   $("#change-title").val()
-  }, function(data){
+$("#btn-remove-title").click(function(){
+  var formData = new FormData();
+  formData.append("action", "Remove Title");
+  formData.append("name",   "Tundra Fizz");
+  formData.append("region", "NA");
+  formData.append("auth",   "www");
+
+  SendToServer("managecosmetics", formData, function(data){
+    console.log(data);
+  });
+})
+
+$("#btn-update-badge").click(function(){
+  var formData = new FormData();
+  var file     = $("#form-badge").get(0).files[0];
+  formData.append("action", "Update Badge");
+  formData.append("data",   "1");
+  formData.append("name",   "Tundra Fizz");
+  formData.append("region", "NA");
+  formData.append("auth",   "www");
+  formData.append("file",   file, file.name);
+
+  SendToServer("managecosmetics", formData, function(data){
     console.log(data);
   });
 })
 
 $("#btn-remove-badge").click(function(){
-  $.post("/managecosmetics",{
-    action: "Remove Badge",
-    data: ""
-  }, function(data){
+  var formData = new FormData();
+  formData.append("action", "Remove Badge");
+  formData.append("data",   "1");
+  formData.append("name",   "Tundra Fizz");
+  formData.append("region", "NA");
+  formData.append("auth",   "www");
+
+  SendToServer("managecosmetics", formData, function(data){
     console.log(data);
   });
 })
 
 $("#advance-day-test").click(function(){
-  $.post("/managecosmetics",{
-    action: "Advance Day Test",
-    data: ""
-  }, function(data){
+  var formData = new FormData();
+  formData.append("action", "Advance Day");
+  SendToServer("managecosmetics", formData, function(data){
     console.log(data);
   });
 })
