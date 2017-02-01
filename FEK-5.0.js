@@ -18,13 +18,6 @@
 // Written by Leif Coleman (Tundra Fizz - NA) <mageleif@yahoo.com>
 // http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK
 
-///////////////
-// IMPORTANT //
-//////////////////////////////////////////////////////////////////////
-// Ctrl+F for the word MAINTENANCE in order to find parts of the    //
-// code that I still need to work on that I originally skipped over //
-//////////////////////////////////////////////////////////////////////
-
 var disableFEK = false;         // <-- Test variable, remove this laster
 if(window.top != window.self || // Prevent FEK from running more than once per page load
    disableFEK)                  // Custom Wrenchmen JS stuff
@@ -2140,22 +2133,24 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
       // Prepare the button html
       if(useInitValue === "off"){
         initclass = "inactive ";
-        initstyle = 'background-position:center; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'button-off.png\');';
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
         initlabel = "Disable";
       }else{
         initclass = "";
-        initstyle = 'background-position:center; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'button-on.png\');';
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
       }
 
-      buttonhtml = '<div id="button" class="' + initclass + 'dropdown" fekvar="' + variablename + '" style="background-position:right 10px; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'drop-indicator.png\');">\
-                     ' + tooltiphtml + '\
-                     <div id="indicator" style="' + initstyle + '"></div>\
-                     <span id="label">' + label + '</span>\
-                     <span id="choice" fekvalue="' + useInitValue + '">' + initlabel + '</span>\
-                     <ul>\
-                       ' + listhtml + '\
-                     </ul>\
-                   </div>';
+      buttonhtml = `
+      <div id="button" class="${initclass}dropdown" fekvar="${variablename}" style="background-position:right 10px; background-repeat:no-repeat; background-image:url('${FEKgfx}drop-indicator.png');">
+        ${tooltiphtml}
+        <div id="indicator" style="${initstyle}"></div>
+        <span id="label">${label}</span>
+        <span id="choice" fekvalue="${useInitValue}">${initlabel}</span>
+        <ul>
+          ${listhtml}
+        </ul>
+      </div>
+      `;
 
       contentview.find("#optiongroup[optiongroup='" + scategory + "']").append(buttonhtml);
     }else{
