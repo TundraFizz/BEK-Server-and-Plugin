@@ -13,9 +13,3 @@ require("./node/post.js");                        // Include POST requests secon
 require("./node/routes.js");                      // Include web routes third
 
 app.listen(9001);                                 // Start the server
-
-// USEFUL DEBUG STUFF
-// http://www.http-post.com/
-// http://localhost:9001/database
-// myName   = Tundra Fizz
-// myRegion = NA
