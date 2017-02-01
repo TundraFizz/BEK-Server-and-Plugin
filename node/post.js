@@ -218,6 +218,30 @@ FEK.prototype.FindAvatar = function(boardsId){
   return false;
 }
 
+app.post("/database", function(req, res){
+  var fek = new FEK();
+
+  MySqlConnection()
+  .then(() => fek.Initialize(req))
+  .then(() => {
+    if(fek.name){
+      fek.GetBoardsInfo()
+      .then(() => fek.CheckIfUserExists())
+      .then(() => fek.GetVersion())
+      .then(() => fek.GetEvent())
+      .then(() => fek.GetTwitterInfo())
+      .then(() => fek.GetAvatars())
+      .then(() => res.json(fek.response));
+    }else{
+      fek.GetVersion()
+      .then(() => fek.GetEvent())
+      .then(() => fek.GetTwitterInfo())
+      .then(() => fek.GetAvatars())
+      .then(() => res.json(fek.response));
+    }
+  })
+})
+
 function UploadAvatar(){}
 
 UploadAvatar.prototype.Initialize = function(req){return new Promise((resolve) => {
@@ -313,6 +337,16 @@ UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
   });
 })}
 
+app.post("/uploadavatar", function(req, res){
+  var uploadAvatar = new UploadAvatar();
+
+  MySqlConnection()
+  .then(() => uploadAvatar.Initialize(req))
+  .then(() => uploadAvatar.GetIdFromRiotApi())
+  .then(() => uploadAvatar.UpdateUser())
+  .then(() => res.json(uploadAvatar.response))
+})
+
 function UserSearch(){}
 
 UserSearch.prototype.Initialize = function(req){return new Promise((resolve) => {
@@ -346,40 +380,6 @@ UserSearch.prototype.QuerySearch = function(){return new Promise((resolve) => {
     resolve();
   });
 })}
-
-app.post("/database", function(req, res){
-  var fek = new FEK();
-
-  MySqlConnection()
-  .then(() => fek.Initialize(req))
-  .then(() => {
-    if(fek.name){
-      fek.GetBoardsInfo()
-      .then(() => fek.CheckIfUserExists())
-      .then(() => fek.GetVersion())
-      .then(() => fek.GetEvent())
-      .then(() => fek.GetTwitterInfo())
-      .then(() => fek.GetAvatars())
-      .then(() => res.json(fek.response));
-    }else{
-      fek.GetVersion()
-      .then(() => fek.GetEvent())
-      .then(() => fek.GetTwitterInfo())
-      .then(() => fek.GetAvatars())
-      .then(() => res.json(fek.response));
-    }
-  })
-})
-
-app.post("/uploadavatar", function(req, res){
-  var uploadAvatar = new UploadAvatar();
-
-  MySqlConnection()
-  .then(() => uploadAvatar.Initialize(req))
-  .then(() => uploadAvatar.GetIdFromRiotApi())
-  .then(() => uploadAvatar.UpdateUser())
-  .then(() => res.json(uploadAvatar.response))
-})
 
 app.post("/querysearch", function(req, res){
   var userSearch = new UserSearch();
