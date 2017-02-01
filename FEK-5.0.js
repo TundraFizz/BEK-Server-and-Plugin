@@ -28,7 +28,7 @@ if(window.top != window.self || // Prevent FEK from running more than once per p
 var domain = "http://localhost:9001";
 
 // This function is used in the minimized function below
-function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF","Unable to connect to the FEK server, <a href='https://twitter.com/Tundra_Fizz' target='_blank'>try checking Twitter</a> for possible status updates.")}
+function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`)}
 
 // Minimized function I made which helps sending form POST data easily
 function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d)}).fail(function(){cab()})};
@@ -359,9 +359,15 @@ function EmptyVoteReplacement(){
     $(".inline-profile").each(function(){
       var src           = "http://i.imgur.com/NcHbI1d.png";
       var votingElement = $(this).parent().parent().parent().find(".no-voting");
-      $(votingElement).html('<div class="riot-apollo voting"><ul class="riot-voting">\
-                         <li class="total-votes"><img style="width: auto; max-width: 30px; max-height: 30px;" src="' + src + '"></li>\
-                         </ul></div>');
+      $(votingElement).html(`
+      <div class="riot-apollo voting">
+        <ul class="riot-voting">
+          <li class="total-votes">
+            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}">
+          </li>
+        </ul>
+      </div>
+      `);
     });
   }else if(emptyVoteReplacement == "bannersavatars"){
     users   = [];
@@ -392,9 +398,14 @@ function EmptyVoteReplacement(){
         if(avatar !== undefined) src = avatar;
         else                     src = "http://i.imgur.com/NcHbI1d.png";
 
-        $(votingElement).html('<div class="riot-apollo voting"><ul class="riot-voting">\
-                         <li class="total-votes"><img style="width: auto; max-width: 30px; max-height: 30px;" src="' + src + '"></li>\
-                         </ul></div>');
+        $(votingElement).html(`
+        <div class="riot-apollo voting">
+          <ul class="riot-voting">
+            <li class="total-votes">
+            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}"></li>
+          </ul>
+        </div>
+        `);
       });
     });
   }
@@ -425,7 +436,8 @@ function HideSubboards(){
 //////////////////////////////////////////////////////////////////////////////
 function FavoriteIcons(){
   $(".button.gamedata.champion").each(function(){
-    this.style.setProperty("background-image", "url('" + FEKgfxLargeChamp + favoriteChampion + ".png')", "important");
+    var url = FEKgfxLargeChamp + favoriteChampion;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
 
@@ -434,7 +446,8 @@ function FavoriteIcons(){
   });
 
   $(".button.gamedata.summoner").each(function(){
-    this.style.setProperty("background-image", "url('" + FEKgfxLargeSpell + favoriteSpell + ".png')", "important");
+    var url = FEKgfxLargeSpell + favoriteSpell;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
 
@@ -444,7 +457,8 @@ function FavoriteIcons(){
 
   $(".button.gamedata.item").each(function()
   {
-    this.style.setProperty("background-image", "url('" + FEKgfxLargeItem + favoriteItem + ".png')", "important");
+    var url = FEKgfxLargeItem + favoriteItem;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
 
@@ -490,16 +504,20 @@ function QueryFEKServer(){
     // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
     if(0){
       var NavBarEvent = document.createElement("li");
-      AddToNavBar(NavBarEvent, "touchpoint-event", "<a href='#'>Event</a>\
-      <div id='fek-event'>\
-        <div id='fek-event-top'>" + FEKevent.message + "</div>\
-        <div id='fek-event-bottom-left'>\
-          <a href='" + FEKevent.stream + "' target='_blank' style='padding: 2px;'>Twitch Stream</a>\
-        </div>\
-        <div id='fek-event-bottom-right'>\
-          <a href='" + FEKevent.thread + "' target='_blank' style='padding: 2px;'>Boards Thread</a>\
-        </div>\
-      </div>", RiotBar, 8);
+      var html = `
+      <a href="#">Event</a>
+      <div id="fek-event">
+        <div id="fek-event-top">${FEKevent.message}</div>
+        <div id="fek-event-bottom-left">
+          <a href="${FEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
+        </div>
+        <div id="fek-event-bottom-right">
+          <a href="${FEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
+        </div>
+      </div>
+      `;
+
+      AddToNavBar(NavBarEvent, "touchpoint-event", html, RiotBar, 8);
 
       window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
 
@@ -509,9 +527,13 @@ function QueryFEKServer(){
     }
 
     if(FEKversion != results.version && window.location.href != FEKpage){
-      CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
-                     "There has been an update to FEK!<br /><br />\
-                     <a href='" + results.details + "'style='color:#00C0FF;'>Click here</a> for the post detailing new changes and to download version " + results.version);
+      var html = `
+      There has been an update to FEK!<br><br>
+      <a href="${results.details}" style="color:#00C0FF;">Click here</a>
+      for the post detailing new changes and to download version ${results.version}
+      `;
+
+      CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
     }else{
       if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
         CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
@@ -805,11 +827,11 @@ function FormatSinglePost1(obj, op){
         innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
         innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
 
-        innerDiv.innerHTML = "<a href='#' id='prfle' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>View Profile</a><br>\
-                              <a href='#' id='avatr' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>View Avatar</a><br>\
-                              <a href='#' id='lolnx' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>LoLNexus</a><br>\
-                              <a href='#' id='opgg'  style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>OP.GG</a><br>\
-                              <a href='#' id='black' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>Blacklist</a>";
+        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
+                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
+                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
+                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
+                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
 
         this.appendChild(innerDiv);
 
@@ -1005,7 +1027,7 @@ function FormatSinglePost1(obj, op){
     username.style.setProperty("display",        "block",        "important");
     username.style.setProperty("letter-spacing", "1px",          "important");
     username.style.setProperty("font-variant",   "normal",       "important");
-    username.style.setProperty("font-family" ,   "'Constantia', 'Palatino', 'Georgia', serif", "important");
+    username.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
 
     if(op === true)
       username.style.setProperty("top", -avatarSize - 16 + "px", "important");
@@ -1030,18 +1052,18 @@ function FormatSinglePost1(obj, op){
   }
 
   if(op === true){
-    region.style.setProperty("position", "relative", "important");
-    region.style.setProperty("top",      "-20px",    "important");
-    region.style.setProperty("left",     avatarSize + 55 + "px", "important");
-    region.style.setProperty("letter-spacing", "1px",         "important");
-    region.style.setProperty("font-size",    "16px",         "important");
-    region.style.setProperty("font-variant", "normal",       "important");
-    region.style.setProperty("font-family" , "'Constantia', 'Palatino', 'Georgia', serif", "important");
+    region.style.setProperty("position",       "relative",             "important");
+    region.style.setProperty("top",            "-20px",                "important");
+    region.style.setProperty("left",           avatarSize + 55 + "px", "important");
+    region.style.setProperty("letter-spacing", "1px",                  "important");
+    region.style.setProperty("font-size",      "16px",                 "important");
+    region.style.setProperty("font-variant",   "normal",               "important");
+    region.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
   }
 
   if(op === false){
-    region.style.setProperty("position", "relative", "important");
-    region.style.setProperty("top",      "-17px",    "important");
+    region.style.setProperty("position", "relative",             "important");
+    region.style.setProperty("top",      "-17px",                "important");
     region.style.setProperty("left",     avatarSize + 65 + "px", "important");
   }
 
@@ -1049,7 +1071,7 @@ function FormatSinglePost1(obj, op){
   if(op === true && typeof riotVoting != "undefined"){
     riotVoting.style.setProperty("position", "absolute", "important");
     riotVoting.style.setProperty("top",      "138px",    "important");
-    riotVoting.style.setProperty("left",     "10px",    "important");
+    riotVoting.style.setProperty("left",     "10px",     "important");
   }
 
   // Voting: Regular Post
@@ -1158,11 +1180,11 @@ function FormatSinglePost2(obj, op){
         innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
         innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
 
-        innerDiv.innerHTML = "<a href='#' id='prfle' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>View Profile</a><br>\
-                              <a href='#' id='avatr' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>View Avatar</a><br>\
-                              <a href='#' id='lolnx' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>LoLNexus</a><br>\
-                              <a href='#' id='opgg'  style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>OP.GG</a><br>\
-                              <a href='#' id='black' style='color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif'>Blacklist</a>";
+        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
+                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
+                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
+                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
+                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
 
         this.appendChild(innerDiv);
 
@@ -1265,7 +1287,7 @@ function FormatSinglePost2(obj, op){
       // Gradient names have problems where if they are too long and have a space, they will
       // go on a second line. So if a name is a certain length (>= 14) and has at least one
       // space in it, decrease the font size to 12
-      if(usernameT.length >= 12 && (usernameT.indexOf(' ') >= 0))
+      if(usernameT.length >= 12 && (usernameT.indexOf(" ") >= 0))
         username.style.setProperty("font-size", "12px", "important");
 
       $(username).GradientText({
@@ -1373,7 +1395,11 @@ function RollDice(obj){
         }
 
         // Replace the text
-        var dieRoll = '<font color="#ff0000">Die Result: </font>' + '<font color="#00ff00">' + result + '</font>' + '<font color="#00ffff">' + ' (' + rolls + 'd' + die + ')' + '</font>';
+        var dieRoll = `
+        <font color="#ff0000">Die Result: </font>
+        <font color="#00ff00">${result}</font>
+        <font color="#00ffff">(${rolls}d${die})</font>
+        `;
         paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], dieRoll);
 
         rolled = true;
@@ -1865,14 +1891,14 @@ function CreateFeatures(){
   ///////////////////////////
   if(blacklisting == "on"){
     PanelCreateTab(tabgroup, "Blacklist", function(contentview){
-      $("#tab[tab='core-mods-blacklist']").click(function(){
+      $(`#tab[tab="core-mods-blacklist"]`).click(function(){
         contentview.html("<h1>Blacklisted Users</h1><br>Click on a name to remove it from your blacklist<br><br>");
 
         var vals = GM_listValues();
         for(var i = 0; i < vals.length; i++){
           if(vals[i][0] != "_"){
             myThing = document.createElement("div");
-            myThing.innerHTML = "<a href='#'>" + vals[i] + "</a><br>";
+            myThing.innerHTML = `<a href="#">${vals[i]}</a><br>`;
 
             $(myThing).click(function(event){
               event.preventDefault();
@@ -1922,7 +1948,7 @@ function CreateFeatures(){
   // Feature: Fish Chips //
   /////////////////////////
   PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
-    $("#tab[tab='core-mods-fish-chips']").click(function()
+    $(`#tab[tab="core-mods-fish-chips"]`).click(function()
     {
       LoadWebPanel("fishchips", contentview, function()
       {
@@ -1935,21 +1961,21 @@ function CreateFeatures(){
   tabgroup = "Social";
 
   PanelCreateTab(tabgroup, "Friends", function(contentview){
-    $("#tab[tab='social-friends']").click(function(){
+    $(`#tab[tab="social-friends"]`).click(function(){
       LoadWebPanel("placeholder", contentview, function(){});
       // LoadWebPanel2("NO PAGE", "getFriends", contentview, function(){});
     });
   });
 
   PanelCreateTab(tabgroup, "Messages", function(contentview){
-    $("#tab[tab='social-messages']").click(function(){
+    $(`#tab[tab="social-messages"]`).click(function(){
       LoadWebPanel("placeholder", contentview, function(){});
       // LoadWebPanel2("NO PAGE", "messages", contentview, function(){});
     });
   });
 
   PanelCreateTab(tabgroup, "Send PM", function(contentview){
-    $("#tab[tab='social-send-pm']").click(function(){
+    $(`#tab[tab="social-send-pm"]`).click(function(){
       LoadWebPanel("placeholder", contentview, function(){});
       // LoadWebPanel2("NO PAGE", "writePM", contentview, function(){});
     });
@@ -1966,7 +1992,7 @@ function CreateFeatures(){
 
     // Prepare the twitter popup html
     var docbody = $("html").first().find("body:not(.wysiwyg)").first();
-    docbody.append("<div id='twitter_row' class='popup'></div>");
+    docbody.append(`<div id="twitter_row" class="popup"></div>`);
 
     $(document).on("tweetsLoaded", function(){
       contentview.html("<h1>Announcements</h1>");
@@ -1981,7 +2007,7 @@ function CreateFeatures(){
             </div>
             <h2>${ParseTwitterDate(FEKtweets.records[i].created_at)}</h2>
             <img id="twitter_img" src="${FEKtweets.records[i].user.profile_image_url}">
-            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets.records[i].text.replace('#FEK ',''))}</span>
+            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets.records[i].text.replace("#FEK ", ""))}</span>
             <span style="opacity:0; clear:both;">.</span>
             <div id="spike"></div>
           </div>
@@ -2025,7 +2051,7 @@ function CreateFeatures(){
         });
       });
 
-      $("#tab[tab*='-announcements']").click(function(){
+      $(`#tab[tab*="-announcements"]`).click(function(){
         if(FEKtweets.records[0])
           GM_setValue("_lastReadTwitter", FEKtweets.records[0].id);
 
@@ -2042,7 +2068,7 @@ function CreateFeatures(){
   // Changelog //
   ///////////////
   PanelCreateTab(tabgroup, "Changelog", function(contentview){
-    $("#tab[tab*='fek-changelog']").click(function(){
+    $(`#tab[tab*="fek-changelog"]`).click(function(){
       LoadWebPanel("changelog", contentview, function(){
         // Load web panel finished
       });
@@ -2053,7 +2079,7 @@ function CreateFeatures(){
   // Donate //
   ////////////
   PanelCreateTab(tabgroup, "Donate", function(contentview){
-    $("#tab[tab*='fek-donate']").click(function(){
+    $(`#tab[tab*="fek-donate"]`).click(function(){
       LoadWebPanel("donate", contentview, function(){
         // Load web panel finished
       });
@@ -2152,7 +2178,7 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
       </div>
       `;
 
-      contentview.find("#optiongroup[optiongroup='" + scategory + "']").append(buttonhtml);
+      contentview.find(`#optiongroup[optiongroup="${scategory}"]`).append(buttonhtml);
     }else{
       // No options provided, so this is a toggle
       if(useInitValue === "off"){
@@ -2224,7 +2250,7 @@ function SettleGUI(){
 
   // Now set our active tab and contentview to the first tab listed
   $("#fekpanel #tab:first").addClass("active");
-  $("#fekpanel #col2 #contentview[tablink='" + $('#fekpanel #tab:first').attr('tab') + "']").show();
+  $(`#fekpanel #col2 #contentview[tablink="${$("#fekpanel #tab:first").attr("tab")}"]`).show();
 }
 
 ////////////////////////////////////////////////////////////////
