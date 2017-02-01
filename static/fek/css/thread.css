@@ -1,36 +1,25 @@
-.discussionTitle
-{
+.discussionTitle {
   position: "relative";
   left:     "65px";
-} 
-
-.title
-{
-  position", "relative
-  left",     "-70px", 
 }
 
-#opHook
-{
-  position",  "relative"
-  left",      "-234px", 
-  font-size", "18px",   
+.title {
+  position: "relative";
+  left:     "-70px";
 }
 
-.body
-{
-  position",     "relative",
-  top",          "-12px",   
-  margin-top",   "0px
+#opHook {
+  position:  "relative";
+  left:      "-234px";
+  font-size: "18px";
 }
 
-#content
-{
-  padding-left", "0px",
+.body {
+  position:   "relative";
+  top:        "-12px";
+  margin-top: "0px";
 }
 
-
-
-
-
-
+#content {
+  padding-left: "0px";
+}

@@ -18,69 +18,42 @@
 // Written by Leif Coleman (Tundra Fizz - NA) <mageleif@yahoo.com>
 // http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK
 
-//var masterIP = "http://35.161.242.105";
-//var masterIP = "http://35.167.193.168:9001";
-var masterIP = "http://localhost:9001/";
+//var domain = "http://35.161.242.105";
+//var domain = "http://35.167.193.168:9001";
+var domain = "http://localhost:9001";
 
-// Prevent FEK from running more than once per page load
-if(window.top != window.self) return;
+var disableFEK = false;         // <-- Test variable, remove this laster
+if(window.top != window.self || // Prevent FEK from running more than once per page load
+   disableFEK)                  // Custom Wrenchmen JS stuff
+  return;
 
-/* jshint multistr: true */
-//Date.prototype.StandardTimezoneOffset = function() {var jan = new Date(this.getFullYear(), 0, 1); var jul = new Date(this.getFullYear(), 6, 1); return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());}
-Date.prototype.StandardTimezoneOffset = function() {var jan = new Date(this.getFullYear(), 0, 1); var jul = new Date(this.getFullYear(), 6, 1); return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());};
-Date.prototype.dst = function() {return this.getTimezoneOffset() < this.StandardTimezoneOffset();};
-
-var FEKversion       = "4.6.0";
+var FEKversion       = "5.0.0";
 var FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
-var FEKgfx           = "http://tundrafizz.com/fek/gfx/misc/";
-var cIcons           = "http://tundrafizz.com/fek/gfx/iconsmallchampion/";
-var FEKgfxLargeChamp = "http://tundrafizz.com/fek/gfx/iconlargechampion/";
-var FEKgfxLargeSpell = "http://tundrafizz.com/fek/gfx/iconlargespell/";
-var FEKgfxLargeItem  = "http://tundrafizz.com/fek/gfx/iconlargeitem/";
+var FEKgfx           = `${domain}/fek/gfx/misc/`;
+var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
+var FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
+var FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
+var FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
 var FEKtweets        = [];
 var activeKeys       = [];
-var overheadTimers   = [];
 var hotkeys          = [];
 var users            = [];
 var regions          = [];
 var results          = [];
 var errorMessage     = "";
 
-LoadCSS(masterIP + "fek/css/fekv4panel.css");
-LoadCSS(masterIP + "fek/css/fekevent.css");
+LoadCSS(`${domain}/fek/css/fekv4panel.css`);
+LoadCSS(`${domain}/fek/css/fekevent.css`);
+LoadCSS(`${domain}/fek/css/thread.css`);
 
 //////////////////////////////////////////////////////
 // Modify the navigation bar at the top of the page //
 //////////////////////////////////////////////////////
 
-var RiotBar;
-
-document.body.style.setProperty("min-width", "1050px");          // Resizes the minimum width for the page
-// RiotBar = document.getElementsByClassName("riotbar-nav")[0];  // Gets the RiotBar at the top of the webpage
-RiotBar = $("#riotbar-bar");
-
+document.body.style.setProperty("min-width", "1050px"); // Resizes the minimum width for the page
+var RiotBar = $("#riotbar-bar");
 if(RiotBar)
-{
-  // alert("1");
-  // RiotBar.attr("overflow", "visible");               // ????????????????
-  // RiotBar.style.setProperty("overflow", "visible");                // Makes it so that NavBar dropdown menus will be shown instead of hidden
-
-  // RiotBar.children[3].style.setProperty("width", "81px");          // Forces the Boards links at the top to always be the same width
-  // alert("3");
-
-  // document.getElementById("riotbar-bar").style.setProperty("z-index", "5000", "important");
   $(RiotBar).attr("z-index", "-5000 !important");
-  // alert("2");
-
-  // var sldk = document.getElementById("riotbar-bar");
-  // if(sldk) alert("YES!");
-  // else alert("no........");
-}
-else
-{
-  // RIOTBAR WAS NOT FOUND!
-  //ReportError("RiotBar was not found");
-}
 
 /////////////////////////////////
 // Get Board's Platform Region //
@@ -93,24 +66,23 @@ var platformRegion = windowURL.substring(start, end);
 //////////////////////////
 // Variables: Page Data //
 //////////////////////////
-var page;             if     (document.getElementById("discussions"))                                                       page  = "Index";  // Board Index
-                      else if(document.getElementById("comments"))                                                          page  = "Thread"; // Inside a thread
-                      else                                                                                                  page  = "NULL";   // Not on the index or in a thread
-var title;            if     (typeof (document.getElementsByTagName("h2")[0].getElementsByTagName("a")[0]) === "undefined") title = document.getElementsByTagName("h2")[0].innerHTML;                              // Gets the title of the page
-                      else                                                                                                  title = document.getElementsByTagName("h2")[0].getElementsByTagName("a")[0].innerHTML; // Gets the title of the page
-                      if     (title == "My Updates")                                                                        page  = "My Updates";   // My Updates is special and must match the title
-var threadMode;       if     (page == "Thread" && document.getElementsByClassName("flat-comments").length)                  threadMode = "Chrono";  // Chronological Mode
-                      else if(page == "Thread" && !document.getElementsByClassName("flat-comments").length)                 threadMode = "Discuss"; // Discussion Mode
-                      else                                                                                                  threadMode = "NULL";    // We're not in a thread
+var page;       if     ($("#discussions").length)                            page       = "Index";                    // Board Index
+                else if($("#comments").length)                               page       = "Thread";                   // Inside a thread
+                else                                                         page       = "NULL";                     // Not on the index or in a thread
+var title;      if     (typeof ($("h2")[0].("a")[0]) === "undefined")        title      = $("h2")[0].html();          // Gets the title of the page
+                else                                                         title      = $("h2")[0].("a")[0].html(); // Gets the title of the page
+                if     (title == "My Updates")                               page       = "My Updates";               // My Updates is special and must match the title
+var threadMode; if     (page == "Thread" && $(".flat-comments").length)      threadMode = "Chrono";                   // Chronological Mode
+                else if(page == "Thread" && $(".flat-comments").length == 0) threadMode = "Discuss";                  // Discussion Mode
+                else                                                         threadMode = "NULL";                     // We're not in a thread
 
-if(page == "Thread")
-{
-  var head  = document.getElementsByTagName("head")[0];
+if(page == "Thread"){
+  var head  = $("head")[0];
   var link  = document.createElement("link");
   link.id   = "fek-thread-css";
   link.rel  = "stylesheet";
   link.type = "text/css";
-  link.href = masterIP + "fek/css/thread.css";
+  link.href = `${domain}/fek/css/thread.css`;
   link.media = "all";
   head.appendChild(link);
 }
@@ -170,9 +142,7 @@ var alertPopUp        = false;                 // Only one alert can display at 
 var myName;
 var myRegion;
 
-//if(typeof document.getElementsByClassName("summoner-name-value")[0] != "undefined")
-if($(".riotbar-summoner-info").length)
-{
+if($(".riotbar-summoner-info").length){
   myName   = $(".riotbar-summoner-name").first().text()
   myRegion = $(".riotbar-summoner-region").first().text()
 
@@ -185,8 +155,7 @@ if($(".riotbar-summoner-info").length)
 ///////////////////////////////
 // LoadCSS: Loads a CSS file //
 ///////////////////////////////
-function LoadCSS(url)
-{
+function LoadCSS(url){
   var head     = document.getElementsByTagName("head")[0];
   var cssFile  = document.createElement("link");
   cssFile.type = "text/css";
@@ -195,8 +164,7 @@ function LoadCSS(url)
   head.appendChild(cssFile);
 }
 
-function ReportError(msg)
-{
+function ReportError(msg){
   if(errorMessage != "")
     errorMessage += "<br><br>";
 
@@ -301,57 +269,42 @@ function ReportError(msg)
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
 ///////////////////////////////////////
-(function()
-{
+(function(){
   CreateGUI();
   CreateFeatures();
   SettleGUI();
-  document.getElementById("fekpanel").style.setProperty("visibility", "hidden", "important");
+  $("#fekpanel").style.setProperty("visibility", "hidden", "important");
   KeyWatch();
 
-  if(document.title == "Boards")
-  {
+  if(document.title == "Boards"){
     HideSubboards();
   }
 
-  try
-  {
+  try{
     AddFEKNavBar();
-  }
-  catch(err)
-  {
+  }catch(err){
     ReportError("Error Code: 2");
   }
 
-  try
-  {
+  try{
     // if(boardsDropdownMenu == "on")
     //   AddBoardsNavBar();
-  }
-  catch(err)
-  {
+  }catch(err){
     ReportError("Error Code: 3");
   }
 
-  try
-  {
-    if((page == "Thread" || page == "Index") && platformRegion == "na")
-    {
+  try{
+    if((page == "Thread" || page == "Index") && platformRegion == "na"){
       var markdownNav = document.getElementById("markdown-nav");
       var timeOut     = 2000, currentTime = 0;
 
-      var interval = setInterval(function()
-      {
+      var interval = setInterval(function(){
         currentTime = currentTime + 1;
 
-        if(currentTime >= timeOut)
-        {
+        if(currentTime >= timeOut){
           clearInterval(interval);
-        }
-        else
-        {
-          if(markdownNav.children.length)
-          {
+        }else{
+          if(markdownNav.children.length){
             clearInterval(interval);
             RemoveNavListLinks();
           }
@@ -359,25 +312,20 @@ function ReportError(msg)
       }, 1);
     }
   }
-  catch(err)
-  {
+  catch(err){
     ReportError("Error Code: 4");
   }
 
-  if(page == "Index")
-  {
+  if(page == "Index"){
     if(emptyVoteReplacement != "off")
       EmptyVoteReplacement(); // For boards without voting
 
     if($(".no-voting").length)
       WaitAndRun(".no-voting", LoadIndex);
-    else
-    {
+    else{
       WaitAndRun(".total-votes", LoadIndex);
     }
-  }
-  else if(page == "Thread")
-  {
+  }else if(page == "Thread"){
     WaitAndRun(".profile-hover", LoadThread);
   }
 
@@ -392,8 +340,7 @@ function ReportError(msg)
 //////////////////////////////////////////////////////////////////////////////
 // EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
 //////////////////////////////////////////////////////////////////////////////
-function EmptyVoteReplacement()
-{
+function EmptyVoteReplacement(){
   if(emptyVoteReplacement == "banners")
   {
     $(".inline-profile").each(function()
@@ -420,7 +367,7 @@ function EmptyVoteReplacement()
       regions.push(region);
     });
 
-    $.post(masterIP + "GetOnlyAvatars", {
+    $.post(`${domain}/GetOnlyAvatars`, {
       users:   users,
       regions: regions
     }).done(function(data){
@@ -531,7 +478,7 @@ function SetGrayscaleProperties(obj)
 //////////////////////////////////////////////////////////////////////////
 function QueryFEKServer()
 {
-  $.post(masterIP + "database", {
+  $.post(`${domain}/database`, {
     myName:     myName,
     myRegion:   myRegion,
     users:      users,
@@ -2471,41 +2418,9 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
     }
   });
 
-  // Run the feature via callback if the feature isn't disabled
+  // Run the feature by callback if it isn't disabled
   if(useInitValue !== "off")
-  {
-    if(recordOverhead == "on")
-    {
-      // Setup the performance timer for the current option
-      if(!overheadTimers)
-      {
-        overheadTimers = [];
-      }
-
-      overheadTimers[variablename] = [];
-
-      // Create the starting time
-      overheadTimers[variablename].start = new Date().getTime();
-
-      // Run the callback
-      callback(useInitValue);
-
-      // Calculate the processing time
-      overheadTimers[variablename].end = new Date().getTime();
-      overheadTimers[variablename].time = overheadTimers[variablename].end - overheadTimers[variablename].start;
-
-      if(overheadTimers[variablename].time === 0)
-      {
-        overheadTimers[variablename].time = '< 1';
-      }
-
-      $("#fekpanel #button[fekvar='" + variablename + "'] #loadtime").html("Overhead: " + overheadTimers[variablename].time + "ms");
-    }
-    else
-    {
-      callback(useInitValue);
-    }
-  }
+    callback(useInitValue);
 }
 
 //////////////////////////////////////////////////
@@ -2683,7 +2598,7 @@ function LoadWebPanel(page, container, callback)
   var webPanel = $.ajax(
   {
     dataType: "json",
-    url: masterIP + "getWebPanel",
+    url: `${domain}/getWebPanel`,
     data:
     {
       page:   page
@@ -2705,7 +2620,7 @@ function LoadWebPanel2(page, action, container, callback)
   var webPanel = $.ajax(
   {
     dataType: "json",
-    url: masterIP + action,
+    url: `${domain}/action`,
     data:
     {
       page:     page,
