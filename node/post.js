@@ -4,12 +4,21 @@ var request    = require("request");
 var mysql      = require("mysql");
 var fs         = require("fs");
 
-function FEK(req){
-  this.conn = mysql.createConnection({host     : "localhost",
-                                      user     : "root",
-                                      password : "Fizz",
-                                      database : "fek"});
+function MySqlConnection(){return new Promise((resolve) => {
+  fs.readFile("mysql", "utf-8", (err, data) => {
+    var data = data.split("\n");
+    conn = mysql.createConnection({
+      host    : data[0],
+      user    : data[1],
+      password: data[2],
+      database: data[3]
+    });
 
+    resolve();
+  });
+})}
+
+function FEK(req){
   this.response                  = {};
   this.response["records"]       = {};
   this.response["announcements"] = [];
@@ -51,20 +60,20 @@ FEK.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
   var sql = `SELECT * FROM users WHERE boards_id=?`;
   var args = [self.boardsId];
 
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     var lastLogin = new Date();
 
     if(rows.length == 0){
       var sql = `INSERT INTO users (boards_id, name, region, last_login) VALUES (?,?,?,?)`;
       var args = [self.boardsId, self.boardsName, self.boardsRegion, lastLogin];
 
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         resolve();
       });
     }else{
       var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
       var args = [self.boardsName, self.boardsRegion, lastLogin, self.boardsId];
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         resolve();
       });
     }
@@ -75,7 +84,7 @@ FEK.prototype.GetVersion = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT number, link FROM version`;
   var args = [];
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     // IMPORTANT!
     // Change this from records to something else later
     self.response["version"]["number"] = rows[0]["number"];
@@ -88,7 +97,7 @@ FEK.prototype.GetEvent = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT message, stream, thread, start, end FROM event`;
   var args = [];
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     self.response["event"]["message"] = rows[0]["message"];
     self.response["event"]["stream"]  = rows[0]["stream"];
     self.response["event"]["thread"]  = rows[0]["thread"];
@@ -102,7 +111,7 @@ FEK.prototype.GetTwitterInfo = function(){return new Promise((resolve) => {
   var self = this;
   var sql = `SELECT * FROM tweets ORDER BY id DESC LIMIT 0, 2`;
   var args = [];
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     for(var i = 0; i < rows.length; i++){
       var data           = {};
       data["id"]         = rows[i]["id"];
@@ -143,7 +152,7 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
     }
   }
 
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     for(var i = 0; i < rows.length; i++){
       var row      = rows[i];
       var name     = row["name"];
@@ -187,15 +196,7 @@ function UploadAvatar(){}
 
 UploadAvatar.prototype.Initialize = function(req){return new Promise((resolve) => {
   var self = this;
-
-  self.response             = {};
-  self.avatarDirectory      = "./static/fek-avatars";
-  self.response["uploaded"] = false;
-
-  self.conn = mysql.createConnection({host     : "localhost",
-                                      user     : "root",
-                                      password : "Fizz",
-                                      database : "fek"});
+  self.response       = false; // If the avatar was uploaded (false by default)
 
   self.form           = new formidable.IncomingForm();
   self.form.multiples = true; // Form Option: Allow uploading multiple files at once
@@ -211,59 +212,35 @@ UploadAvatar.prototype.Initialize = function(req){return new Promise((resolve) =
     for(key in data)
       self[key] = data[key];
 
-    // EXTRA!
-    // Get JSON data from Riot's Boards API
-    var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
-    uri = encodeURI(uri);
-
-    self.options = {
-      url     : uri,
-      json    : true,
-      headers : {
-        "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
-      }
-    };
-
     resolve();
   });
 })}
 
-UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
-  // var self = this;
-
-  // self.form.parse(self.req, function(err, data, files){
-  //   self.name     = data["name"];
-  //   self.region   = data["region"];
-  //   self.filePath = files["file"].path;
-  //   self.fileExt  = files["file"].name.split(".").pop();
-
-  //   // Get JSON data from Riot's Boards API
-  //   var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
-  //   uri = encodeURI(uri);
-
-  //   self.options = {
-  //     url     : uri,
-  //     json    : true,
-  //     headers : {
-  //       "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
-  //     }
-  //   };
-  //   resolve();
-  // });
-})}
-
 UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve) => {
   var self = this;
-  request(self.options, function(err, res, data){
+
+  // Get JSON data from Riot's Boards API
+  var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
+  uri = encodeURI(uri);
+
+  var options = {
+    url     : uri,
+    json    : true,
+    headers : {
+      "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
+    }
+  };
+
+  request(options, function(err, res, data){
     var summonerNameFound = (typeof data["id"] !== "undefined");
     if(summonerNameFound){
       self.id = data["id"];
-      self.fullFilePath = `${self.avatarDirectory}/${self.id}.${self.fileExt}`;
+      self.fullFilePath = `${self.form.uploadDir}/${self.id}.${self.fileExt}`;
 
-      fs.readdir(self.avatarDirectory, function(err, files){
+      fs.readdir(self.form.uploadDir, function(err, files){
         self.files = files;
         for(var i = 0; i < self.files.length; i++){
-          var dir = self.avatarDirectory;
+          var dir = self.form.uploadDir;
           var id  = self.files[i].split(".")[0];
           var ext = self.files[i].split(".")[1];
           var deleteThisFile = `${dir}/${id}.${ext}`;
@@ -273,7 +250,7 @@ UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve
         }
 
         fs.rename(self.filePath, self.fullFilePath);
-        self.response["uploaded"] = true;
+        self.response = true;
         resolve();
       });
     }else{
@@ -289,21 +266,21 @@ UploadAvatar.prototype.UpdateUser = function(){return new Promise((resolve) => {
   var args = [self.id];
 
   // Check if the ID exists in the database
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     var lastLogin = new Date();
 
     if(rows.length == 0){
       // Insert new user into database if they don't exist
       var sql = `INSERT INTO users (boards_id, name, region, last_login) VALUES (?,?,?,?)`;
       var args = [self.id, self.name, self.region, lastLogin];
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         resolve();
       });
     }else{
       // Update existing user
       var sql = `UPDATE users SET name=?, region=?, last_login=? WHERE boards_id=?`;
       var args = [self.name, self.region, lastLogin, self.id];
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         resolve();
       });
     }
@@ -314,12 +291,7 @@ function UserSearch(){}
 
 UserSearch.prototype.Initialize = function(req){return new Promise((resolve) => {
   var self = this;
-
   self.response = {};
-  self.conn = mysql.createConnection({host     : "localhost",
-                                      user     : "root",
-                                      password : "Fizz",
-                                      database : "fek"});
 
   self.form           = new formidable.IncomingForm();
   self.form.uploadDir = "./static/fek-badges"; // Form Option: Set the upload directory
@@ -343,7 +315,7 @@ UserSearch.prototype.QuerySearch = function(){return new Promise((resolve) => {
   var sql  = `SELECT * FROM users WHERE name LIKE ?`;
   var args = ["%"+self.name+"%"];
 
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     self.response = rows;
     resolve();
   });
@@ -378,7 +350,8 @@ app.post("/database", function(req, res){
 app.post("/uploadavatar", function(req, res){
   var uploadAvatar = new UploadAvatar();
 
-  uploadAvatar.Initialize(req)
+  MySqlConnection()
+  .then(() => uploadAvatar.Initialize(req))
   .then(() => uploadAvatar.GetIdFromRiotApi())
   .then(() => uploadAvatar.UpdateUser())
   .then(() => res.json(uploadAvatar.response))
@@ -386,7 +359,9 @@ app.post("/uploadavatar", function(req, res){
 
 app.post("/querysearch", function(req, res){
   var userSearch = new UserSearch();
-  userSearch.Initialize(req)
+
+  MySqlConnection()
+  .then(() => userSearch.Initialize(req))
   .then(() => userSearch.QuerySearch())
   .then(() => res.json(userSearch.response))
 })
@@ -396,11 +371,6 @@ function ManageCosmetics(){}
 ManageCosmetics.prototype.Initialize = function(req){return new Promise((resolve) => {
   var self = this;
 
-  self.conn = mysql.createConnection({host     : "localhost",
-                                      user     : "root",
-                                      password : "Fizz",
-                                      database : "fek"});
-  self.id       = -1;
   self.response = {};
 
   self.form           = new formidable.IncomingForm();
@@ -417,16 +387,6 @@ ManageCosmetics.prototype.Initialize = function(req){return new Promise((resolve
       self[key] = data[key];
 
     resolve();
-
-    // Debug
-    // console.log("action", self.action);
-    // console.log("data  ", self.data);
-    // console.log("name  ", self.name);
-    // console.log("region", self.region);
-    // console.log("auth  ", self.auth);
-    // console.log(self.filePath);
-    // console.log(self.fileName);
-    // console.log(self.fileExt);
   });
 })}
 
@@ -445,7 +405,7 @@ ManageCosmetics.prototype.AuthenticateUser = function(){return new Promise((reso
     var sql  = `SELECT id, boards_id FROM users WHERE name=? AND region=? AND auth=?`;
     var args = [self.name, self.region, self.auth];
 
-    self.conn.query(sql, args, function(err, rows){
+    conn.query(sql, args, function(err, rows){
       if(rows[0]){
         self.id = rows[0]["id"];
         self.boardsId = rows[0]["boards_id"];
@@ -478,20 +438,20 @@ ManageCosmetics.prototype.UpdateTitle = function(){return new Promise((resolve) 
     var sql  = `SELECT fish_chips, title FROM users WHERE id=?`;
     var args = [self.id];
 
-    self.conn.query(sql, args, function(err, rows){
+    conn.query(sql, args, function(err, rows){
       var row  = rows[0];
       var sql  = `UPDATE users SET title=? WHERE id=?`;
       var args = [self.data, self.id];
 
       if(row["title"]){
         self.response = "Title changed";
-        self.conn.query(sql, args, function(err, rows){resolve()});
+        conn.query(sql, args, function(err, rows){resolve()});
       }else if(row["fish_chips"] >= 3){
         self.response = "Title added, 3 FC deducted";
-        self.conn.query(sql, args, function(err, rows){
+        conn.query(sql, args, function(err, rows){
           var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
           var args  = [row["fish_chips"] - 3, self.id];
-          self.conn.query(sql, args, function(err, rows){resolve()});
+          conn.query(sql, args, function(err, rows){resolve()});
         });
       }else{
         self.response = "You don't have enough FC";
@@ -509,12 +469,12 @@ ManageCosmetics.prototype.RemoveTitle = function(){return new Promise((resolve) 
   var sql  = `SELECT title FROM users WHERE id=?`;
   var args = [self.id];
 
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     if(rows[0]["title"]){
       var sql       = `UPDATE users SET title='' WHERE id=?`;
       var args      = [self.id];
       self.response = "Title removed. Fish Chip upkeep has been reduced by 3.";
-      self.conn.query(sql, args, function(err, rows){resolve()});
+      conn.query(sql, args, function(err, rows){resolve()});
     }else{
       self.response = "You don't have a title to remove.";
       resolve();
@@ -536,7 +496,7 @@ ManageCosmetics.prototype.UpdateBadge = function(){return new Promise((resolve) 
   var sql  = `SELECT fish_chips, badge FROM users WHERE id=?`;
   var args = [self.id];
 
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     var row         = rows[0];
     var badge       = row["badge"].split(",");
     var badgeExists = badge[self.data] ? true : false;
@@ -552,20 +512,20 @@ ManageCosmetics.prototype.UpdateBadge = function(){return new Promise((resolve) 
     var args = [badge, self.id];
 
     if(badgeExists){
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         self.response = "Badge changed";
         fs.rename(self.filePath, newPath);
 
         resolve();
       });
     }else if(row["fish_chips"] >= 3){
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
         var args  = [row["fish_chips"] - 3, self.id];
         self.response = "Badge added, 3 FC deducted";
         fs.rename(self.filePath, newPath);
 
-        self.conn.query(sql, args, function(err, rows){resolve()});
+        conn.query(sql, args, function(err, rows){resolve()});
       });
     }else{
       self.response = "You don't have enough FC";
@@ -588,7 +548,7 @@ ManageCosmetics.prototype.RemoveBadge = function(){return new Promise((resolve) 
   var sql  = `SELECT badge FROM users WHERE id=?`;
   var args = [self.id];
 
-  self.conn.query(sql, args, function(err, rows){
+  conn.query(sql, args, function(err, rows){
     var row   = rows[0];
     var badge = row["badge"].split(",");
 
@@ -603,7 +563,7 @@ ManageCosmetics.prototype.RemoveBadge = function(){return new Promise((resolve) 
       var args = [badge, self.id];
 
       self.response = "Badge removed. Fish Chip upkeep has been reduced by 3.";
-      self.conn.query(sql, args, function(err, rows){
+      conn.query(sql, args, function(err, rows){
         fs.unlinkSync(deletePath);
         resolve();
       });
@@ -622,7 +582,7 @@ ManageCosmetics.prototype.AdvanceDay = function(){return new Promise((resolve) =
              FROM users WHERE staff != 1 AND
              (title != '' OR badge != ',,')`;
 
-  self.conn.query(sql, function(err, rows){
+  conn.query(sql, function(err, rows){
     for(var i = 0; i < rows.length; i++){
       var row       = rows[i];
       var cosmetics = 0;
@@ -645,12 +605,12 @@ ManageCosmetics.prototype.AdvanceDay = function(){return new Promise((resolve) =
         var newFC = row["fish_chips"] - upkeep;
         var sql   = `UPDATE users SET fish_chips=? WHERE id=?`;
         var args  = [newFC, row["id"]];
-        self.conn.query(sql, args, function(err, rows){});
+        conn.query(sql, args, function(err, rows){});
       }else{
         // Remove all cosmetics if the user can't pay for it
         var sql  = `UPDATE users SET title='', badge=',,' WHERE id=?`;
         var args = [row["id"]];
-        self.conn.query(sql, args, function(err, rows){});
+        conn.query(sql, args, function(err, rows){});
       }
     }
   });
@@ -660,7 +620,8 @@ ManageCosmetics.prototype.AdvanceDay = function(){return new Promise((resolve) =
 app.post("/managecosmetics", function(req, res){
   var manageCosmetics = new ManageCosmetics();
 
-  manageCosmetics.Initialize(req)
+  MySqlConnection()
+  .then(() => manageCosmetics.Initialize(req))
   .then(() => manageCosmetics.AuthenticateUser())
   .then(() => res.json(manageCosmetics.response))
 })

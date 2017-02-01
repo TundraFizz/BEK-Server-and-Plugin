@@ -149,8 +149,8 @@ $("#btnSubmit").click(function(){
 
     SendToServer("uploadavatar", formData, function(data){
       $(".summoner-loading").css("background", "url()");
-
-      if(data["uploaded"]){
+      console.log(data);
+      if(data){
         $(self).attr("status", "uploaded");
         $(".summoner-name",    self).prop("disabled", true);
         $(".summoner-region",  self).prop("disabled", true);
@@ -158,38 +158,12 @@ $("#btnSubmit").click(function(){
         $("[data=active]",     self).attr("data", "disabled");
         $(".summoner-loading", self).css("color", "green");
         $(".summoner-loading", self).text("✔");
-      }
-      else{
+      }else{
         $(self).attr("status", "");
         $(".summoner-loading", self).css("color", "red");
         $(".summoner-loading", self).text("✘");
       }
     });
-
-    // $.ajax({
-    //   url: "uploadavatar",
-    //   type: "POST",
-    //   data: formData,
-    //   contentType: false,
-    //   processData: false
-    // }).done(function(data){
-    //   $(".summoner-loading").css("background", "url()");
-
-    //   if(data["uploaded"]){
-    //     $(self).attr("status", "uploaded");
-    //     $(".summoner-name",    self).prop("disabled", true);
-    //     $(".summoner-region",  self).prop("disabled", true);
-    //     $(".summoner-avatar",  self).prop("disabled", true);
-    //     $("[data=active]",     self).attr("data", "disabled");
-    //     $(".summoner-loading", self).css("color", "green");
-    //     $(".summoner-loading", self).text("✔");
-    //   }
-    //   else{
-    //     $(self).attr("status", "");
-    //     $(".summoner-loading", self).css("color", "red");
-    //     $(".summoner-loading", self).text("✘");
-    //   }
-    // });
   });
 });
 
