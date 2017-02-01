@@ -18,14 +18,32 @@
 // Written by Leif Coleman (Tundra Fizz - NA) <mageleif@yahoo.com>
 // http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK
 
-//var domain = "http://35.161.242.105";
-//var domain = "http://35.167.193.168:9001";
-var domain = "http://localhost:9001";
+///////////////
+// IMPORTANT //
+//////////////////////////////////////////////////////////////////////
+// Ctrl+F for the word MAINTENANCE in order to find parts of the    //
+// code that I still need to work on that I originally skipped over //
+//////////////////////////////////////////////////////////////////////
 
 var disableFEK = false;         // <-- Test variable, remove this laster
 if(window.top != window.self || // Prevent FEK from running more than once per page load
    disableFEK)                  // Custom Wrenchmen JS stuff
   return;
+
+//var domain = "http://35.161.242.105";
+//var domain = "http://35.167.193.168:9001";
+var domain = "http://localhost:9001";
+
+// This function is used in the minimized function below
+function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF","Unable to connect to the FEK server, <a href='https://twitter.com/Tundra_Fizz' target='_blank'>try checking Twitter</a> for possible status updates.")}
+
+// Minimized function I made which helps sending form POST data easily
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d)}).fail(function(){cab()})};
+
+// var formData = new FormData();
+// formData.append("key1", "data1");
+// formData.append("key3", "data2");
+// SendToServer("post-url-here", formData, function(data){});
 
 var FEKversion       = "5.0.0";
 var FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
@@ -164,6 +182,9 @@ function LoadCSS(url){
   head.appendChild(cssFile);
 }
 
+///////////////////////////////////////////////////////
+// This function is a mess, I need to make it better //
+///////////////////////////////////////////////////////
 function ReportError(msg){
   if(errorMessage != "")
     errorMessage += "<br><br>";
@@ -341,24 +362,19 @@ function ReportError(msg){
 // EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
 //////////////////////////////////////////////////////////////////////////////
 function EmptyVoteReplacement(){
-  if(emptyVoteReplacement == "banners")
-  {
-    $(".inline-profile").each(function()
-    {
+  if(emptyVoteReplacement == "banners"){
+    $(".inline-profile").each(function(){
       var src           = "http://i.imgur.com/NcHbI1d.png";
       var votingElement = $(this).parent().parent().parent().find(".no-voting");
       $(votingElement).html('<div class="riot-apollo voting"><ul class="riot-voting">\
                          <li class="total-votes"><img style="width: auto; max-width: 30px; max-height: 30px;" src="' + src + '"></li>\
                          </ul></div>');
     });
-  }
-  else if(emptyVoteReplacement == "bannersavatars")
-  {
+  }else if(emptyVoteReplacement == "bannersavatars"){
     users   = [];
     regions = [];
 
-    $(".inline-profile").each(function()
-    {
+    $(".inline-profile").each(function(){
       var username = this.getElementsByClassName("username")[0].textContent;
       var region   = this.getElementsByClassName("realm")[0].textContent;
           region   = region.substring(1, region.length - 1);
@@ -367,12 +383,12 @@ function EmptyVoteReplacement(){
       regions.push(region);
     });
 
-    $.post(`${domain}/GetOnlyAvatars`, {
-      users:   users,
-      regions: regions
-    }).done(function(data){
-      $(".inline-profile").each(function()
-      {
+    var formData = new FormData();
+    formData.append("users",   users);
+    formData.append("regions", regions);
+
+    SendToServer(`${domain}/GetOnlyAvatars`, formData, function(data){
+      $(".inline-profile").each(function(){
         var username = this.getElementsByClassName("username")[0].textContent;
         var region   = this.getElementsByClassName("realm")[0].textContent;
             region   = region.substring(1, region.length - 1);
@@ -394,24 +410,18 @@ function EmptyVoteReplacement(){
 ///////////////////////////////////////////////////////////////////////////
 // HideSubboards: Hides the sub-boards that the user doesn't want to see //
 ///////////////////////////////////////////////////////////////////////////
-function HideSubboards()
-{
-  $(".discussion-list-item").each(function()
-  {
+function HideSubboards(){
+  $(".discussion-list-item").each(function(){
 
     // Always show pinned threads
-    if(!$(this.getElementsByClassName("pin")[0]).length)
-    {
+    if(!$(this.getElementsByClassName("pin")[0]).length){
       var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
 
       // Only hide the thread if it's from a board that is recognized
-      if(typeof subboard !== "undefined")
-      {
+      if(typeof subboard !== "undefined"){
         var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
         if(hide[subboard] == "on")
-        {
           $(this).remove();
-        }
       }
     }
   });
@@ -420,10 +430,8 @@ function HideSubboards()
 //////////////////////////////////////////////////////////////////////////////
 // FavoriteIcons: Changes the champion/spell/item icons in the posting area //
 //////////////////////////////////////////////////////////////////////////////
-function FavoriteIcons()
-{
-  $(".button.gamedata.champion").each(function()
-  {
+function FavoriteIcons(){
+  $(".button.gamedata.champion").each(function(){
     this.style.setProperty("background-image", "url('" + FEKgfxLargeChamp + favoriteChampion + ".png')", "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -432,8 +440,7 @@ function FavoriteIcons()
       SetGrayscaleProperties(this);
   });
 
-  $(".button.gamedata.summoner").each(function()
-  {
+  $(".button.gamedata.summoner").each(function(){
     this.style.setProperty("background-image", "url('" + FEKgfxLargeSpell + favoriteSpell + ".png')", "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -456,15 +463,12 @@ function FavoriteIcons()
 ///////////////////////////////////////////////////////
 // SetGrayscaleProperties: Sets grayscale properties //
 ///////////////////////////////////////////////////////
-function SetGrayscaleProperties(obj)
-{
+function SetGrayscaleProperties(obj){
   obj.style.setProperty("filter", "grayscale(1)", "important");
 
-  $(obj).hover(function()
-  {
+  $(obj).hover(function(){
     obj.style.setProperty("filter", "grayscale(0)", "important");
-  }, function()
-  {
+  }, function(){
     obj.style.setProperty("filter", "grayscale(1)", "important");
   });
 }
@@ -476,14 +480,14 @@ function SetGrayscaleProperties(obj)
 //////////////////////////////////////////////////////////////////////////
 // QueryFEKServer: Makes a connection to the FEK server for information //
 //////////////////////////////////////////////////////////////////////////
-function QueryFEKServer()
-{
-  $.post(`${domain}/database`, {
-    myName:     myName,
-    myRegion:   myRegion,
-    users:      users,
-    regions:    regions
-  }).done(function(data){
+function QueryFEKServer(){
+  var formData = new FormData();
+  formData.append("name",    myName);
+  formData.append("region",  myRegion);
+  formData.append("users",   users);
+  formData.append("regions", regions);
+
+  SendToServer("post-url-here", formData, function(data){
     results   = data.records;
     FEKtweets = data.tweets;
     FEKevent  = data.event;
@@ -491,8 +495,7 @@ function QueryFEKServer()
 
     // THIS FEATURE TEMPORARILY DISABLED!
     // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
-    if(0)
-    {
+    if(0){
       var NavBarEvent = document.createElement("li");
       AddToNavBar(NavBarEvent, "touchpoint-event", "<a href='#'>Event</a>\
       <div id='fek-event'>\
@@ -512,35 +515,25 @@ function QueryFEKServer()
       $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
     }
 
-    if(FEKversion != results.version && window.location.href != FEKpage)
-    {
+    if(FEKversion != results.version && window.location.href != FEKpage){
       CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
                      "There has been an update to FEK!<br /><br />\
                      <a href='" + results.details + "'style='color:#00C0FF;'>Click here</a> for the post detailing new changes and to download version " + results.version);
-    }
-    else
-    {
-      if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false)
-      {
+    }else{
+      if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
         CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
                        "Error " + results.apiStatusCode + ": " + results.apiMessage);
       }
 
-      if(typeof results.alert !== "undefined" && alertPopUp === false)
-      {
+      if(typeof results.alert !== "undefined" && alertPopUp === false){
         CreateAlertBox(results.top, results.color1, results.color2, results.font,
                        results.alert);
       }
     }
 
     if(page == "Thread")
-    {
       FormatAllPosts(true);
-    }
-  }).fail(function(){
-    CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
-                   "Unable to connect to the FEK server, <a href='https://twitter.com/Tundra_Fizz' target='_blank'>try checking Twitter</a> for possible status updates.");
-  }).always(function(){
+
     $.event.trigger({type: "tweetsLoaded"});
   });
 }
@@ -548,8 +541,7 @@ function QueryFEKServer()
 ////////////////////////////////////////////////////
 // LoadIndex: Loads everything for the Index page //
 ////////////////////////////////////////////////////
-function LoadIndex()
-{
+function LoadIndex(){
   if(blacklisting)
     IndexBlacklist();
 
@@ -569,21 +561,16 @@ function LoadIndex()
 /////////////////////////////////////////////////////////////////////
 // IndexBlacklist: Hides threads by blacklisted users on the index //
 /////////////////////////////////////////////////////////////////////
-function IndexBlacklist()
-{
-  $(".discussion-list-item.row").each(function()
-  {
+function IndexBlacklist(){
+  $(".discussion-list-item.row").each(function(){
     // Skip threads that have no username (such as Announcements)
-    if($(this).find(".username")[0])
-    {
+    if($(this).find(".username")[0]){
       var usernameT = this.getElementsByClassName("username")[0].textContent;
       var regionT   = this.getElementsByClassName("realm")[0].textContent;
 
       // If it's a person you blacklisted, hide the thread
       if(GM_getValue(usernameT + " " + regionT, 0) == 1)
-      {
         $(this).remove();
-      }
     }
   });
 }
@@ -591,8 +578,7 @@ function IndexBlacklist()
 //////////////////////////////////////////////////////
 // LoadThread: Loads everything for the Thread page //
 //////////////////////////////////////////////////////
-function LoadThread()
-{
+function LoadThread(){
   // Remove all "Posting as X" fields
   $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
 
@@ -602,17 +588,14 @@ function LoadThread()
   regions = [];
 
   // Get information on every person within the thread
-  $(".inline-profile").each(function()
-  {
+  $(".inline-profile").each(function(){
     var username = this.getElementsByClassName("username")[0].textContent;
     var region   = this.getElementsByClassName("realm")[0].textContent;
         region   = region.substring(1, region.length - 1);
 
     // FEK staff have special gradient names, so I need to extract them using this method
     if(this.getElementsByClassName("pxg-set").length > 0)
-    {
       username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-    }
 
     users.push(username);
     regions.push(region);
@@ -634,20 +617,13 @@ function LoadThread()
 ////////////////////////////////////////////////////////////////
 // FormatSomePosts: Calls FormatSinglePost on only some posts //
 ////////////////////////////////////////////////////////////////
-function FormatSomePosts(FEKData = false)
-{
-  if(!FEKData)
-  {
-    $(".body-container").each(function()
-    {
+function FormatSomePosts(FEKData = false){
+  if(!FEKData){
+    $(".body-container").each(function(){
       FormatSinglePost1(this, false);
     });
-  }
-  else
-  {
-    $(".body-container").each(function()
-    {
-
+  }else{
+    $(".body-container").each(function(){
       // Only execute the function if the post is not deleted
       if(!$($(this).find(".deleted")[0]).is(":visible"))
         FormatSinglePost2(this, false);
@@ -658,37 +634,27 @@ function FormatSomePosts(FEKData = false)
 //////////////////////////////////////////////////////////////////////
 // FormatAllPosts: Calls FormatSinglePost on every post that exists //
 //////////////////////////////////////////////////////////////////////
-function FormatAllPosts(FEKData = false)
-{
+function FormatAllPosts(FEKData = false){
   $(document).find(".toggle-minimized").remove();
 
-  if(!FEKData)
-  {
-    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length)
-    {
-      $(".op-container").each(function()
-      {
+  if(!FEKData){
+    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
+      $(".op-container").each(function(){
         FormatSinglePost1(this, true);
       });
     }
 
-    $(".body-container").each(function()
-    {
+    $(".body-container").each(function(){
       FormatSinglePost1(this, false);
     });
-  }
-  else
-  {
-    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length)
-    {
-      $(".op-container").each(function()
-      {
+  }else{
+    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
+      $(".op-container").each(function(){
         FormatSinglePost2(this, true);
       });
     }
 
-    $(".body-container").each(function()
-    {
+    $(".body-container").each(function(){
       // Only execute the function if the post is not deleted
       if(!$($(this).find(".deleted")[0]).is(":visible"))
         FormatSinglePost2(this, false);
@@ -696,18 +662,15 @@ function FormatAllPosts(FEKData = false)
   }
 
   // isMinimized
-  $(".toggle-minimized").click(function()
-  {
+  $(".toggle-minimized").click(function(){
     // Put everything in a container and then hide it
 
     var post = $(this).parent()[0];
 
-    if($(this).parent().hasClass("isMinimized"))
-    {
+    if($(this).parent().hasClass("isMinimized")){
       // Minimizing the post
 
-      if($(post).find(".hide-post").length == 0)
-      {
+      if($(post).find(".hide-post").length == 0){
         // If the container doesn't exist, make it
         // Classes:
         // 0. masthead
@@ -731,25 +694,19 @@ function FormatAllPosts(FEKData = false)
         // Finally append it to the post
         $(testing).insertAfter($(post).find(".toggle-minimized")[0]);
         $(testing).css("display", "none");
-      }
-      else
-      {
+      }else{
         // If the container already exists
         $($(post).find(".hide-post")[0]).css("display", "none");
       }
-    }
-    else
-    {
+    }else{
       // Maximizing the post
       $($(post).find(".hide-post")[0]).css("display", "");
 
       // Load FEK stuff for posts
       var list = $(post).find(".list")[0];
 
-      $(list).each(function()
-      {
-        $(".body-container").each(function()
-        {
+      $(list).each(function(){
+        $(".body-container").each(function(){
           FormatSinglePost1(this, false);
           FormatSinglePost2(this, false);
           ColorVotes();
@@ -764,10 +721,8 @@ function FormatAllPosts(FEKData = false)
 ////////////////////////////////////////////////////////////////////////
 // FormatSinglePost1: Formats a single post before inserting FEK data //
 ////////////////////////////////////////////////////////////////////////
-function FormatSinglePost1(obj, op)
-{
-  if(op === false)
-  {
+function FormatSinglePost1(obj, op){
+  if(op === false){
     // Show downvoted posts
     $(obj).parent().removeClass("isLowQuality");
 
@@ -775,9 +730,7 @@ function FormatSinglePost1(obj, op)
     var isThisDeleted = obj.children[0].children[1].getAttribute("style");
 
     if(isThisDeleted === null)
-    {
       return;
-    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -787,12 +740,9 @@ function FormatSinglePost1(obj, op)
   regionT       = regionT.substring(1, regionT.length - 1);
 
   // If it's a person you blacklisted, hide the post if it's not the op
-  if(blacklisting === "on")
-  {
+  if(blacklisting === "on"){
     if(GM_getValue(usernameT + " (" + regionT + ")", 0) == 1 && op === false)
-    {
       $(obj).parent().remove();
-    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -810,9 +760,7 @@ function FormatSinglePost1(obj, op)
 
   // FEK staff have special gradient names, so I need to extract them using this method
   if(obj.getElementsByClassName("pxg-set").length > 0)
-  {
     usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-  }
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon; if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
@@ -830,14 +778,11 @@ function FormatSinglePost1(obj, op)
 
   var innerDiv;
 
-  $(tinyIcon).each(function()
-  {
-    if(this.id != "popupHook")
-    {
+  $(tinyIcon).each(function(){
+    if(this.id != "popupHook"){
       this.id = "popupHook";
 
-      $(this).hover(function()
-      {
+      $(this).hover(function(){
         var avatar = $($(this).find("img")[0]).attr("src");
 
         // Now create and append to innerDiv
@@ -877,8 +822,7 @@ function FormatSinglePost1(obj, op)
 
         profHover.setAttribute("href", "#");
 
-        $(profHover).click(function(event)
-        {
+        $(profHover).click(function(event){
           event.preventDefault();
           event.stopPropagation();
         });
@@ -889,53 +833,45 @@ function FormatSinglePost1(obj, op)
         $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
         $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
 
-        $("#prfle").click(function(event)
-        {
+        $("#prfle").click(function(event){
           event.preventDefault();
           event.stopPropagation();
           var win = window.open("http://boards." + platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
           win.focus();
         });
 
-        $("#avatr").click(function(event)
-        {
+        $("#avatr").click(function(event){
           event.preventDefault();
           event.stopPropagation();
           var win = window.open(avatar, "_blank");
           win.focus();
         });
 
-        $("#lolnx").click(function(event)
-        {
+        $("#lolnx").click(function(event){
           event.preventDefault();
           event.stopPropagation();
           var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
           win.focus();
         });
 
-        $("#opgg").click(function(event)
-        {
+        $("#opgg").click(function(event){
           event.preventDefault();
           event.stopPropagation();
           var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
           win.focus();
         });
 
-        $("#black").click(function(event)
-        {
+        $("#black").click(function(event){
           event.preventDefault();
           event.stopPropagation();
 
           var target = usernameT + " (" + regionT + ")";
 
           // Add the person to our blacklist, or remove them from if they're already on there
-          if(GM_getValue(target, 0) === 0)
-          {
+          if(GM_getValue(target, 0) === 0){
             GM_setValue(target, 1);
             alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
-          }
-          else
-          {
+          }else{
             GM_deleteValue(target);
             alert(target + " has been removed from your blacklist");
           }
@@ -943,70 +879,56 @@ function FormatSinglePost1(obj, op)
 
         // Fade the FEK popup box in
         $(innerDiv).fadeIn(200);
-      }, function()
-      {
+      }, function(){
         innerDiv.remove();
       });
     }
   });
 
-  if(removeProfHovPop == "on")
-  {
+  if(removeProfHovPop == "on"){
     // Removes Riot's profile hover popup
-    $(profHover).hover(function()
-    {
-      WaitAndRunManual(1000, function()
-      {
+    $(profHover).hover(function(){
+      WaitAndRunManual(1000, function(){
         $(document.getElementsByClassName("information-container")).parent().parent().parent().remove();
       });
     });
   }
 
   // Modifying variables
-  if(typeof riotVoting == "undefined")
-  {
+  if(typeof riotVoting == "undefined"){
     var discussionTitle = obj.getElementsByClassName("discussion-title")[0];
     discussionTitle.style.setProperty("position",    "relative", "important");
     discussionTitle.style.setProperty("margin-left", "75px",     "important");
   }
 
-  if(op === true)
-  {
+  if(op === true){
     originalPoster = usernameT;
     opTitle        = obj.getElementsByClassName("title")[0];
     authorInfo     = obj.getElementsByClassName("author-info")[0];
     content        = document.getElementById("content");
   }
 
-  if(op === true)
-  {
+  if(op === true){
     controlLinks = obj.getElementsByClassName("control-links")[0];
     controlLinks.style.setProperty("padding-left", avatarSize + 85 + "px", "important");
   }
 
-  if(op === false)
-  {
+  if(op === false){
     footer      = obj.getElementsByClassName("footer")[0];
     attachments = obj.getElementsByClassName("attachments")[0];
   }
 
   //if(op === false || (op === true && (document.getElementById("opHook") === null)))
-  if(1)
-  {
+  if(1){
     // If they are a Rioter, do their avatars a bit differently
     if(typeof isRioter !== "undefined")
-    {
       FormatAvatar(obj, true, tinyIcon, icon);
-    }
     else
-    {
       FormatAvatar(obj, false, tinyIcon, icon);
-    }
   }
 
-  if(op === true && (document.getElementById("opHook") === null))
   //if(op === true)
-  {
+  if(op === true && (document.getElementById("opHook") === null)){
     obj.getElementsByTagName("a")[1].remove(); // We want to remove the second anchor (link to name of sub-board it's in)
     $(authorInfo).contents().filter(function(){return this.nodeType == 3;}).remove();
 
@@ -1026,20 +948,16 @@ function FormatSinglePost1(obj, op)
   }
 
   if(op === false)
-  {
     obj.style.setProperty("padding-left", "100px");
-  }
 
   // Body: Original Post
-  if(op === true)
-  {
+  if(op === true){
     body.style.setProperty("min-height",  avatarSize + 20 + "px", "important");
     body.style.setProperty("padding-top", "20px",  "important");
   }
 
   // Body: Regular Post
-  if(op === false)
-  {
+  if(op === false){
     body.style.setProperty("position",     "relative", "important");
     body.style.setProperty("top",          "-12px",    "important");
     body.style.setProperty("padding-left", avatarSize - 60 + "px", "important");
@@ -1047,15 +965,13 @@ function FormatSinglePost1(obj, op)
     body.style.setProperty("margin-top",   "0px",      "important");
   }
 
-  if(op === true)
-  {
+  if(op === true){
     content.style.setProperty("padding-left", "0px",   "important");
     content.style.setProperty("margin-left",  avatarSize + 90 + "px", "important");
   }
 
   // Inline Profile: Original Post
-  if(op === true)
-  {
+  if(op === true){
     inlineProfile.style.setProperty("position", "relative", "important");
     inlineProfile.style.setProperty("top",      "70px",     "important");
     inlineProfile.style.setProperty("left",     "-42px",    "important");
@@ -1064,8 +980,7 @@ function FormatSinglePost1(obj, op)
   }
 
   // Inline Profile: Regular Post
-  if(op === false)
-  {
+  if(op === false){
     inlineProfile.style.setProperty("position", "relative", "important");
     inlineProfile.style.setProperty("left",     "-120px",   "important");
     inlineProfile.style.setProperty("width",    "160px",    "important");
@@ -1073,15 +988,13 @@ function FormatSinglePost1(obj, op)
   }
 
   // Profile Hover: All Posts
-  if(1)
-  {
+  if(1){
     profHover.style.setProperty("position",  "absolute", "important");
     profHover.style.setProperty("height",    "20px",     "important");
   }
 
   // Riot members get a red title
-  if(op === false)
-  {
+  if(op === false){
     if(isRioter)
       profHover.style.setProperty("color", "#AE250F", "important");
     else
@@ -1089,8 +1002,7 @@ function FormatSinglePost1(obj, op)
   }
 
   // Username: All Posts
-  if(1)
-  {
+  if(1){
     username.style.setProperty("position",       "relative",     "important");
     username.style.setProperty("width",          avatarSize + 60 + "px", "important");
     username.style.setProperty("height",         "20px",         "important");
@@ -1109,8 +1021,7 @@ function FormatSinglePost1(obj, op)
   }
 
   // Background of username for regular posts
-  if(op === false)
-  {
+  if(op === false){
     if(usernameT == originalPoster)
     {
       if(OPStyle == "on")
@@ -1125,8 +1036,7 @@ function FormatSinglePost1(obj, op)
     }
   }
 
-  if(op === true)
-  {
+  if(op === true){
     region.style.setProperty("position", "relative", "important");
     region.style.setProperty("top",      "-20px",    "important");
     region.style.setProperty("left",     avatarSize + 55 + "px", "important");
@@ -1136,31 +1046,27 @@ function FormatSinglePost1(obj, op)
     region.style.setProperty("font-family" , "'Constantia', 'Palatino', 'Georgia', serif", "important");
   }
 
-  if(op === false)
-  {
+  if(op === false){
     region.style.setProperty("position", "relative", "important");
     region.style.setProperty("top",      "-17px",    "important");
     region.style.setProperty("left",     avatarSize + 65 + "px", "important");
   }
 
   // Voting: Original Post
-  if(op === true && typeof riotVoting != "undefined")
-  {
+  if(op === true && typeof riotVoting != "undefined"){
     riotVoting.style.setProperty("position", "absolute", "important");
     riotVoting.style.setProperty("top",      "138px",    "important");
     riotVoting.style.setProperty("left",     "10px",    "important");
   }
 
   // Voting: Regular Post
-  if(op === false && typeof riotVoting != "undefined")
-  {
+  if(op === false && typeof riotVoting != "undefined"){
     riotVoting.style.setProperty("position", "absolute", "important");
     riotVoting.style.setProperty("top",      "50px",     "important");
   }
 
   // Miscellaneous: Regular Post
-  if(op === false)
-  {
+  if(op === false){
     timeago.style.setProperty("position", "relative", "important");
     timeago.style.setProperty("top",      "-18px",    "important");
     timeago.style.setProperty("left",     avatarSize - 160 + "px", "important");
@@ -1177,8 +1083,7 @@ function FormatSinglePost1(obj, op)
 /////////////////////////////////////////////////////////////////
 // FormatSinglePost2: Inserts FEK data into the formatted post //
 /////////////////////////////////////////////////////////////////
-function FormatSinglePost2(obj, op)
-{
+function FormatSinglePost2(obj, op){
   var usernameT     = obj.getElementsByClassName("username")[0].textContent;
   var regionT       = obj.getElementsByClassName("realm")[0].textContent;
   regionT           = regionT.substring(1, regionT.length - 1);
@@ -1201,9 +1106,7 @@ function FormatSinglePost2(obj, op)
 
   // FEK staff have special gradient names, so I need to extract them using this method
   if(obj.getElementsByClassName("pxg-set").length > 0)
-  {
     usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-  }
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon; if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
@@ -1349,17 +1252,12 @@ function FormatSinglePost2(obj, op)
 
   // Assign avatars
   if(typeof isRioter !== "undefined")
-  {
     AssignAvatar(obj, true, avatar, tinyIcon);
-  }
   else
-  {
     AssignAvatar(obj, false, avatar, tinyIcon);
-  }
 
   // Alter text colors for names and titles
-  if(op === false)
-  {
+  if(op === false){
     if(isRioter)
       profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
     else if(staff == "1")
@@ -1369,18 +1267,15 @@ function FormatSinglePost2(obj, op)
   }
 
   // Username: All Posts
-  if(1)
-  {
-    if(staff == "1")
-    {
+  if(1){
+    if(staff == "1"){
       // Gradient names have problems where if they are too long and have a space, they will
       // go on a second line. So if a name is a certain length (>= 14) and has at least one
       // space in it, decrease the font size to 12
       if(usernameT.length >= 12 && (usernameT.indexOf(' ') >= 0))
         username.style.setProperty("font-size", "12px", "important");
 
-      $(username).GradientText(
-      {
+      $(username).GradientText({
         step:    10,
         colors: ["#68BAFF", "#008AFF", "#68BAFF"],
         dir:    "x"
@@ -1394,18 +1289,15 @@ function FormatSinglePost2(obj, op)
 //////////////////////////////////
 // RollDice: Rolls virtual dice //
 //////////////////////////////////
-function RollDice(obj)
-{
+function RollDice(obj){
   // PRNG
   !function(a,b,c,d,e,f,g,h,i){function j(a){var b,c=a.length,e=this,f=0,g=e.i=e.j=0,h=e.S=[];for(c||(a=[c++]);d>f;)h[f]=f++;for(f=0;d>f;f++)h[f]=h[g=s&g+a[f%c]+(b=h[f])],h[g]=b;(e.g=function(a){for(var b,c=0,f=e.i,g=e.j,h=e.S;a--;)b=h[f=s&f+1],c=c*d+h[s&(h[f]=h[g=s&g+b])+(h[g]=b)];return e.i=f,e.j=g,c})(d)}function k(a,b){var c,d=[],e=typeof a;if(b&&"object"==e)for(c in a)try{d.push(k(a[c],b-1))}catch(f){}return d.length?d:"string"==e?a:a+"\0"}function l(a,b){for(var c,d=a+"",e=0;e<d.length;)b[s&e]=s&(c^=19*b[s&e])+d.charCodeAt(e++);return n(b)}function m(c){try{return o?n(o.randomBytes(d)):(a.crypto.getRandomValues(c=new Uint8Array(d)),n(c))}catch(e){return[+new Date,a,(c=a.navigator)&&c.plugins,a.screen,n(b)]}}function n(a){return String.fromCharCode.apply(0,a)}var o,p=c.pow(d,e),q=c.pow(2,f),r=2*q,s=d-1,t=c["seed"+i]=function(a,f,g){var h=[];f=1==f?{entropy:!0}:f||{};var o=l(k(f.entropy?[a,n(b)]:null==a?m():a,3),h),s=new j(h);return l(n(s.S),b),(f.pass||g||function(a,b,d){return d?(c[i]=a,b):a})(function(){for(var a=s.g(e),b=p,c=0;q>a;)a=(a+c)*d,b*=d,c=s.g(1);for(;a>=r;)a/=2,b/=2,c>>>=1;return(a+c)/b},o,"global"in f?f.global:this==c)};if(l(c[i](),b),g&&g.exports){g.exports=t;try{o=require("crypto")}catch(u){}}else h&&h.amd&&h(function(){return t})}(this,[],Math,256,6,52,"object"==typeof module&&module,"function"==typeof define&&define,"random");
 
   var spanElements = obj.getElementsByTagName("span");
   var seed;
 
-  for(var i = 0; i < spanElements.length; ++i)
-  {
-    if(spanElements[i].getAttribute("title") !== null)
-    {
+  for(var i = 0; i < spanElements.length; ++i){
+    if(spanElements[i].getAttribute("title") !== null){
       seed = spanElements[i].getAttribute("title");
       i = spanElements.length;
     }
@@ -1428,8 +1320,7 @@ function RollDice(obj)
   var paragraphs = obj.getElementsByTagName("p");
   var rolled = false;
 
-  for(var i = 0; i < paragraphs.length; ++i)
-  {
+  for(var i = 0; i < paragraphs.length; ++i){
     var regex   = /\[roll(.*?)\]/gi
     var command = regex.exec(paragraphs[i].innerHTML);
 
@@ -1438,11 +1329,8 @@ function RollDice(obj)
     // command[1] : "2d100"
 
     if((rolled || rollDice == "off" || (paragraphs[i].parentElement.tagName == "BLOCKQUOTE")) && command !== null)
-    {
       paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], "");
-    }
-    else if(rollDice == "on" && command !== null)
-    {
+    else if(rollDice == "on" && command !== null){
       var rolls    = 0;
       var die      = 0;
       var regex    = /([0-9]*)d([0-9]*)/gi
@@ -1454,22 +1342,18 @@ function RollDice(obj)
       // extended[2] : "100"
 
       // Check if it's something like 2d100, instead of having a single number
-      if(extended !== null)
-      {
+      if(extended !== null){
         if(extended[1]) rolls = extended[1];
         else            rolls = 1;
 
         if(extended[2]) die = extended[2];
         else            die = 1;
-      }
-      else
-      {
+      }else{
         var regex  = /([0-9]*)/g
         var simple = regex.exec(command[1]);
 
-        if(command[1] == simple[1])
-        {
-          rolls              = 1;
+        if(command[1] == simple[1]){
+          rolls = 1;
 
           if(command[1]) die = command[1];
           else           die = 1;
@@ -1483,16 +1367,13 @@ function RollDice(obj)
       if(die   > 100) die   = 100;
 
       // [roll] is a special die roll of 1d1000
-      if(command[0] == "[roll]")
-      {
+      if(command[0] == "[roll]"){
         rolls = 1;
         die   = 1000;
       }
 
-      if(rolls != 0)
-      {
-        for(var j = 0; j < rolls; ++j)
-        {
+      if(rolls != 0){
+        for(var j = 0; j < rolls; ++j){
           Math.seedrandom(seed);
           result += Math.ceil(Math.random() * die);
           seed += 1;
@@ -1511,8 +1392,7 @@ function RollDice(obj)
 /////////////////////////////////////
 // FormatAvatar: Formats an avatar //
 /////////////////////////////////////
-function FormatAvatar(obj, isRioter, tinyIcon, icon)
-{
+function FormatAvatar(obj, isRioter, tinyIcon, icon){
   tinyIcon.style.setProperty("position",         "relative",        "important");
   tinyIcon.style.setProperty("top",              "12px",            "important");
   tinyIcon.style.setProperty("left",             "30px",            "important");
@@ -1520,10 +1400,8 @@ function FormatAvatar(obj, isRioter, tinyIcon, icon)
   tinyIcon.style.setProperty("height",           avatarSize + "px", "important");
   tinyIcon.style.setProperty("background-image", "none",            "important");
 
-  if(isRioter)
-  {
-    if(!tinyIcon.getElementsByTagName("img")[0] && !tinyIcon.getElementsByTagName("video")[0])
-    {
+  if(isRioter){
+    if(!tinyIcon.getElementsByTagName("img")[0] && !tinyIcon.getElementsByTagName("video")[0]){
       var imgIcon = document.createElement("img");
       imgIcon.setAttribute("src", "http://i.imgur.com/STcpwlY.png");
       imgIcon.style.setProperty("width",     avatarSize + "px",    "important");
@@ -1531,15 +1409,12 @@ function FormatAvatar(obj, isRioter, tinyIcon, icon)
       imgIcon.style.setProperty("border",    "thin solid #FF0000", "important");
       tinyIcon.appendChild(imgIcon);
     }
-  }
-  else
-  {
+  }else{
     icon.style.setProperty("width",  avatarSize + "px",    "important");
     icon.style.setProperty("height", avatarSize + "px",    "important");
     icon.style.setProperty("border", "thin solid #FFFFFF", "important");
 
-    if(fallbackAvatar != "off")
-    {
+    if(fallbackAvatar != "off"){
       obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
     }
   }
@@ -1548,50 +1423,32 @@ function FormatAvatar(obj, isRioter, tinyIcon, icon)
 /////////////////////////////////////
 // AssignAvatar: Assigns an avatar //
 /////////////////////////////////////
-function AssignAvatar(obj, isRioter, avatar, tinyIcon)
-{
-  if(isRioter)
-  {
-     if(typeof avatar !== "undefined")
-     {
-       if(avatar.slice(-5) == ".webm")
-       {
+function AssignAvatar(obj, isRioter, avatar, tinyIcon){
+  if(isRioter){
+     if(typeof avatar !== "undefined"){
+       if(avatar.slice(-5) == ".webm"){
          FormatWebmAvatar(obj, avatar);
-       }
-       else
-       {
+       }else{
          obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
        }
      }
-  }
-  else
-  {
-    if(typeof avatar !== "undefined")
-    {
+  }else{
+    if(typeof avatar !== "undefined"){
       if(avatar.slice(-5) == ".webm")
-      {
         FormatWebmAvatar(obj, avatar);
-      }
       else
-      {
         obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
-      }
-    }
-    else if(fallbackAvatar != "off")
-    {
+    }else if(fallbackAvatar != "off")
       obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
-    }
   }
 }
 
 ////////////////////////////////////////////////////
 // FormatWebmAvatar: Gives the user a webm avatar //
 ////////////////////////////////////////////////////
-function FormatWebmAvatar(obj, avatar)
-{
+function FormatWebmAvatar(obj, avatar){
   // This check ensures no duplicate .webm avatars will be embedded into a user's post
-  if(!obj.getElementsByTagName("video")[0])
-  {
+  if(!obj.getElementsByTagName("video")[0]){
     var webm = obj.getElementsByTagName("img")[0];
     webm.setAttribute("src",  avatar, "important");
     webm.setAttribute("loop", "true");
@@ -1608,8 +1465,7 @@ function FormatWebmAvatar(obj, avatar)
 ////////////////////////////////////////////////////////////
 // CreateFeatures: This is where all FEK features are set //
 ////////////////////////////////////////////////////////////
-function CreateFeatures()
-{
+function CreateFeatures(){
   var tabgroup, tab, category, initvalue, label, options, tooltip;
 
   // Core Mods -> LoL Boards -> User Identities
@@ -1627,9 +1483,7 @@ function CreateFeatures()
              "175|175x175",
              "200|200x200"];
 
-  CreateFeature("FEK Avatars", "_fekAvatars", options, "100", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("FEK Avatars", "_fekAvatars", options, "100", tooltip, tabgroup, tab, category, function(option){
     avatarSize = parseInt(option);
   });
 
@@ -1648,9 +1502,7 @@ function CreateFeatures()
              "8|Happy Cloud (Light)",
              "9|Happy Cloud (Parchment)"];
 
-  CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category, function(option){
     if     (option == "1") fallbackAvatar = FEKgfx + "no-avatar-trident-dark.gif";
     else if(option == "2") fallbackAvatar = FEKgfx + "no-avatar-trident-light.gif";
     else if(option == "3") fallbackAvatar = FEKgfx + "no-avatar-trident-parchment.gif";
@@ -1671,9 +1523,7 @@ function CreateFeatures()
              "total|Total Votes",
              "hide|Hide Votes"];
 
-  CreateFeature("Enhanced Voting", "_enhancedVoting", options, "individual", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Enhanced Voting", "_enhancedVoting", options, "individual", tooltip, tabgroup, tab, category, function(option){
     votingDisplay = option;
   });
 
@@ -1681,9 +1531,7 @@ function CreateFeatures()
   // Feature: Blacklisting //
   ///////////////////////////
   tooltip = "Hides posts and threads made by users that you have on your blacklist. To blacklist somebody, hover your mouse over their avatar and click on blacklist";
-  CreateFeature("Blacklisting", "_blacklisting", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Blacklisting", "_blacklisting", "", "on", tooltip, tabgroup, tab, category, function(option){
     blacklisting = option;
   });
 
@@ -1691,9 +1539,7 @@ function CreateFeatures()
   // Feature: OP Style Change //
   //////////////////////////////
   tooltip = "Removes the colored background on an original poster's posts.";
-  CreateFeature("OP Style Change", "_opStyleChange", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("OP Style Change", "_opStyleChange", "", "on", tooltip, tabgroup, tab, category, function(option){
     OPStyle = option;
   });
 
@@ -1701,9 +1547,7 @@ function CreateFeatures()
   // Feature: Remove Profile Hover Popup //
   /////////////////////////////////////////
   tooltip = "Removes Riot's profile popup when you hover over a user.";
-  CreateFeature("Remove Profile Hover Popup", "_removeProfHovPop", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Remove Profile Hover Popup", "_removeProfHovPop", "", "on", tooltip, tabgroup, tab, category, function(option){
     removeProfHovPop = option;
   });
 
@@ -1717,9 +1561,7 @@ function CreateFeatures()
   //////////////////////////////////////
   category = "Navigation Enhancements";
   tooltip  = "Replaces the default thread preview tooltip with a more visible and enhanced one.";
-  CreateFeature("Enhanced Thread Preview", "_enhancedThreadPreview", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Enhanced Thread Preview", "_enhancedThreadPreview", "", "on", tooltip, tabgroup, tab, category, function(option){
     enhancedThreadPreview = option;
   });
 
@@ -1739,21 +1581,16 @@ function CreateFeatures()
              "#551A8B|Purple",
              "#9400D3|Violet"];
 
-  CreateFeature("Highlight My Threads", "_threadHighlight", options, "#000000", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Highlight My Threads", "_threadHighlight", options, "#000000", tooltip, tabgroup, tab, category, function(option){
     highlightMyThreads = option;
   });
-
 
   ///////////////////////////////////
   // Feature: Boards Dropdown Menu //
   ///////////////////////////////////
   category = "Navigation Enhancements";
   tooltip  = "Adds a dropdown menu when you hover your mouse over the Boards button at the top of the page on the navigation bar.";
-  CreateFeature("Boards Dropdown Menu", "_boardsDropdownMenu", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Boards Dropdown Menu", "_boardsDropdownMenu", "", "on", tooltip, tabgroup, tab, category, function(option){
     boardsDropdownMenu = option;
   });
 
@@ -1765,9 +1602,7 @@ function CreateFeatures()
   options = ["off|Disable",
              "animate|Animate thumbnails",
              "hide|Hide thumbnails"];
-  CreateFeature("Thumbnails", "_thumbnails", options, "animate", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Thumbnails", "_thumbnails", options, "animate", tooltip, tabgroup, tab, category, function(option){
     animateThumbnails = option;
   });
 
@@ -1776,9 +1611,7 @@ function CreateFeatures()
   ////////////////////////////
   category = "Navigation Enhancements";
   tooltip  = "Keeps the Navbar at the top of the browser window even when you scroll down.";
-  CreateFeature("Sticky Navbar", "_stickyNavbar", "", "off", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Sticky Navbar", "_stickyNavbar", "", "off", tooltip, tabgroup, tab, category, function(option){
     document.getElementById("riotbar-bar").style.setProperty("position", "fixed");
     document.getElementById("riotbar-bar").style.setProperty("top",      "0px");
   });
@@ -1791,9 +1624,7 @@ function CreateFeatures()
   options = ["off|Disable",
              "banners|Green banners",
              "bannersavatars|Green banners and avatars"];
-  CreateFeature("Empty Vote Replacement", "_emptyvotereplacement", options, "off", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Empty Vote Replacement", "_emptyvotereplacement", options, "off", tooltip, tabgroup, tab, category, function(option){
     emptyVoteReplacement = option;
   });
 
@@ -1806,9 +1637,7 @@ function CreateFeatures()
   // Feature: Media Embedding //
   //////////////////////////////
   tooltip = "Embeds .webm and YouTube movies into the posts themselves, rather than showing up as just links.";
-  CreateFeature("Media Embedding", "_mediaEmbedding", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Media Embedding", "_mediaEmbedding", "", "on", tooltip, tabgroup, tab, category, function(option){
     embedMedia = option;
   });
 
@@ -1820,7 +1649,7 @@ function CreateFeatures()
   ////////////////////////////////
   // Feature: Favorite Champion //
   ////////////////////////////////
-  tooltip  = "Champion icon that will be used when making posts.";
+  tooltip = "Champion icon that will be used when making posts.";
   options = ["aatrox|Aatrox",
              "ahri|Ahri",
              "akali|Akali",
@@ -1948,16 +1777,14 @@ function CreateFeatures()
              "ziggs|Ziggs",
              "zilean|Zilean",
              "zyra|Zyra"];
-  CreateFeature("Favorite Champion", "_favoritechampion", options, "fizz", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Favorite Champion", "_favoritechampion", options, "fizz", tooltip, tabgroup, tab, category, function(option){
     favoriteChampion = option;
   });
 
   //////////////////////////////////////
   // Feature: Favorite Summoner Spell //
   //////////////////////////////////////
-  tooltip  = "Spell icon that will be used when making posts.";
+  tooltip = "Spell icon that will be used when making posts.";
   options = ["barrier|Barrier",
              "clairvoyance|Clairvoyance",
              "clarity|Clarity",
@@ -1973,16 +1800,14 @@ function CreateFeatures()
              "smite|Smite",
              "teleport|Teleport",
              "totheking|To the King"];
-  CreateFeature("Favorite Summoner Spell", "_favoritesummonerspell", options, "ignite", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Favorite Summoner Spell", "_favoritesummonerspell", options, "ignite", tooltip, tabgroup, tab, category, function(option){
     favoriteSpell = option;
   });
 
   ////////////////////////////
   // Feature: Favorite Item //
   ////////////////////////////
-  tooltip  = "Item icon that will be used when making posts.";
+  tooltip = "Item icon that will be used when making posts.";
   options = ["blackcleaver|Black Cleaver",
              "bladeoftheruinedking|Blade of the Ruined King",
              "bootsofmobility|Boots of Mobility",
@@ -2019,9 +1844,7 @@ function CreateFeatures()
              "zeal|Zeal",
              "zhonyashourglass|Zhonya's Hourglass",
              "zzrotportal|Zz'Rot Portal"];
-  CreateFeature("Favorite Item", "_favoriteitem", options, "lichbane", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Favorite Item", "_favoriteitem", options, "lichbane", tooltip, tabgroup, tab, category, function(option){
     favoriteItem = option;
   });
 
@@ -2032,9 +1855,7 @@ function CreateFeatures()
   options = ["off|Disable",
              "on|Always On",
              "mouseover|Mouse Over"];
-  CreateFeature("Favorite Icons", "_favoriteicons", options, "mouseover", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Favorite Icons", "_favoriteicons", options, "mouseover", tooltip, tabgroup, tab, category, function(option){
     favoriteIcons = option;
   });
 
@@ -2042,33 +1863,25 @@ function CreateFeatures()
   // Feature: Roll Dice //
   ////////////////////////
   tooltip = "Shows dice rolls. Disable this feature to completely hide them.";
-  CreateFeature("Roll Dice", "_rollDice", "", "on", tooltip, tabgroup, tab, category,
-  function(option)
-  {
+  CreateFeature("Roll Dice", "_rollDice", "", "on", tooltip, tabgroup, tab, category, function(option){
     rollDice = option;
   });
 
   ///////////////////////////
   // Feature: Blacklisting //
   ///////////////////////////
-  if(blacklisting == "on")
-  {
-    PanelCreateTab(tabgroup, "Blacklist", function(contentview)
-    {
-      $("#tab[tab='core-mods-blacklist']").click(function()
-      {
+  if(blacklisting == "on"){
+    PanelCreateTab(tabgroup, "Blacklist", function(contentview){
+      $("#tab[tab='core-mods-blacklist']").click(function(){
         contentview.html("<h1>Blacklisted Users</h1><br>Click on a name to remove it from your blacklist<br><br>");
 
         var vals = GM_listValues();
-        for(var i = 0; i < vals.length; i++)
-        {
-          if(vals[i][0] != '_')
-          {
+        for(var i = 0; i < vals.length; i++){
+          if(vals[i][0] != "_"){
             myThing = document.createElement("div");
             myThing.innerHTML = "<a href='#'>" + vals[i] + "</a><br>";
 
-            $(myThing).click(function(event)
-            {
+            $(myThing).click(function(event){
               event.preventDefault();
               event.stopPropagation();
               GM_deleteValue(this.textContent);
@@ -2090,13 +1903,10 @@ function CreateFeatures()
   /////////////////////////////
   // Feature: Hide Subboards //
   /////////////////////////////
-  function HideSubboard(boardName, optionVar)
-  {
+  function HideSubboard(boardName, optionVar){
     tooltip  = "Hide threads from " + boardName;
 
-    CreateFeature(boardName, optionVar, "", "off", tooltip, tabgroup, tab, category,
-    function(option)
-    {
+    CreateFeature(boardName, optionVar, "", "off", tooltip, tabgroup, tab, category, function(option){
       hide[boardName] = option;
     });
   }
@@ -2118,8 +1928,7 @@ function CreateFeatures()
   /////////////////////////
   // Feature: Fish Chips //
   /////////////////////////
-  PanelCreateTab(tabgroup, "Fish Chips", function(contentview)
-  {
+  PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
     $("#tab[tab='core-mods-fish-chips']").click(function()
     {
       LoadWebPanel("fishchips", contentview, function()
@@ -2132,28 +1941,22 @@ function CreateFeatures()
   // New Tabgroup: Social
   tabgroup = "Social";
 
-  PanelCreateTab(tabgroup, "Friends", function(contentview)
-  {
-    $("#tab[tab='social-friends']").click(function()
-    {
+  PanelCreateTab(tabgroup, "Friends", function(contentview){
+    $("#tab[tab='social-friends']").click(function(){
       LoadWebPanel("placeholder", contentview, function(){});
       // LoadWebPanel2("NO PAGE", "getFriends", contentview, function(){});
     });
   });
 
-  PanelCreateTab(tabgroup, "Messages", function(contentview)
-  {
-    $("#tab[tab='social-messages']").click(function()
-    {
+  PanelCreateTab(tabgroup, "Messages", function(contentview){
+    $("#tab[tab='social-messages']").click(function(){
       LoadWebPanel("placeholder", contentview, function(){});
       // LoadWebPanel2("NO PAGE", "messages", contentview, function(){});
     });
   });
 
-  PanelCreateTab(tabgroup, "Send PM", function(contentview)
-  {
-    $("#tab[tab='social-send-pm']").click(function()
-    {
+  PanelCreateTab(tabgroup, "Send PM", function(contentview){
+    $("#tab[tab='social-send-pm']").click(function(){
       LoadWebPanel("placeholder", contentview, function(){});
       // LoadWebPanel2("NO PAGE", "writePM", contentview, function(){});
     });
@@ -2165,42 +1968,37 @@ function CreateFeatures()
   ///////////////////////////
   // Twitter Announcements //
   ///////////////////////////
-  PanelCreateTab(tabgroup, "Announcements", function(contentview)
-  {
+  PanelCreateTab(tabgroup, "Announcements", function(contentview){
     contentview.html("Loading Announcements...");
 
     // Prepare the twitter popup html
     var docbody = $("html").first().find("body:not(.wysiwyg)").first();
     docbody.append("<div id='twitter_row' class='popup'></div>");
 
-    $(document).on("tweetsLoaded", function()
-    {
+    $(document).on("tweetsLoaded", function(){
       contentview.html("<h1>Announcements</h1>");
-      if(FEKtweets.records && FEKtweets.records.length > 0)
-      {
-        for(var i = 0; i < FEKtweets.records.length; i++)
-        {
-          contentview.append('\
-                             <div id="twitter_row">\
-                             <div id="twitterlink">\
-                             <a href="http://twitter.com/' + FEKtweets.records[i].user.screenName + '" target="_blank"><img src="' + FEKgfx + 'twittericon.png" /></a>\
-                             </div>\
-                             <h2>' + ParseTwitterDate(FEKtweets.records[i].created_at) + '</h2>\
-                             <img id="twitter_img" src="' + FEKtweets.records[i].user.profile_image_url + '" />\
-                             <span id="twitter_text">' + ReplaceUrlWithHtmlLink(FEKtweets.records[i].text.replace('#FEK ','')) + '</span>\
-                             <span style="opacity:0; clear:both;">.</span>\
-                             <div id="spike"></div>\
-                             </div>\
-                             ');
+      if(FEKtweets.records && FEKtweets.records.length > 0){
+        for(var i = 0; i < FEKtweets.records.length; i++){
+          contentview.append(`
+          <div id="twitter_row">
+            <div id="twitterlink">
+              <a href="http://twitter.com/${FEKtweets.records[i].user.screenName}" target="_blank">
+                <img src="${FEKgfx}twittericon.png">
+              </a>
+            </div>
+            <h2>${ParseTwitterDate(FEKtweets.records[i].created_at)}</h2>
+            <img id="twitter_img" src="${FEKtweets.records[i].user.profile_image_url}">
+            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets.records[i].text.replace('#FEK ',''))}</span>
+            <span style="opacity:0; clear:both;">.</span>
+            <div id="spike"></div>
+          </div>
+          `);
         }
 
         //Compare last read announcement to current one
-        if(GM_getValue("_lastReadTwitter", "") == FEKtweets.records[0].id)
-        {
+        if(GM_getValue("_lastReadTwitter", "") == FEKtweets.records[0].id){
           // The latest announcement has been read
-        }
-        else
-        {
+        }else{
           // The latest announcement has NOT been read yet
           // Append alert icons for unread announcements
           alertHTML = '<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, \'Sans Serif\'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>';
@@ -2224,31 +2022,23 @@ function CreateFeatures()
       }
 
       // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
-      $("#dismiss").click(function(event)
-      {
+      $("#dismiss").click(function(event){
         if(FEKtweets.records[0])
-        {
           GM_setValue("_lastReadTwitter", FEKtweets.records[0].id);
-        }
 
         $("body #twitter_row.popup").fadeOut();
-        $("body #fekalert").each(function()
-        {
+        $("body #fekalert").each(function(){
           $(this).fadeOut();
         });
       });
 
-      $("#tab[tab*='-announcements']").click(function()
-      {
+      $("#tab[tab*='-announcements']").click(function(){
         if(FEKtweets.records[0])
-        {
           GM_setValue("_lastReadTwitter", FEKtweets.records[0].id);
-        }
 
         $("body #twitter_row.popup").fadeOut();
 
-        $("body #fekalert").each(function()
-        {
+        $("body #fekalert").each(function(){
           $(this).fadeOut();
         });
       });
@@ -2258,12 +2048,9 @@ function CreateFeatures()
   ///////////////
   // Changelog //
   ///////////////
-  PanelCreateTab(tabgroup, "Changelog", function(contentview)
-  {
-    $("#tab[tab*='fek-changelog']").click(function()
-    {
-      LoadWebPanel("changelog", contentview, function()
-      {
+  PanelCreateTab(tabgroup, "Changelog", function(contentview){
+    $("#tab[tab*='fek-changelog']").click(function(){
+      LoadWebPanel("changelog", contentview, function(){
         // Load web panel finished
       });
     });
@@ -2272,61 +2059,48 @@ function CreateFeatures()
   ////////////
   // Donate //
   ////////////
-  PanelCreateTab(tabgroup, "Donate", function(contentview)
-  {
-    $("#tab[tab*='fek-donate']").click(function()
-    {
-      LoadWebPanel("donate", contentview, function()
-      {
+  PanelCreateTab(tabgroup, "Donate", function(contentview){
+    $("#tab[tab*='fek-donate']").click(function(){
+      LoadWebPanel("donate", contentview, function(){
         // Load web panel finished
       });
     });
   });
 
   // Register the hotkey ~ to toggle the FEK panel on and off
-  hotkeys["192"] = function(state, event)
-  {
+  hotkeys["192"] = function(state, event){
     if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
-    {
       PanelToggle();
-    }
   };
 }
 
+/////////////////
+// MAINTENANCE //
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
 ////////////////////////////////////////////////////////////
-function CreateFeature(label, variablename, options, initvalue, tooltip, tabgroup, tab, category, callback)
-{
+function CreateFeature(label, variablename, options, initvalue, tooltip, tabgroup, tab, category, callback){
   // Registers a feature with the gui to handle variable reading/writing and then runs the callback function
   // Get the saved value if it exists, otherwise load the initvalue
   var useInitValue = GM_getValue(variablename, initvalue);
 
   // Check if the provided saved value is in the options group, if not reset it to the default option
-  if(options)
-  {
+  if(options){
     var validOption = false;
-    for(index = 0; index < options.length; ++index)
-    {
+    for(index = 0; index < options.length; ++index){
       // Split the option and associated value apart
       optionpair = options[index].split("|");
 
       if(optionpair[0] === useInitValue)
-      {
         validOption = true;
-      }
     }
 
     if(!validOption && useInitValue !== "off")
-    {
-      // The user selected option no longer exists
-      useInitValue = initvalue;
-    }
+      useInitValue = initvalue; // The user selected option no longer exists
   }
 
   // Create the tab for the feature
-  PanelCreateTab(tabgroup, tab, function(contentview)
-  {
+  PanelCreateTab(tabgroup, tab, function(contentview){
     // The tab has been created, and we can now create the button within the returned contentview
     var buttonhtml, tooltiphtml, optionpair, initclass, initstyle;
     var scategory = category.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
@@ -2423,6 +2197,8 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
     callback(useInitValue);
 }
 
+/////////////////
+// MAINTENANCE //
 //////////////////////////////////////////////////
 // CreateGUI: Creates the GUI for the FEK panel //
 //////////////////////////////////////////////////
@@ -2456,11 +2232,9 @@ function CreateGUI()
 /////////////////////////////////////////////////////////////////////////////////
 // SettleGUI: Sets the FEK panel to a default tab so that it doesn't look ugly //
 /////////////////////////////////////////////////////////////////////////////////
-function SettleGUI()
-{
+function SettleGUI(){
   // This sets the GUI panel to the first tab
-  $("#fekpanel #tab").each(function()
-  {
+  $("#fekpanel #tab").each(function(){
     // Remove all contentviews and active tabs
     $(this).removeClass("active");
     $("#fekpanel #col2 #contentview").hide();
@@ -2474,51 +2248,45 @@ function SettleGUI()
 ////////////////////////////////////////////////////////////////
 // PanelCreateTab: Creates a new tab on the FEK control panel //
 ////////////////////////////////////////////////////////////////
-function PanelCreateTab(tabgroup, tab, callback)
-{
+function PanelCreateTab(tabgroup, tab, callback){
   // This will create a tab and content view with the supplied paramaters and send the contentview element back to the calling function
   // Prepare special compatible/safe tag names by replacing characters and casing
   var stabgroup = tabgroup.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
   var stab      = tab.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Check if the tabgroup exists
-  if($("#fekpanel #col1 #tabgroup[tabgroup='" + stabgroup + "']").length <= 0)
-  {
+  if($("#fekpanel #col1 #tabgroup[tabgroup='" + stabgroup + "']").length <= 0){
     // Create the tabgroup
-    $('#fekpanel #col1 #tabs').append('<div id="tabgroup" tabgroup="' + stabgroup + '">\
-                                         <h1>' + tabgroup + '</h1>\
-                                       </div>');
+    $('#fekpanel #col1 #tabs').append(`
+    <div id="tabgroup" tabgroup="${stabgroup}">
+      <h1>${tabgroup}</h1>
+    </div>
+    `);
   }
 
-  // Check if the tab exists
-  if($("#tab[tab='" + stabgroup + "-" + stab + "']").length <= 0)
-  {
-    // Create the tab
-    $("#tabgroup[tabgroup='" + stabgroup + "']").append('<div id="tab" tab="' + stabgroup + "-" + stab + '">' + tab + '<div id="indicator"></div></div>');
-  }
+  // Create the tab it if doesn't exist
+  if($("#tab[tab='" + stabgroup + "-" + stab + "']").length == 0)
+    $("#tabgroup[tabgroup='" + stabgroup + "']").append(`
+    <div id="tab" tab="${stabgroup}-${stab}">${tab}<div id="indicator"></div></div>
+    `);
 
-  // Check if the contentview exists
-  if($("#fekpanel #col2 .fekScrollRegion #contentview[tablink='" + stabgroup + "-" + stab + "']").length <= 0)
-  {
-    // Create the contentview
-    $("#fekpanel #col2 .fekScrollRegion").append('<div id="contentview" tablink="' + stabgroup + '-' + stab + '"></div>');
-  }
+  // Create the contentview if it doesn't exist
+  if($("#fekpanel #col2 .fekScrollRegion #contentview[tablink='" + stabgroup + "-" + stab + "']").length == 0)
+    $("#fekpanel #col2 .fekScrollRegion").append(`
+    <div id="contentview" tablink="${stabgroup}-${stab}"></div>
+    `);
 
   // Now that we've setup the tab and contentview panel, lets send the contentview through the callback
-  callback($("#contentview[tablink='" + stabgroup + "-" + stab + "']"));
+  callback($(`#contentview[tablink="${stabgroup}-${stab}"]`));
 }
 
 ////////////////////////////////////////////
 // PanelShow: Shows the FEK control panel //
 ////////////////////////////////////////////
-function PanelShow()
-{
-  if($("#fekpanel").is(":visible"))
-  {
+function PanelShow(){
+  if($("#fekpanel").is(":visible")){
     // If the panel is already visible when show is called, do nothing
-  }
-  else
-  {
+  }else{
     // Hide all content views to speed up the .show animation
     $("#fekScrollRegion").hide();
 
@@ -2537,11 +2305,9 @@ function PanelShow()
     $( "#fekpanel #col2" ).css("left", "-" + col2width + "px");
 
     // Animate
-    $( "#fekpanel #col1" ).stop().animate({left: "0px"}, 200, function()
-    {
+    $("#fekpanel #col1" ).stop().animate({left: "0px"}, 200, function(){
       $("#fekpanel #col2").css("left","-" + (col2width - col1width) + "px");
-      $( "#fekpanel #col2" ).stop().animate({left: col1width + "px"}, 150, function()
-      {
+      $( "#fekpanel #col2" ).stop().animate({left: col1width + "px"}, 150, function(){
         // Hide all content views to speed up the .show animation
         $("#fekScrollRegion").show();
         InitScrollbar(".fekScrollRegion");
@@ -2553,8 +2319,7 @@ function PanelShow()
 ////////////////////////////////////////////
 // PanelHide: Hides the FEK control panel //
 ////////////////////////////////////////////
-function PanelHide()
-{
+function PanelHide(){
   // Get current panel widths
   var col1width = $("#fekpanel #col1").outerWidth();
   var col2width = $("#fekpanel #col2").outerWidth();
@@ -2564,11 +2329,9 @@ function PanelHide()
 
   // Animate
   $("#fekpanel #button").find("ul").hide();
-  $( "#fekpanel #col2" ).stop().animate({left: "-" + (col2width - col1width) + "px"}, 150, function()
-  {
+  $("#fekpanel #col2" ).stop().animate({left: "-" + (col2width - col1width) + "px"}, 150, function(){
     $("#fekpanel #col2").hide();
-    $( "#fekpanel #col1" ).stop().animate({left: "-" + (col1width) + "px"}, 200, function()
-    {
+    $( "#fekpanel #col1" ).stop().animate({left: "-" + (col1width) + "px"}, 200, function(){
       $("#fekpanel").hide();
     });
   });
@@ -2577,34 +2340,23 @@ function PanelHide()
 ////////////////////////////////////////////////
 // PanelToggle: Toggles the FEK control panel //
 ////////////////////////////////////////////////
-function PanelToggle()
-{
+function PanelToggle(){
   if($("#fekpanel").is(":visible"))
-  {
     PanelHide();
-  }
   else
-  {
     PanelShow();
-  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 // LoadWebPanel: Loads web panels such as Credits, Announcements, Events, etc. //
 /////////////////////////////////////////////////////////////////////////////////
-function LoadWebPanel(page, container, callback)
-{
+function LoadWebPanel(page, container, callback){
   container.html("Loading...");
-  var webPanel = $.ajax(
-  {
+  var webPanel = $.ajax({
     dataType: "json",
     url: `${domain}/getWebPanel`,
-    data:
-    {
-      page:   page
-    }
-  }).success(function(data)
-  {
+    data:{page: page}
+  }).success(function(data){
     container.html(data.html);
     InitScrollbar(".fekScrollRegion");
     callback();
@@ -2614,21 +2366,15 @@ function LoadWebPanel(page, container, callback)
 ///////////////////////////////////////
 // LoadWebPanel2: Experimental stuff //
 ///////////////////////////////////////
-function LoadWebPanel2(page, action, container, callback)
-{
+function LoadWebPanel2(page, action, container, callback){
   container.html("Loading...");
-  var webPanel = $.ajax(
-  {
+  var webPanel = $.ajax({
     dataType: "json",
     url: `${domain}/action`,
-    data:
-    {
-      page:     page,
-      myName:   myName,
-      myRegion: myRegion
-    }
-  }).success(function(data)
-  {
+    data: {page:     page,
+           myName:   myName,
+           myRegion: myRegion}
+  }).success(function(data){
     container.html(data.html);
     InitScrollbar(".fekScrollRegion");
     callback();
@@ -2638,8 +2384,7 @@ function LoadWebPanel2(page, action, container, callback)
 ///////////////////////////////////////////////
 // InitScrollbar: Initializes the scroll bar //
 ///////////////////////////////////////////////
-function InitScrollbar(element)
-{
+function InitScrollbar(element){
   var elm;
   var supressx = false;
   var supressy = false;
@@ -2655,27 +2400,22 @@ function InitScrollbar(element)
   elm.css("overflow", "hidden");
 
   // Check if scrollbar exists already. if it does, update it's values
-  if(elm.hasClass("ps-container"))
-  {
+  if(elm.hasClass("ps-container")){
     // Update the scrollbar
     elm.perfectScrollbar("destroy");
     elm.perfectScrollbar({wheelSpeed: 30, useKeyboard: true, minScrollbarLength: 35, suppressScrollY: supressy, suppressScrollX: supressx});
-  }
-  else
-  {
+  }else{
     // Create the scrollbar
     elm.perfectScrollbar({wheelSpeed: 30, useKeyboard: true, minScrollbarLength: 35, suppressScrollY: supressy, suppressScrollX: supressx});
 
     // Register our element's scrollbars to update on resize
-    $(window).resize(function()
-    {
+    $(window).resize(function(){
       elm.perfectScrollbar("update");
     });
   }
 
   // Destroy the scrollbar if it isn't needed and remove the class we reference
-  if(!elm.hasOverflow())
-  {
+  if(!elm.hasOverflow()){
     elm.perfectScrollbar("destroy");
     elm.removeClass("ps-container");
   }
@@ -2684,45 +2424,34 @@ function InitScrollbar(element)
 /////////////////////////////////////////
 // Extend jQuery for FEK control panel //
 /////////////////////////////////////////
-$.fn.hasOverflow = function()
-{
+$.fn.hasOverflow = function(){
   var leeway = 0;
   var element = $(this)[0];
   if(element.clientWidth < (element.scrollWidth - leeway) || element.clientHeight < (element.scrollHeight - leeway))
-  {
     return true;
-  }
 
   return false;
 };
 
-$.fn.hasOverflowX = function()
-{
+$.fn.hasOverflowX = function(){
   var leeway = 0;
   var element = $(this)[0];
-  if(element.offsetWidth < (element.scrollWidth - leeway))
-  {
+  if(element.offsetWidth < (element.scrollWidth - leeway)){
     $(this).attr("overflowX", (element.scrollWidth - leeway) - element.offsetWidth);
     return true;
-  }
-  else
-  {
+  }else{
     $(this).attr("overflowX", "0");
     return false;
   }
 };
 
-$.fn.hasOverflowY = function()
-{
+$.fn.hasOverflowY = function(){
   var leeway = 0;
   var element = $(this)[0];
-  if(element.offsetHeight < (element.scrollHeight - leeway))
-  {
+  if(element.offsetHeight < (element.scrollHeight - leeway)){
     $(this).attr("overflowY", (element.scrollHeight - leeway) - element.offsetHeight);
     return true;
-  }
-  else
-  {
+  }else{
     $(this).attr("overflowY", "0");
     return false;
   }
@@ -2735,90 +2464,69 @@ $.fn.hasOverflowY = function()
 //////////////////////////////////////
 // KeyWatch: Watches for keypresses //
 //////////////////////////////////////
-function KeyWatch()
-{
+function KeyWatch(){
   // Clear the active keys when the window is focused or when the text area is refocused
-  $(window).focus(function()
-  {
+  $(window).focus(function(){
     activeKeys = [];
   });
 
   // Watch for key modifiers being held down
-  $(document).keydown(function(event)
-  {
+  $(document).keydown(function(event){
     var i = activeKeys.indexOf(event.which);
     if(i == -1)
-    {
       activeKeys.push(event.which);
-    }
+
     if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-    {
       hotkeys[event.which]("keydown", event);
-    }
   });
 
   // Watch for key modifiers being released
-  $(document).keyup(function(event)
-  {
+  $(document).keyup(function(event){
     if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-    {
       hotkeys[event.which]("keyup", event);
-    }
 
     var i = activeKeys.indexOf(event.which);
+
     if(i != -1)
-    {
       activeKeys.splice(i, 1);
-    }
   });
 
   // Setup the fek tooltip
-  $(document).on("mousemove", function(e)
-  {
-    if($("#fektooltip").css("opacity") > 0)
-    {
-      $("#fektooltip").css(
-      {
+  $(document).on("mousemove", function(e){
+    if($("#fektooltip").css("opacity") > 0){
+      $("#fektooltip").css({
         left:  e.pageX + 20,
         top:   e.pageY - 20
       });
-    }
-    else
-    {
-      $("#fektooltip").css(
-      {
+    }else{
+      $("#fektooltip").css({
         left:  -10000
       });
     }
   });
 
-  $("#fekpanel #button").mouseenter(function()
-  {
+  $("#fekpanel #button").mouseenter(function(){
     $("#fektooltip").html($(this).find("#fektooltip-data").html());
     $("#fektooltip").css("opacity", 1);
   });
 
-  $("#fekpanel #button").mouseleave(function()
-  {
+  $("#fekpanel #button").mouseleave(function(){
     $("#fektooltip").html($(this).find("#fektooltip-data").html());
     $("#fektooltip").css("opacity", 0);
   });
 
   // Allow clicking away from the panel to close the panel
-  $("body").click(function()
-  {
+  $("body").click(function(){
     PanelHide();
   });
 
-  $("#fekpanel").click(function(event)
-  {
+  $("#fekpanel").click(function(event){
     event.stopPropagation();
     $("#fekpanel #button").find("ul").hide();
   });
 
   // Register click events and activates the feklink tabs
-  $("body").on("click", "a[href*='#fektab']", function(event)
-  {
+  $("body").on("click", "a[href*='#fektab']", function(event){
     event.stopPropagation();
     event.preventDefault();
     var tab = $(this).attr("href").replace("#fektab-","");
@@ -2826,17 +2534,14 @@ function KeyWatch()
     PanelShow();
   });
 
-  $("a[href='#fekpanel']").click(function(event)
-  {
+  $("a[href='#fekpanel']").click(function(event){
     event.stopPropagation();
     event.preventDefault();
     PanelToggle();
   });
 
-  $("#fekpanel #tab").click(function()
-  {
-    $("#fekpanel #tab").each(function()
-    {
+  $("#fekpanel #tab").click(function(){
+    $("#fekpanel #tab").each(function(){
       // Remove all contentviews and active tabs
       $(this).removeClass("active");
       $("#fekpanel #col2 #contentview").hide();
@@ -2848,28 +2553,21 @@ function KeyWatch()
     InitScrollbar(".fekScrollRegion");
   });
 
-  $("#fekpanel").on("mousewheel", function(event)
-  {
+  $("#fekpanel").on("mousewheel", function(event){
     event.preventDefault();
   });
 
-  $("#fekpanel #button").find("ul").on("mousewheel", function(event)
-  {
+  $("#fekpanel #button").find("ul").on("mousewheel", function(event){
     event.stopPropagation();
     event.preventDefault();
   });
 
-  $("#fekpanel #button").click(function(event)
-  {
+  $("#fekpanel #button").click(function(event){
     event.stopPropagation();
-    if($(this).hasClass("dropdown"))
-    {
+    if($(this).hasClass("dropdown")){
       if($(this).find("ul").is(":visible"))
-      {
         $(this).find("ul").hide();
-      }
-      else
-      {
+      else{
         $("#fekpanel #button").find("ul").hide();
         $("#fekpanel #button").css("z-index", "9998");
         $(this).find("ul").show();
@@ -2877,23 +2575,18 @@ function KeyWatch()
         $(this).find("ul").scrollTop(0);
         InitScrollbar($(this).find("ul"));
       }
-    }
-    else
-    {
+    }else{
       $("#fekpanel #button").find("ul").hide();
       $("#refreshNotice").addClass("visible");
 
       var variablename = $(this).attr("fekvar");
 
-      if($(this).hasClass("inactive"))
-      {
+      if($(this).hasClass("inactive")){
         // Turn the variable on and save state
         GM_setValue(variablename, "on");
         $(this).removeClass("inactive");
         $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
-      }
-      else
-      {
+      }else{
         // Turn the variable and save state
         GM_setValue(variablename, "off");
         $(this).addClass("inactive");
@@ -2902,11 +2595,9 @@ function KeyWatch()
     }
   });
 
-  $("#fekpanel #button ul li").click(function()
-  {
+  $("#fekpanel #button ul li").click(function(){
     var previousChoice = $(this).closest("#button").find("#choice").text();
-    if($(this).text() !== previousChoice)
-    {
+    if($(this).text() !== previousChoice){
       var variablename = $(this).parent().parent().attr("fekvar");
       GM_setValue(variablename, $(this).attr("fekvalue"));
       $("#refreshNotice").addClass("visible");
@@ -2915,27 +2606,20 @@ function KeyWatch()
     $(this).closest("#button").find("#choice").html($(this).html());
     $(this).closest("#button").find("#choice").attr("fekvalue", $(this).attr("fekvalue"));
 
-    if($(this).attr("fekvalue") === "off")
-    {
-      if($(this).closest("#button").hasClass("inactive"))
-      {
+    if($(this).attr("fekvalue") === "off"){
+      if($(this).closest("#button").hasClass("inactive")){
         // Nothing
-      }
-      else
-      {
+      }else{
         $(this).closest("#button").addClass("inactive");
         $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
       }
-    }
-    else
-    {
+    }else{
       $(this).closest("#button").removeClass("inactive");
       $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
     }
   });
 
-  $("#refreshNotice").click(function()
-  {
+  $("#refreshNotice").click(function(){
     location.reload();
   });
 }
@@ -2953,8 +2637,7 @@ function KeyWatch()
 ///////////////////////////////////////////////////////////////////
 // CreateAlertBox: Creates an alert box at the top of the window //
 ///////////////////////////////////////////////////////////////////
-function CreateAlertBox(top, background, border, color, innerHTML)
-{
+function CreateAlertBox(top, background, border, color, innerHTML){
   var apolloHeader = document.getElementsByClassName("apollo-header")[0];
   var alertBanner = document.createElement("div");
   apolloHeader.appendChild(alertBanner);
@@ -2983,8 +2666,7 @@ function CreateAlertBox(top, background, border, color, innerHTML)
 ///////////////////////////////////////////////
 // ParseTwitterDate: Parses the Twitter date //
 ///////////////////////////////////////////////
-function ParseTwitterDate(text)
-{
+function ParseTwitterDate(text){
   var newtext = text.replace(/(\+\S+) (.*)/, "$2 $1");
   var date = new Date(Date.parse(text)).toLocaleDateString();
   var time = new Date(Date.parse(text)).toLocaleTimeString();
@@ -2999,8 +2681,7 @@ function ParseTwitterDate(text)
 ///////////////////////////////////////////////////////////////////////
 // ReplaceUrlWithHtmlLink: Replaces URLs with HTML links for twitter //
 ///////////////////////////////////////////////////////////////////////
-function ReplaceUrlWithHtmlLink(text)
-{
+function ReplaceUrlWithHtmlLink(text){
   var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i;
   return text.replace(exp, "<a href='$1' target=\"_blank\">$1</a>");
 }
@@ -3008,25 +2689,17 @@ function ReplaceUrlWithHtmlLink(text)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
 ////////////////////////////////////////////////////////////////////////////////////////////////
-function WaitAndRun(selector, callback)
-{
+function WaitAndRun(selector, callback){
   var timeOut = 2000, currentTime = 0;
 
-  var interval = setInterval(function()
-  {
+  var interval = setInterval(function(){
     currentTime = currentTime + 1;
 
     if(currentTime >= timeOut)
-    {
       clearInterval(interval);
-    }
-    else
-    {
-      if($(selector).length > 0)
-      {
-        clearInterval(interval);
-        callback();
-      }
+    else if($(selector).length > 0){
+      clearInterval(interval);
+      callback();
     }
   }, 1);
 }
@@ -3034,16 +2707,13 @@ function WaitAndRun(selector, callback)
 //////////////////////////////////////////////////////////////////////////////////////////
 // WaitAndRunManual: Waits for a specified amount of time before executing the callback //
 //////////////////////////////////////////////////////////////////////////////////////////
-function WaitAndRunManual(time, callback)
-{
+function WaitAndRunManual(time, callback){
   var timeOut = time, currentTime = 0;
 
-  var interval = setInterval(function()
-  {
+  var interval = setInterval(function(){
     currentTime = currentTime + 1;
 
-    if(currentTime >= timeOut)
-    {
+    if(currentTime >= timeOut){
       clearInterval(interval);
       callback();
     }
@@ -3053,25 +2723,20 @@ function WaitAndRunManual(time, callback)
 ////////////////////////////////////////////////////////////////////////
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
-function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
-{
-  $.getJSON("http://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api)
-  {
-    if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0])
-    {
+function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
+  $.getJSON("http://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
+    if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
       var data;
       var badges = [];
 
-      if(api.profile)
-      {
+      if(api.profile){
         data = api.profile.data;
 
         if(typeof title == "undefined")
           title = data.title;
       }
 
-      if(typeof data !== "undefined")
-      {
+      if(typeof data !== "undefined"){
         if(data.b_raf)     {badges.push("https://cdn.leagueoflegends.com/apollo/badges/raf.png");}
         if(data.b_s01gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s1gold.png");}
         if(data.b_s01plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s1platinum.png");}
@@ -3120,8 +2785,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
                        else if(badges.length == 7) badgeSize = "22px";
                        else if(badges.length == 8) badgeSize = "20px";
 
-        if(badges.length > 0)
-        {
+        if(badges.length > 0){
           badgeContainer = document.createElement("div");
           badgeContainer.className = "badge-container";
           badgeContainer.style.setProperty("position",   "relative", "important");
@@ -3132,8 +2796,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
           profHover.appendChild(badgeContainer);
         }
 
-        while(badges.length > 0)
-        {
+        while(badges.length > 0){
           var badgeName = badges.shift();
           var divBadge = document.createElement("img");
           divBadge.className = "badge";
@@ -3146,8 +2809,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
         }
 
       // Apply a title if you have one
-      if(typeof title !== "undefined")
-      {
+      if(typeof title !== "undefined"){
         var divTitle = document.createElement("div");
 
         divTitle.className = "title";
@@ -3174,12 +2836,10 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
         else
           divTitle.style.setProperty("font-size", "10px", "important");
 
-        if(staff == "1")
-        {
+        if(staff == "1"){
           divTitle.style.setProperty("font-size", "26px", "important");
 
-          $(divTitle).GradientText(
-          {
+          $(divTitle).GradientText({
             step: 10,
             colors: ["#68BAFF", "#008AFF", "#68BAFF"],
             dir: "x"
@@ -3202,19 +2862,14 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge)
 ///////////////////////////////////////////////////////////
 // EmbedMedia: Replaces all webm links with actual webms //
 ///////////////////////////////////////////////////////////
-function EmbedMedia()
-{
+function EmbedMedia(){
   var links = document.links;
-  for(var i = 0; i < links.length; ++i)
-  {
-    if(links[i].href.slice(-5) == ".webm")
-    {
+  for(var i = 0; i < links.length; ++i){
+    if(links[i].href.slice(-5) == ".webm"){
       var obj = document.getElementsByTagName("a");
 
-      for(var j = 0; j < obj.length; ++j)
-      {
-        if(links[i].href === obj[j].href)
-        {
+      for(var j = 0; j < obj.length; ++j){
+        if(links[i].href === obj[j].href){
           obj[j].innerHTML = "";                         // Remove the url since it's not needed
           var webm = document.createElement("video");    // Create the webm element
           webm.setAttribute("width", "500");             // Define the width
@@ -3239,14 +2894,12 @@ function EmbedMedia()
   WaitAndRunManual(500, EmbedYouTube);
 }
 
-function EmbedYouTube()
-{
+function EmbedYouTube(){
   // Get all of the YouTube objects
   var youtubeObj = document.getElementsByClassName("video-thumb-link");
   var youtubeObjLength = youtubeObj.length;
 
-  for(i = 0; i < youtubeObjLength; i++)
-  {
+  for(i = 0; i < youtubeObjLength; i++){
     var regex = /ytimg.com%2Fvi%2F(.*?)%2F/g;
 
     // Extract the Youtube's video Id
@@ -3263,58 +2916,37 @@ function EmbedYouTube()
 /////////////////////////////////////////////////////////////
 // ColorVotes: Colors upvotes green and downvotes negative //
 /////////////////////////////////////////////////////////////
-function ColorVotes()
-{
+function ColorVotes(){
   var totalVotes = $(document).find(".total-votes");
 
-  $(totalVotes).each(function()
-  {
+  $(totalVotes).each(function(){
     if($(this).html()[0] == "-")
-    {
-      // Make red for downvotes
-      this.style.setProperty( "color", "#FF5C5C", "important");
-    }
+      this.style.setProperty( "color", "#FF5C5C", "important"); // Make red for downvotes
     else if($(this).html()[0] == "•")
-    {
       // Do nothing
-    }
     else if($(this).html() != "0" && $(this).html() != "1")
-    {
-      // Make green for upvotes
-      this.style.setProperty( "color", "#05E100", "important");
-    }
+      this.style.setProperty( "color", "#05E100", "important"); // Make green for upvotes
   });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
 //////////////////////////////////////////////////////////////////////////////////////////////
-function HoverVotes()
-{
-  if(votingDisplay != "off")
-  {
+function HoverVotes(){
+  if(votingDisplay != "off"){
     var voteBox = ".riot-voting";
 
-    $(voteBox).each(function()
-    {
+    $(voteBox).each(function(){
       if(votingDisplay == "hide")
-      {
         this.style.setProperty("visibility", "hidden", "important");
-      }
-      else
-      {
-        if(this.hasAttribute("hover-event") === false)
-        {
-          this.setAttribute("hover-event", "true");
-          $(this).hover(function()
-          {
-            ShowIndividualVotes(this, page);
-          }, function()
-          {
-            $("#up-down-display").remove();
-            $(".total-votes").show();
-          });
-        }
+      else if(this.hasAttribute("hover-event") === false){
+        this.setAttribute("hover-event", "true");
+        $(this).hover(function(){
+          ShowIndividualVotes(this, page);
+        }, function(){
+          $("#up-down-display").remove();
+          $(".total-votes").show();
+        });
       }
     });
   }
@@ -3323,8 +2955,7 @@ function HoverVotes()
 //////////////////////////////////////////////////////////////////////////////////////////
 // ShowIndividualVotes: Shows how many upvotes and downvotes a specific thread/post has //
 //////////////////////////////////////////////////////////////////////////////////////////
-function ShowIndividualVotes(obj, page)
-{
+function ShowIndividualVotes(obj, page){
   var voteFinder    = obj.parentElement;
   var uVotes        = voteFinder.getAttribute("data-apollo-up-votes");
   var dVotes        = voteFinder.getAttribute("data-apollo-down-votes");
@@ -3333,28 +2964,18 @@ function ShowIndividualVotes(obj, page)
   var upDownDisplay = document.createElement("li");
   $(upDownDisplay).attr("id", "up-down-display");
 
-  if($(obj).closest(".op-container").length)
-  {
-    // CSS for op's vote
-    $(upDownDisplay).css("padding", "4px 0px 4px");
+  if($(obj).closest(".op-container").length){
+    $(upDownDisplay).css("padding", "4px 0px 4px"); // CSS for op's vote
     $(upDownDisplay).css("font-size", "12px");
-  }
-  else
-  {
-    // CSS for non-op's vote
-    $(upDownDisplay).css("padding", "4px 0px 2px");
-  }
+  }else
+    $(upDownDisplay).css("padding", "4px 0px 2px"); // CSS for non-op's vote
 
   obj.insertBefore(upDownDisplay, obj.children[1]);
 
   if(votingDisplay == "individual")
-  {
     upDownDisplay.innerHTML = "<font color='#05E100'>" +   uVotes + "</font>"  + " <font color='white'>|</font> " + "<font color='#FF5C5C'>" + dVotes + "</font>";
-  }
   else if(votingDisplay == "total")
-  {
     upDownDisplay.innerHTML = "<font color='#FFA500'>" + (+uVotes + (+dVotes)) + "</font>";
-  }
 
   $(voteScore).hide();
 }
@@ -3362,32 +2983,23 @@ function ShowIndividualVotes(obj, page)
 ////////////////////////////////////////////////////////////////////////////////////
 // RemoveThumbnailBackground: Removes the background from thumbnails on the index //
 ////////////////////////////////////////////////////////////////////////////////////
-function RemoveThumbnailBackground()
-{
+function RemoveThumbnailBackground(){
   // Remove the background image from every thumbnail
-  $(".thumbnail-fallback").each(function()
-  {
+  $(".thumbnail-fallback").each(function(){
     this.style.setProperty("background-image", "none", "important");
   });
 
   // animateThumbnails option
-  if(animateThumbnails == "animate")
-  {
-    $(document.getElementsByTagName("img")).each(function()
-    {
+  if(animateThumbnails == "animate"){
+    $(document.getElementsByTagName("img")).each(function(){
       var thumbnail = this.getAttribute("src");
 
       if(thumbnail.slice(-14) == "&animate=false")
-      {
         this.setAttribute("src", thumbnail.slice(0, thumbnail.length - 14) + "&animate=true");
-      }
     });
-  }
-  else if(animateThumbnails == "hide")
-  {
+  }else if(animateThumbnails == "hide"){
     $(".discussion-list-item td.thumbnail").css("max-width", "0px");
-    $(document.getElementsByClassName("thumbnail-fallback")).each(function()
-    {
+    $(document.getElementsByClassName("thumbnail-fallback")).each(function(){
       $(this).remove();
     });
   }
@@ -3396,21 +3008,15 @@ function RemoveThumbnailBackground()
 ///////////////////////////////////////////////////////////////////////
 // HighlightMyThreads: Highlights your threads as black on the index //
 ///////////////////////////////////////////////////////////////////////
-function HighlightMyThreads()
-{
-  if(page == "Index")
-  {
-    $(".discussion-list-item").each(function()
-    {
+function HighlightMyThreads(){
+  if(page == "Index"){
+    $(".discussion-list-item").each(function(){
       // We need to avoid any threads that don't have a name to them
-      if(this.getElementsByClassName("username")[0])
-      {
+      if(this.getElementsByClassName("username")[0]){
         var name = this.getElementsByClassName("username")[0].textContent;
 
         if(name == myName)
-        {
           this.style.setProperty("background-color", highlightMyThreads, "important");
-        }
       }
     });
   }
@@ -3419,18 +3025,13 @@ function HighlightMyThreads()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EnhancedThreadPreview: Displays a fancier preview when you hover the mouse over a thread on the index //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-function EnhancedThreadPreview()
-{
-  if(page == "Index")
-  {
-    $(".title-span").each(function()
-    {
-      if($(this).attr("title"))
-      {
+function EnhancedThreadPreview(){
+  if(page == "Index"){
+    $(".title-span").each(function(){
+      if($(this).attr("title")){
         $(this).attr("ttdata", $(this).attr("title"));
 
-        $(this).parent().parent().parent().mouseenter(function()
-        {
+        $(this).parent().parent().parent().mouseenter(function(){
           $("#fektooltip").html("<div id='ttlabel'>"  + $(this).find(".username").text()   + "</div>\
                                  <div id='loadtime'>" + $(this).find(".title-span").text() + "</div>\
                                  <p>" + $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons) + "</p>");
@@ -3448,8 +3049,7 @@ function EnhancedThreadPreview()
 //////////////////////////////////////////////////////////////////////
 // MiniChampionIcons: Displays champion icons in the thread preview //
 //////////////////////////////////////////////////////////////////////
-function MiniChampionIcons(x)
-{
+function MiniChampionIcons(x){
   var start = x.indexOf(':') + 1;
   var end   = x.indexOf('}', start);
   var icon  = "c" + x.substring(start, end);
@@ -3459,8 +3059,7 @@ function MiniChampionIcons(x)
 //////////////////////////////////////////////////////////////
 // MiniItemIcons: Displays item icons in the thread preview //
 //////////////////////////////////////////////////////////////
-function MiniItemIcons(x)
-{
+function MiniItemIcons(x){
   var start = x.indexOf(':') + 1;
   var end   = x.indexOf('}', start);
   var icon  = x.substring(start, end);
@@ -3470,8 +3069,7 @@ function MiniItemIcons(x)
 ////////////////////////////////////////////////////////////////////////////
 // MiniSummonerIcons: Displays summoner spell icons in the thread preview //
 ////////////////////////////////////////////////////////////////////////////
-function MiniSummonerIcons(x)
-{
+function MiniSummonerIcons(x){
   var start = x.indexOf(':') + 1;
   var end   = x.indexOf('}', start);
   var icon  = x.substring(start, end);
@@ -3491,8 +3089,7 @@ function MiniSummonerIcons(x)
   if(icon == 30) icon = "0px -16px";
   if(icon == 31) icon = "-16px -16px";
 
-  if(icon == 32)
-  {
+  if(icon == 32){
     icon = "-128px -32px";
     return "<span style='background-size: 50%; background: transparent url(\"//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell13.png\") no-repeat scroll " + icon + "; background-size: 1000%; width: 16px; height: 16px; display: inline-block;'></span>";
   }
@@ -3513,8 +3110,7 @@ function AddToNavBar(obj, cName, html, navBar, index)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // CreateNavBarGroup: Makes a container in the navigation bar to hold buttons for dropdown list //
 //////////////////////////////////////////////////////////////////////////////////////////////////
-function CreateNavBarGroup(obj, idName, navBar, index, width, height, lineHeight, backgroundSize)
-{
+function CreateNavBarGroup(obj, idName, navBar, index, width, height, lineHeight, backgroundSize){
   navBar.children[index].appendChild(obj);
   obj.id = idName;
   obj.style.setProperty("position",        "absolute");
@@ -3528,8 +3124,7 @@ function CreateNavBarGroup(obj, idName, navBar, index, width, height, lineHeight
 //////////////////////////////////////////////////////////////////////////////////
 // CreateNavBarButton: Creates buttons within a container for the dropdown list //
 //////////////////////////////////////////////////////////////////////////////////
-function CreateNavBarButton(navGroup, obj, text, url)
-{
+function CreateNavBarButton(navGroup, obj, text, url){
   navGroup.appendChild(obj);
   obj.textContent = text;
   obj.href        = url;
@@ -3542,8 +3137,7 @@ function CreateNavBarButton(navGroup, obj, text, url)
 //////////////////////////////////////////////////////////////
 // CreateNavListLink: Creates a link in the navigation list //
 //////////////////////////////////////////////////////////////
-function CreateNavListLink(text, url)
-{
+function CreateNavListLink(text, url){
   var navList   = document.getElementById("markdown-nav").getElementsByTagName("p")[1];
   var lineBreak = document.createElement("br");
   var anchor    = document.createElement("a");
@@ -3555,16 +3149,12 @@ function CreateNavListLink(text, url)
   navList.insertBefore(anchor, navList.children[navList.childElementCount]);
 }
 
-function RemoveNavListLinks()
-{
+function RemoveNavListLinks(){
   var navList = document.getElementById("markdown-nav").getElementsByTagName("p")[1];
 
-  for(var text in hide)
-  {
-    for(var i = 0; i < navList.children.length; ++i)
-    {
-      if(navList.children[i].textContent == text && hide[text] == "on")
-      {
+  for(var text in hide){
+    for(var i = 0; i < navList.children.length; ++i){
+      if(navList.children[i].textContent == text && hide[text] == "on"){
         // Remove the <br> after the navLink, if it exists
         if(navList.children[i].nextSibling)
           navList.children[i].nextSibling.remove();
@@ -3579,22 +3169,21 @@ function RemoveNavListLinks()
 /////////////////////////////////////////////////////////////
 // AddFEKNavBar: Adds a FEK dropdown to the navigation bar //
 /////////////////////////////////////////////////////////////
-function AddFEKNavBar()
-{
-  WaitAndRun("#riotbar-navbar", function()
-  {
-    $("#riotbar-navbar").append("\
-    <span class='riotbar-navbar-separator'></span>\
-    <a class='touchpoint-fek' href='#'>F.E.K.</a>\
-    ");
+function AddFEKNavBar(){
+  WaitAndRun("#riotbar-navbar", function(){
+    $("#riotbar-navbar").append(`
+    <span class='riotbar-navbar-separator'></span>
+    <a class='touchpoint-fek' href='#'>F.E.K.</a>
+    `);
 
-    $(".touchpoint-fek").click(function(event)
-    {
+    $(".touchpoint-fek").click(function(event){
       event.preventDefault();
       event.stopPropagation();
       PanelToggle();
     });
   });
+
+  // Figure out why I decided to put a return here!
   return;
   var NavBarFEK      = document.createElement("li"); AddToNavBar(NavBarFEK, "touchpoint-fek", "<a href='#'>F.E.K.</a>", RiotBar, 7);
   var FEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(FEKNavBarGroup, "FEKNavBarGroup", RiotBar, 7, "120px", "60px", "27px", "100% 30px");
@@ -3605,8 +3194,7 @@ function AddFEKNavBar()
 ////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarNA: Adds a Boards dropdown to the navigation bar for NA //
 ////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarNA()
-{
+function AddBoardsNavBarNA(){
   var BoardsNavBarGroup        = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "250px", "480px", "27px", "100% 30px");
 
   var Gameplay                 = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Gameplay,                 "Gameplay",                     "http://boards.na.leagueoflegends.com/en/c/gameplay-balance");
@@ -3630,8 +3218,7 @@ function AddBoardsNavBarNA()
 /////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarNA: Adds a Boards dropdown to the navigation bar for OCE //
 /////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarOCE()
-{
+function AddBoardsNavBarOCE(){
   var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "300px", "27px", "100% 30px");
   var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.oce.leagueoflegends.com/en/redtracker");
   var Miscellaneous         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Miscellaneous,         "Miscellaneous",             "http://boards.oce.leagueoflegends.com/en/c/miscellaneous");
@@ -3648,8 +3235,7 @@ function AddBoardsNavBarOCE()
 //////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarEUW: Adds a Boards dropdown to the navigation bar for EUW //
 //////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarEUW()
-{
+function AddBoardsNavBarEUW(){
   var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "480px", "27px", "100% 30px");
   var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.eune.leagueoflegends.com/en/redtracker");
   var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.euw.leagueoflegends.com/en/c/announcements-en");
@@ -3672,8 +3258,7 @@ function AddBoardsNavBarEUW()
 ////////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarEUNE: Adds a Boards dropdown to the navigation bar for EUNE //
 ////////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarEUNE()
-{
+function AddBoardsNavBarEUNE(){
   var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "480px", "27px", "100% 30px");
   var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.eune.leagueoflegends.com/en/redtracker");
   var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.eune.leagueoflegends.com/en/c/announcements-en");
@@ -3696,8 +3281,7 @@ function AddBoardsNavBarEUNE()
 ///////////////////////////////////////////////////////////////////
 // AddBoardsNavBar: Adds a Boards dropdown to the navigation bar //
 ///////////////////////////////////////////////////////////////////
-function AddBoardsNavBar()
-{
+function AddBoardsNavBar(){
   if     (platformRegion == "na")   AddBoardsNavBarNA();
   else if(platformRegion == "oce")  AddBoardsNavBarOCE();
   else if(platformRegion == "euw")  AddBoardsNavBarEUW();
@@ -3707,53 +3291,40 @@ function AddBoardsNavBar()
 ///////////////////////////////////////////////////////////////////////////////////////
 // RoleplayingAlert: Creates a banner in the Roleplaying boards to notify newcomers. //
 ///////////////////////////////////////////////////////////////////////////////////////
-function RoleplayingAlert()
-{
-
-CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
-               "Hello and welcome to the Roleplaying Boards! Before diving in, we ask that you familiarize yourself with the\
-               <a href='http://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette' style='color:#00C0FF;'>Community Rules</a>,\
-               and afterwards the <a href='http://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers' style='color:#00C0FF;'>Guide for Newcomers</a>.\
-               Another helpful thread is <a href='http://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at' style='color:#00C0FF;'>How To Join RPs</a>.\
-               Please check <a href='http://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium' style='color:#00C0FF;'>The Ask Champion Compendium</a> for\
-               availability and details on how to play as a champion. Once you have visited these threads,\
-               this notification will automatically disappear. Thank you, and enjoy your stay!");
+function RoleplayingAlert(){
+  CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
+                 `Hello and welcome to the Roleplaying Boards! Before diving in, we ask that you familiarize yourself with the
+                 <a href="http://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette" style="color:#00C0FF;">Community Rules</a>,
+                 and afterwards the <a href="http://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers" style="color:#00C0FF;">Guide for Newcomers</a>.
+                 Another helpful thread is <a href="http://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at" style="color:#00C0FF;">How To Join RPs</a>.
+                 Please check <a href="http://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium" style="color:#00C0FF;">The Ask Champion Compendium</a> for
+                 availability and details on how to play as a champion. Once you have visited these threads,
+                 this notification will automatically disappear. Thank you, and enjoy your stay!`);
 
   var url = window.location.href;
-  if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette")
-  {
-    if(RPint === 0 || RPint == 2 || RPint == 4 || RPint == 6 || RPint == 8 || RPint == 10 || RPint == 12 || RPint == 14)
-    {
+  if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette"){
+    if(RPint === 0 || RPint == 2 || RPint == 4 || RPint == 6 || RPint == 8 || RPint == 10 || RPint == 12 || RPint == 14){
       RPint = RPint + 1;
       GM_setValue("_RP", RPint);
       if(RPint == 15)
         alertBanner.remove();
     }
-  }
-  else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers")
-  {
-    if(RPint === 0 || RPint == 1 || RPint == 4 || RPint == 5 || RPint == 8 || RPint == 9 || RPint == 12 || RPint == 13)
-    {
+  }else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers"){
+    if(RPint === 0 || RPint == 1 || RPint == 4 || RPint == 5 || RPint == 8 || RPint == 9 || RPint == 12 || RPint == 13){
       RPint = RPint + 2;
       GM_setValue("_RP", RPint);
       if(RPint == 15)
         alertBanner.remove();
     }
-  }
-  else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at")
-  {
-    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 8 || RPint == 9 || RPint == 10 || RPint == 11)
-    {
+  }else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at"){
+    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 8 || RPint == 9 || RPint == 10 || RPint == 11){
       RPint = RPint + 4;
       GM_setValue("_RP", RPint);
       if(RPint == 15)
         alertBanner.remove();
     }
-  }
-  else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium")
-  {
-    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 4 || RPint == 5 || RPint == 6 || RPint == 7)
-    {
+  }else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium"){
+    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 4 || RPint == 5 || RPint == 6 || RPint == 7){
       RPint = RPint + 8;
       GM_setValue("_RP", RPint);
       if(RPint == 15)
@@ -3769,24 +3340,18 @@ CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
 /////////////////////////////////////////////
 // When "Show More" is clicked on an index //
 /////////////////////////////////////////////
-$(".box.show-more").click(function(event)
-{
+$(".box.show-more").click(function(event){
   var timeOut = 2000, currentTime = 0;
 
   var oldLength = $("#discussion-list")[0].children.length;
 
-  var interval = setInterval(function()
-  {
+  var interval = setInterval(function(){
     currentTime++;
 
     if(currentTime >= timeOut)
-    {
       clearInterval(interval);
-    }
-    else
-    {
-      if(oldLength != $("#discussion-list")[0].children.length)
-      {
+    else{
+      if(oldLength != $("#discussion-list")[0].children.length){
         clearInterval(interval);
         HideSubboards();
         if(page == "Index" && emptyVoteReplacement != "off") EmptyVoteReplacement();
@@ -3798,36 +3363,28 @@ $(".box.show-more").click(function(event)
 ////////////////////////////////////////////////
 // AddPagingRight: Inefficient... merge later //
 ////////////////////////////////////////////////
-function AddPagingRight()
-{
+function AddPagingRight(){
   var currentPostCount = 0;
-  $(".body-container.clearfix").each(function()
-  {
+  $(".body-container.clearfix").each(function(){
     ++currentPostCount;
   });
 
   var timeOut = 5000, currentTime = 0;
 
-  var interval = setInterval(function()
-  {
+  var interval = setInterval(function(){
     currentTime = currentTime + 1;
 
     if(currentTime >= timeOut)
-    {
       clearInterval(interval);
-    }
-    else
-    {
+    else{
       var newPostCount = 0;
-      $(".body-container.clearfix").each(function()
-      {
+      $(".body-container.clearfix").each(function(){
         ++newPostCount;
       });
 
       // console.log("Checking: " + newPostCount);
 
-      if(currentPostCount != newPostCount)
-      {
+      if(currentPostCount != newPostCount){
         clearInterval(interval);
         LoadThread();
         AddPagingRight();
@@ -3839,36 +3396,28 @@ function AddPagingRight()
 /////////////////////////////////////////////////////////////////////////
 // When "Show More" is clicked on Discussion View Threads within posts //
 /////////////////////////////////////////////////////////////////////////
-$(".paging.right").click(function(event)
-{
+$(".paging.right").click(function(event){
   var currentPostCount = 0;
-  $(".body-container.clearfix").each(function()
-  {
+  $(".body-container.clearfix").each(function(){
     ++currentPostCount;
   });
 
   var timeOut = 5000, currentTime = 0;
 
-  var interval = setInterval(function()
-  {
+  var interval = setInterval(function(){
     currentTime = currentTime + 1;
 
     if(currentTime >= timeOut)
-    {
       clearInterval(interval);
-    }
-    else
-    {
+    else{
       var newPostCount = 0;
-      $(".body-container.clearfix").each(function()
-      {
+      $(".body-container.clearfix").each(function(){
         ++newPostCount;
       });
 
       // console.log("Checking: " + newPostCount);
 
-      if(currentPostCount != newPostCount)
-      {
+      if(currentPostCount != newPostCount){
         clearInterval(interval);
         LoadThread();
         AddPagingRight();
@@ -3890,8 +3439,7 @@ $("#FEKPanel").click(function(event)
 ////////////////////////////////////////////////////////////////////////////
 // When Quote or Reply is clicked, change the old icons to favorite icons //
 ////////////////////////////////////////////////////////////////////////////
-$(".toggle-reply-form").click(function(event)
-{
+$(".toggle-reply-form").click(function(event){
   FavoriteIcons();
 });
 
@@ -3909,33 +3457,25 @@ $(".touchpoint-fek").hover(function()    {$("#FEKNavBarGroup").show();},    func
 //////////////////////////////////////////////////////////////////
 // Changes the color of a link when you mouse over/away from it //
 //////////////////////////////////////////////////////////////////
-$(".link").hover(function()
-{
+$(".link").hover(function(){
   this.style.setProperty("color", "#D3C7A9");
-}, function()
-{
+}, function(){
   this.style.setProperty("color", "#CFBA6B");
 });
 
 /////////////////////////////////////////////
 // ========== MUTATION OBSERVER ========== //
 /////////////////////////////////////////////
-if(page == "Index" || page == "Thread")
-{
+if(page == "Index" || page == "Thread"){
   var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
               else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
               else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
 
-  var observer = new MutationObserver(function(mutations)
-  {
+  var observer = new MutationObserver(function(mutations){
     if(page == "Index")
-    {
       WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
-    }
     else if(page == "Thread")
-    {
       WaitAndRun(".riot-voting", LoadThread);
-    }
   });
 
   var config = {attributes: true, childList: true, characterData: true};
