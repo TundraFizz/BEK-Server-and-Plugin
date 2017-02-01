@@ -112,6 +112,9 @@ select:disabled {
 
 <script>
 
+// Minimized function I made which helps sending form POST data easily
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d)})}
+
 $(function(){
   AddRow();
 });
@@ -144,13 +147,7 @@ $("#btnSubmit").click(function(){
 
     $(self).attr("status", "uploading");
 
-    $.ajax({
-      url: "uploadavatar",
-      type: "POST",
-      data: formData,
-      contentType: false,
-      processData: false
-    }).done(function(data){
+    SendToServer("uploadavatar", formData, function(data){
       $(".summoner-loading").css("background", "url()");
 
       if(data["uploaded"]){
@@ -168,6 +165,31 @@ $("#btnSubmit").click(function(){
         $(".summoner-loading", self).text("✘");
       }
     });
+
+    // $.ajax({
+    //   url: "uploadavatar",
+    //   type: "POST",
+    //   data: formData,
+    //   contentType: false,
+    //   processData: false
+    // }).done(function(data){
+    //   $(".summoner-loading").css("background", "url()");
+
+    //   if(data["uploaded"]){
+    //     $(self).attr("status", "uploaded");
+    //     $(".summoner-name",    self).prop("disabled", true);
+    //     $(".summoner-region",  self).prop("disabled", true);
+    //     $(".summoner-avatar",  self).prop("disabled", true);
+    //     $("[data=active]",     self).attr("data", "disabled");
+    //     $(".summoner-loading", self).css("color", "green");
+    //     $(".summoner-loading", self).text("✔");
+    //   }
+    //   else{
+    //     $(self).attr("status", "");
+    //     $(".summoner-loading", self).css("color", "red");
+    //     $(".summoner-loading", self).text("✘");
+    //   }
+    // });
   });
 });
 

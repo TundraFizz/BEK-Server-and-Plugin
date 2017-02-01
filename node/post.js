@@ -183,31 +183,35 @@ FEK.prototype.FindAvatar = function(boardsId){
   return false;
 }
 
-function UploadAvatar(req){
-  this.conn = mysql.createConnection({host     : "localhost",
+function UploadAvatar(){}
+
+UploadAvatar.prototype.Initialize = function(req){return new Promise((resolve) => {
+  var self = this;
+
+  self.response             = {};
+  self.avatarDirectory      = "./static/fek-avatars";
+  self.response["uploaded"] = false;
+
+  self.conn = mysql.createConnection({host     : "localhost",
                                       user     : "root",
                                       password : "Fizz",
                                       database : "fek"});
 
-  this.req                  = req;
-  this.avatarDirectory      = "./fek-avatars";
-  this.response             = {};
-  this.response["uploaded"] = false;
+  self.form           = new formidable.IncomingForm();
+  self.form.multiples = true; // Form Option: Allow uploading multiple files at once
+  self.form.uploadDir = "./static/fek-avatars"; // Form Option: Set the upload directory
 
-  this.form                 = new formidable.IncomingForm();
-  this.form.multiples       = true; // Form Option: Allow uploading multiple files at once
-  this.form.uploadDir       = "./fek-avatars"; // Form Option: Set the upload directory
-}
+  self.form.parse(req, function(err, data, files){
+    if(Object.keys(files).length){
+      self.filePath = files["file"].path;
+      self.fileName = files["file"].name;
+      self.fileExt  = files["file"].name.split(".").pop();
+    }
 
-UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
-  var self = this;
+    for(key in data)
+      self[key] = data[key];
 
-  self.form.parse(self.req, function(err, data, files){
-    self.name     = data["name"];
-    self.region   = data["region"];
-    self.filePath = files["file"].path;
-    self.fileExt  = files["file"].name.split(".").pop();
-
+    // EXTRA!
     // Get JSON data from Riot's Boards API
     var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
     uri = encodeURI(uri);
@@ -219,8 +223,33 @@ UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
         "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
       }
     };
+
     resolve();
   });
+})}
+
+UploadAvatar.prototype.FormParse = function(){return new Promise((resolve) => {
+  // var self = this;
+
+  // self.form.parse(self.req, function(err, data, files){
+  //   self.name     = data["name"];
+  //   self.region   = data["region"];
+  //   self.filePath = files["file"].path;
+  //   self.fileExt  = files["file"].name.split(".").pop();
+
+  //   // Get JSON data from Riot's Boards API
+  //   var uri = `http://boards.na.leagueoflegends.com/api/users/${self.region}/${self.name}`;
+  //   uri = encodeURI(uri);
+
+  //   self.options = {
+  //     url     : uri,
+  //     json    : true,
+  //     headers : {
+  //       "User-Agent": "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9"
+  //     }
+  //   };
+  //   resolve();
+  // });
 })}
 
 UploadAvatar.prototype.GetIdFromRiotApi = function(){return new Promise((resolve) => {
@@ -347,9 +376,9 @@ app.post("/database", function(req, res){
 })
 
 app.post("/uploadavatar", function(req, res){
-  var uploadAvatar = new UploadAvatar(req);
+  var uploadAvatar = new UploadAvatar();
 
-  uploadAvatar.FormParse()
+  uploadAvatar.Initialize(req)
   .then(() => uploadAvatar.GetIdFromRiotApi())
   .then(() => uploadAvatar.UpdateUser())
   .then(() => res.json(uploadAvatar.response))
