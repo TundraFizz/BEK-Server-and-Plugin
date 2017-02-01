@@ -6,7 +6,7 @@ var fs         = require("fs");
 
 function MySqlConnection(){return new Promise((resolve) => {
   fs.readFile("mysql", "utf-8", (err, data) => {
-    var data = data.split("\n");
+    data = data.split("\n");
     conn = mysql.createConnection({
       host    : data[0],
       user    : data[1],
