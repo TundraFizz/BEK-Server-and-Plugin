@@ -2074,8 +2074,6 @@ function CreateFeatures(){
   };
 }
 
-/////////////////
-// MAINTENANCE //
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
 ////////////////////////////////////////////////////////////
@@ -2105,54 +2103,47 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
     var buttonhtml, tooltiphtml, optionpair, initclass, initstyle;
     var scategory = category.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
-    // Check if the category exists
-    if(contentview.find("#optiongroup[optiongroup='" + scategory + "']").length <= 0)
-    {
-      // Create the category
-      contentview.append('<div id="optiongroup" optiongroup="' + scategory + '">\
-                            <h1 class="breakhead">' + category + '</h1>\
-                          </div>');
+    // Create the category if it doesn't exist
+    if(contentview.find(`#optiongroup[optiongroup="${scategory}"]`).length == 0){
+      contentview.append(`
+      <div id="optiongroup" optiongroup="${scategory}">
+        <h1 class="breakhead">${category}</h1>
+      </div>
+      `);
     }
 
-    tooltiphtml = '<div id="fektooltip-data">\
-                     <span id="ttlabel">' + label + '</span><br />\
-                     <span id="loadtime"></span>\
-                     <p>' + tooltip + '</p>\
-                   </div>';
+    tooltiphtml = `
+    <div id="fektooltip-data">
+      <span id="ttlabel">${label}</span><br>
+      <span id="loadtime"></span>
+      <p>${tooltip}</p>
+    </div>
+    `;
 
     if(variablename == "dummy")
-    {
-      contentview.find("#optiongroup[optiongroup='" + scategory + "']").append("<div id='button' style='visibility: hidden;'></div>");
-    }
-    // Create the button toggle for the feature, checking if options is supplied to make it a dropdown
-    else if(options && typeof options ==="object")
-    {
+      contentview.find(`#optiongroup[optiongroup="${scategory}"]`).append(`<div id="button" style="visibility: hidden;"></div>`);
+    else if(options && typeof options ==="object"){
+      // Create the button toggle for the feature, checking if options is supplied to make it a dropdown
       // An array of options has been provided, so this is a dropdown
-      var initlabel, listhtml = '';
-      optionpair = '';
+      var initlabel, listhtml = "";
+      optionpair = "";
 
       // Prepare the list html
-      for(index = 0; index < options.length; ++index)
-      {
+      for(index = 0; index < options.length; ++index){
         // Split the option and associated value apart
-        optionpair = options[index].split('|');
-        listhtml = listhtml + '<li fekvalue="' + optionpair[0] + '">' + optionpair[1] + '</li>';
+        optionpair = options[index].split("|");
+        listhtml = listhtml + `<li fekvalue="${optionpair[0]}">${optionpair[1]}</li>`;
         if(optionpair[0] === useInitValue)
-        {
           initlabel = optionpair[1];
-        }
       }
 
       // Prepare the button html
-      if(useInitValue === "off")
-      {
-        initclass = 'inactive ';
+      if(useInitValue === "off"){
+        initclass = "inactive ";
         initstyle = 'background-position:center; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'button-off.png\');';
-        initlabel = 'Disable';
-      }
-      else
-      {
-        initclass = '';
+        initlabel = "Disable";
+      }else{
+        initclass = "";
         initstyle = 'background-position:center; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'button-on.png\');';
       }
 
@@ -2167,28 +2158,25 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
                    </div>';
 
       contentview.find("#optiongroup[optiongroup='" + scategory + "']").append(buttonhtml);
-    }
-    else
-    {
+    }else{
       // No options provided, so this is a toggle
-      if(useInitValue === 'off')
-      {
-        initclass = 'inactive';
-        initstyle = 'background-position:center; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'button-off.png\');';
-      }
-      else
-      {
-        initclass = '';
-        initstyle = 'background-position:center; background-repeat:no-repeat; background-image:url(\'' + FEKgfx + 'button-on.png\');';
+      if(useInitValue === "off"){
+        initclass = "inactive";
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
+      }else{
+        initclass = "";
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
       }
 
-      buttonhtml = '<div id="button" class="' + initclass + '" fekvar="' + variablename + '">\
-                     ' + tooltiphtml + '\
-                     <div id="indicator" style="' + initstyle + '"></div>\
-                     <span id="label">' + label + '</span>\
-                   </div>';
+      buttonhtml = `
+      <div id="button" class="${initclass}" fekvar="${variablename}">
+        ${tooltiphtml}
+        <div id="indicator" style="${initstyle}"></div>
+        <span id="label">${label}</span>
+      </div>
+      `;
 
-      contentview.find("#optiongroup[optiongroup='" + scategory + "']").append(buttonhtml);
+      contentview.find(`#optiongroup[optiongroup="${scategory}"]`).append(buttonhtml);
     }
   });
 
@@ -2197,28 +2185,27 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
     callback(useInitValue);
 }
 
-/////////////////
-// MAINTENANCE //
 //////////////////////////////////////////////////
 // CreateGUI: Creates the GUI for the FEK panel //
 //////////////////////////////////////////////////
-function CreateGUI()
-{
-  var tooltipshtml = '<div id="fektooltip">tooltip test</div>';
+function CreateGUI(){
+  var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
 
-  var panelhtml = '<div id="fekpanel">\
-                     <div id="col1">\
-                       <div id="logo" style="background:url(' + FEKgfx + 'logo.png) no-repeat"></div>\
-                       <div id="version">v' + FEKversion + '</div>\
-                       <div id="tabs"></div>\
-                     </div>\
-                     <div id="col2">\
-                       <div id="refreshNotice">\
-                         Changes Saved. Click Here To Refresh The Page.\
-                       </div>\
-                       <div id="fekScrollRegion" class="fekScrollRegion"></div>\
-                     </div>\
-                   </div>';
+  var panelhtml = `
+  <div id="fekpanel">
+    <div id="col1">
+      <div id="logo" style="background:url(${FEKgfx}logo.png) no-repeat"></div>
+      <div id="version">v${FEKversion}</div>
+      <div id="tabs"></div>
+    </div>
+    <div id="col2">
+      <div id="refreshNotice">
+        Changes Saved. Click Here To Refresh The Page.
+      </div>
+      <div id="fekScrollRegion" class="fekScrollRegion"></div>
+    </div>
+  </div>
+  `;
 
   var docbody = $("html").first().find("body:not(.wysiwyg)").first();
   docbody.append(panelhtml);
