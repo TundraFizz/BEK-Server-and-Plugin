@@ -18,18 +18,44 @@ function MySqlConnection(){return new Promise((resolve) => {
   });
 })}
 
-function FEK(req){
-  this.response                  = {};
-  this.response["records"]       = {};
-  this.response["announcements"] = [];
-  this.response["event"]         = {};
-  this.response["version"]       = {};
+function FEK(){}
 
-  this.name    = req.body.myName;
-  this.region  = req.body.myRegion;
-  this.users   = req.body.users;
-  this.regions = req.body.regions;
-}
+FEK.prototype.Initialize = function(req){return new Promise((resolve) => {
+  var self = this;
+  self.response = {};
+  self.response["records"]       = {};
+  self.response["announcements"] = [];
+  self.response["event"]         = {};
+  self.response["version"]       = {};
+
+  self.form = new formidable.IncomingForm();
+
+  self.form.parse(req, function(err, data, files){
+    if(Object.keys(files).length){
+      self.filePath = files["file"].path;
+      self.fileName = files["file"].name;
+      self.fileExt  = files["file"].name.split(".").pop();
+    }
+
+    for(key in data)
+      self[key] = data[key];
+
+    if(self.region == "EU Oeste" ||
+       self.region == "EU Ouest" ||
+       self.region == "Eu Ovest" ||
+       self.region == "Westeuropa")
+      self.region = "EUW";
+
+    // Data that will be used
+    // Remember to change myName to name and myRegion to region in FEK.user.js
+    // this.name    = req.body.myName;
+    // this.region  = req.body.myRegion;
+    // this.users   = req.body.users;
+    // this.regions = req.body.regions;
+
+    resolve();
+  });
+})}
 
 FEK.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
   var self = this;
@@ -322,29 +348,27 @@ UserSearch.prototype.QuerySearch = function(){return new Promise((resolve) => {
 })}
 
 app.post("/database", function(req, res){
-  var fek = new FEK(req);
+  var fek = new FEK();
 
-  if(fek.name != null){ // If the user is logged in
-    if(fek.region == "EU Oeste" ||
-       fek.region == "EU Ouest" ||
-       fek.region == "Eu Ovest" ||
-       fek.region == "Westeuropa")
-      fek.region = "EUW";
-
-    fek.GetBoardsInfo()
-    .then(() => fek.CheckIfUserExists())
-    .then(() => fek.GetVersion())
-    .then(() => fek.GetEvent())
-    .then(() => fek.GetTwitterInfo())
-    .then(() => fek.GetAvatars())
-    .then(() => res.json(fek.response));
-  }else{
-    fek.GetVersion()
-    .then(() => fek.GetEvent())
-    .then(() => fek.GetTwitterInfo())
-    .then(() => fek.GetAvatars())
-    .then(() => res.json(fek.response));
-  }
+  MySqlConnection()
+  .then(() => fek.Initialize(req))
+  .then(() => {
+    if(fek.name){
+      fek.GetBoardsInfo()
+      .then(() => fek.CheckIfUserExists())
+      .then(() => fek.GetVersion())
+      .then(() => fek.GetEvent())
+      .then(() => fek.GetTwitterInfo())
+      .then(() => fek.GetAvatars())
+      .then(() => res.json(fek.response));
+    }else{
+      fek.GetVersion()
+      .then(() => fek.GetEvent())
+      .then(() => fek.GetTwitterInfo())
+      .then(() => fek.GetAvatars())
+      .then(() => res.json(fek.response));
+    }
+  })
 })
 
 app.post("/uploadavatar", function(req, res){
