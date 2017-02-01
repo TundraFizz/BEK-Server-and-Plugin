@@ -2020,21 +2020,32 @@ function CreateFeatures(){
         }else{
           // The latest announcement has NOT been read yet
           // Append alert icons for unread announcements
-          alertHTML = '<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, \'Sans Serif\'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>';
-          $("a[href='#fekpanel']").eq(0).append(alertHTML);
-          $("a[href='#fekpanel']").eq(1).append(alertHTML);
-          $("#fekpanel #tab[tab='misc-announcements']").append(alertHTML);
-          $('body #twitter_row.popup').html('\
-                                            <div id="twitterlink">\
-                                            <a href="http://twitter.com/Tundra_Fizz" target="_blank"><img src="' + FEKgfx + 'twittericon.png" /></a>\
-                                            </div>\
-                                            <h2>' + ParseTwitterDate(FEKtweets.records[0].created_at) + '</h2>\
-                                            <img id="twitter_img" src="' + FEKtweets.records[0].user.profile_image_url + '" />\
-                                            <span id="twitter_text">' + ReplaceUrlWithHtmlLink(FEKtweets.records[0].text.replace('#FEK ','')) + '</span>\
-                                            <div id="dismiss">Click here to dismiss the notification</div>\
-                                            <span style="opacity:0; clear:both;">.</span>\
-                                            <div id="spike"></div>\
-                                            ');
+          alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
+
+          $(`a[href="#fekpanel"]`).eq(0).append(alertHTML);
+          $(`a[href="#fekpanel"]`).eq(1).append(alertHTML);
+          $(`#fekpanel #tab[tab="misc-announcements"]`).append(alertHTML);
+          $(`body #twitter_row.popup`).html(`
+          <div id="twitterlink">
+            <a href="http://twitter.com/Tundra_Fizz" target="_blank">
+              <img src="${FEKgfx}twittericon.png">
+            </a>
+          </div>
+          <h2>
+            ${ParseTwitterDate(FEKtweets.records[0].created_at)}
+          </h2>
+          <img id="twitter_img" src="${FEKtweets.records[0].user.profile_image_url}">
+          <span id="twitter_text">
+            ${ReplaceUrlWithHtmlLink(FEKtweets.records[0].text.replace("#FEK ", ""))}
+          </span>
+          <div id="dismiss">
+            Click here to dismiss the notification
+          </div>
+          <span style="opacity:0; clear:both;">
+            .
+          </span>
+          <div id="spike"></div>
+          `);
 
           $("body #twitter_row.popup").fadeIn();
         }
@@ -2263,9 +2274,9 @@ function PanelCreateTab(tabgroup, tab, callback){
   var stab      = tab.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Check if the tabgroup exists
-  if($("#fekpanel #col1 #tabgroup[tabgroup='" + stabgroup + "']").length <= 0){
+  if($(`#fekpanel #col1 #tabgroup[tabgroup="${stabgroup}"]`).length <= 0){
     // Create the tabgroup
-    $('#fekpanel #col1 #tabs').append(`
+    $(`#fekpanel #col1 #tabs`).append(`
     <div id="tabgroup" tabgroup="${stabgroup}">
       <h1>${tabgroup}</h1>
     </div>
@@ -2273,13 +2284,16 @@ function PanelCreateTab(tabgroup, tab, callback){
   }
 
   // Create the tab it if doesn't exist
-  if($("#tab[tab='" + stabgroup + "-" + stab + "']").length == 0)
-    $("#tabgroup[tabgroup='" + stabgroup + "']").append(`
-    <div id="tab" tab="${stabgroup}-${stab}">${tab}<div id="indicator"></div></div>
+  if($(`#tab[tab="${stabgroup}-${stab}"]`).length == 0)
+    $(`#tabgroup[tabgroup="${stabgroup}"]`).append(`
+    <div id="tab" tab="${stabgroup}-${stab}">
+      ${tab}
+      <div id="indicator"></div>
+    </div>
     `);
 
   // Create the contentview if it doesn't exist
-  if($("#fekpanel #col2 .fekScrollRegion #contentview[tablink='" + stabgroup + "-" + stab + "']").length == 0)
+  if($(`#fekpanel #col2 .fekScrollRegion #contentview[tablink="${stabgroup}-${stab}"]`).length == 0)
     $("#fekpanel #col2 .fekScrollRegion").append(`
     <div id="contentview" tablink="${stabgroup}-${stab}"></div>
     `);
@@ -2534,15 +2548,15 @@ function KeyWatch(){
   });
 
   // Register click events and activates the feklink tabs
-  $("body").on("click", "a[href*='#fektab']", function(event){
+  $("body").on("click", `a[href*="#fektab"]`, function(event){
     event.stopPropagation();
     event.preventDefault();
     var tab = $(this).attr("href").replace("#fektab-","");
-    $("#tab[tab='" + tab + "']").trigger("click");
+    $(`#tab[tab="${tab}"]`).trigger("click");
     PanelShow();
   });
 
-  $("a[href='#fekpanel']").click(function(event){
+  $(`a[href="#fekpanel"]`).click(function(event){
     event.stopPropagation();
     event.preventDefault();
     PanelToggle();
@@ -2691,7 +2705,7 @@ function ParseTwitterDate(text){
 ///////////////////////////////////////////////////////////////////////
 function ReplaceUrlWithHtmlLink(text){
   var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i;
-  return text.replace(exp, "<a href='$1' target=\"_blank\">$1</a>");
+  return text.replace(exp, `<a href="$1" target="_blank">$1</a>`);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2833,7 +2847,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
         divTitle.style.setProperty("display",        "inline-block", "important");
         divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
         divTitle.style.setProperty("font-variant",   "normal",       "important");
-        divTitle.style.setProperty("font-family",    "'Constantia', 'Palatino', 'Georgia', serif",   "important");
+        divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
 
         profHover.appendChild(divTitle);
 
@@ -2914,7 +2928,9 @@ function EmbedYouTube(){
     var youtubeId = regex.exec(youtubeObj[0].innerHTML)[1];
 
     // Create the new embedded YouTube video in the object's parent
-    $($(youtubeObj[0]).parent()).append('<iframe width="533" height="300" src="https://www.youtube.com/embed/' + youtubeId + '" frameborder="0" allowfullscreen></iframe>');
+    $($(youtubeObj[0]).parent()).append(`
+    <iframe width="533" height="300" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allowfullscreen></iframe>
+    `);
 
     // Remove the old object since it's useless
     $(youtubeObj[0]).remove();
@@ -2981,9 +2997,15 @@ function ShowIndividualVotes(obj, page){
   obj.insertBefore(upDownDisplay, obj.children[1]);
 
   if(votingDisplay == "individual")
-    upDownDisplay.innerHTML = "<font color='#05E100'>" +   uVotes + "</font>"  + " <font color='white'>|</font> " + "<font color='#FF5C5C'>" + dVotes + "</font>";
+    upDownDisplay.innerHTML = `
+    <font color="#05E100">${uVotes}</font>
+    <font color="white">|</font>
+    <font color="#FF5C5C">${dVotes}</font>
+    `;
   else if(votingDisplay == "total")
-    upDownDisplay.innerHTML = "<font color='#FFA500'>" + (+uVotes + (+dVotes)) + "</font>";
+    upDownDisplay.innerHTML = `
+    <font color="#FFA500">${(+uVotes + (+dVotes))}</font>
+    `;
 
   $(voteScore).hide();
 }
@@ -3040,9 +3062,13 @@ function EnhancedThreadPreview(){
         $(this).attr("ttdata", $(this).attr("title"));
 
         $(this).parent().parent().parent().mouseenter(function(){
-          $("#fektooltip").html("<div id='ttlabel'>"  + $(this).find(".username").text()   + "</div>\
-                                 <div id='loadtime'>" + $(this).find(".title-span").text() + "</div>\
-                                 <p>" + $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons) + "</p>");
+          var replaceThing = $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons);
+
+          $("#fektooltip").html(`
+            <div id="ttlabel"> ${$(this).find(".username").text()}  </div>
+            <div id="loadtime">${$(this).find(".title-span").text()}</div>
+            <p>${replaceThing}</p>
+            `);
 
           $("#fektooltip").css({"opacity" : "1"});
         });
@@ -3058,28 +3084,28 @@ function EnhancedThreadPreview(){
 // MiniChampionIcons: Displays champion icons in the thread preview //
 //////////////////////////////////////////////////////////////////////
 function MiniChampionIcons(x){
-  var start = x.indexOf(':') + 1;
-  var end   = x.indexOf('}', start);
+  var start = x.indexOf(":") + 1;
+  var end   = x.indexOf("}", start);
   var icon  = "c" + x.substring(start, end);
-  return "<img src='" + cIcons + icon + ".jpg'>";
+  return `<img src="${cIcons}${icon}.jpg">`;
 }
 
 //////////////////////////////////////////////////////////////
 // MiniItemIcons: Displays item icons in the thread preview //
 //////////////////////////////////////////////////////////////
 function MiniItemIcons(x){
-  var start = x.indexOf(':') + 1;
-  var end   = x.indexOf('}', start);
+  var start = x.indexOf(":") + 1;
+  var end   = x.indexOf("}", start);
   var icon  = x.substring(start, end);
-  return "<img src='" + "http://ddragon.leagueoflegends.com/cdn/5.21.1/img/item/" + icon + ".png' width='16px' height='16px'>";
+  return `<img src="http://ddragon.leagueoflegends.com/cdn/5.21.1/img/item/${icon}.png" width="16px" height="16px">`;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // MiniSummonerIcons: Displays summoner spell icons in the thread preview //
 ////////////////////////////////////////////////////////////////////////////
 function MiniSummonerIcons(x){
-  var start = x.indexOf(':') + 1;
-  var end   = x.indexOf('}', start);
+  var start = x.indexOf(":") + 1;
+  var end   = x.indexOf("}", start);
   var icon  = x.substring(start, end);
 
   if(icon ==  1) icon = "-16px 0px";
@@ -3099,10 +3125,10 @@ function MiniSummonerIcons(x){
 
   if(icon == 32){
     icon = "-128px -32px";
-    return "<span style='background-size: 50%; background: transparent url(\"//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell13.png\") no-repeat scroll " + icon + "; background-size: 1000%; width: 16px; height: 16px; display: inline-block;'></span>";
+    return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell13.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
   }
 
-  return "<span style='background-size: 50%; background: transparent url(\"//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell0.png\") no-repeat scroll " + icon + "; background-size: 1000%; width: 16px; height: 16px; display: inline-block;'></span>";
+  return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell0.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -3126,7 +3152,7 @@ function CreateNavBarGroup(obj, idName, navBar, index, width, height, lineHeight
   obj.style.setProperty("height",          height);
   obj.style.setProperty("line-height",     lineHeight);
   obj.style.setProperty("background-size", backgroundSize);
-  obj.style.setProperty("background-image", "url('https://cdn.leagueoflegends.com/riotbar/prod/1.5.2/images/bar/bg-bar.jpg?1435084967')");
+  obj.style.setProperty("background-image", `url("https://cdn.leagueoflegends.com/riotbar/prod/1.5.2/images/bar/bg-bar.jpg?1435084967")`);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -3180,8 +3206,8 @@ function RemoveNavListLinks(){
 function AddFEKNavBar(){
   WaitAndRun("#riotbar-navbar", function(){
     $("#riotbar-navbar").append(`
-    <span class='riotbar-navbar-separator'></span>
-    <a class='touchpoint-fek' href='#'>F.E.K.</a>
+    <span class="riotbar-navbar-separator"></span>
+    <a class="touchpoint-fek" href="#">F.E.K.</a>
     `);
 
     $(".touchpoint-fek").click(function(event){
@@ -3193,7 +3219,7 @@ function AddFEKNavBar(){
 
   // Figure out why I decided to put a return here!
   return;
-  var NavBarFEK      = document.createElement("li"); AddToNavBar(NavBarFEK, "touchpoint-fek", "<a href='#'>F.E.K.</a>", RiotBar, 7);
+  var NavBarFEK      = document.createElement("li"); AddToNavBar(NavBarFEK, "touchpoint-fek", `<a href="#">F.E.K.</a>`, RiotBar, 7);
   var FEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(FEKNavBarGroup, "FEKNavBarGroup", RiotBar, 7, "120px", "60px", "27px", "100% 30px");
   var FEKPanel       = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKPanel,  "F.E.K. Panel",  "#"); FEKPanel.id = "FEKPanel";
   var FEKThread      = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKThread, "F.E.K. Thread", FEKpage);
