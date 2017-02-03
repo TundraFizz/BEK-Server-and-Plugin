@@ -185,105 +185,105 @@ function LoadCSS(url){
 // This function is a mess, I need to make it better //
 ///////////////////////////////////////////////////////
 function ReportError(msg){
-  if(errorMessage != "")
-    errorMessage += "<br><br>";
+//   if(errorMessage != "")
+//     errorMessage += "<br><br>";
 
-  errorMessage += msg;
+//   errorMessage += msg;
 
-  // If an errorIcon doesn't currently exist
-  if(document.getElementById("errorFek") == null)
-  {
-    var errorFek = document.createElement("div");
-    errorFek.setAttribute("id", "errorFek");
-    $("#riotbar-service-status").append(errorFek);
+//   // If an errorIcon doesn't currently exist
+//   if(document.getElementById("errorFek") == null)
+//   {
+//     var errorFek = document.createElement("div");
+//     errorFek.setAttribute("id", "errorFek");
+//     $("#riotbar-service-status").append(errorFek);
 
-    var errorFekIcon = document.createElement("img");
-    errorFekIcon.setAttribute("id", "errorFekIcon");
-    errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");
-    errorFekIcon.style.setProperty("position", "relative");
-    errorFekIcon.style.setProperty("top", "5px");
+//     var errorFekIcon = document.createElement("img");
+//     errorFekIcon.setAttribute("id", "errorFekIcon");
+//     errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");
+//     errorFekIcon.style.setProperty("position", "relative");
+//     errorFekIcon.style.setProperty("top", "5px");
 
-    $(errorFek).append(errorFekIcon);
+//     $(errorFek).append(errorFekIcon);
 
-    $(errorFekIcon).hover(function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/Y32t3E5.png");}, function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");});
+//     $(errorFekIcon).hover(function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/Y32t3E5.png");}, function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");});
 
-    $(errorFekIcon).on("click", function(event)
-    {
-      event.stopPropagation();
-      event.preventDefault();
+//     $(errorFekIcon).on("click", function(event)
+//     {
+//       event.stopPropagation();
+//       event.preventDefault();
 
-      if(document.getElementById("errorFekInfo") == null)
-      {
-        var errorFekInfo = document.createElement("div");
-        errorFekInfo.setAttribute("id", "errorFekInfo");
-        errorFekInfo.style.setProperty("position", "absolute");
-        errorFekInfo.style.setProperty("top", "48px");
-        errorFekInfo.style.setProperty("right", "-80px");
-        errorFekInfo.style.setProperty("width", "350px");
-      //errorFekInfo.style.setProperty("padding", "14px 20px 10px 40px");
-        errorFekInfo.style.setProperty("padding", "10px 20px 10px 20px");
-        errorFekInfo.style.setProperty("border-radius", "5px");
-        errorFekInfo.style.setProperty("border-width", "1px");
-        errorFekInfo.style.setProperty("border-style", "solid");
-        errorFekInfo.style.setProperty("border-color", "#7E744E #B6A671 #55513A");
-        errorFekInfo.style.setProperty("box-shadow", "0px 0px 3px 1px rgba(0, 0, 0, 0.3) inset, -1px 1px 10px 0px rgba(0, 0, 0, 0.8)");
-        errorFekInfo.style.setProperty("background", "transparent linear-gradient(#1F3948, #0D1417) repeat scroll 0% 0%");
-        errorFekInfo.style.setProperty("-webkit-touch-callout", "text");
-        errorFekInfo.style.setProperty("-webkit-user-select", "text");
-        errorFekInfo.style.setProperty("-khtml-user-select", "text");
-        errorFekInfo.style.setProperty("-moz-user-select", "text");
-        errorFekInfo.style.setProperty("-ms-user-select", "text");
-        errorFekInfo.style.setProperty("-ms-user-select", "text");
+//       if(document.getElementById("errorFekInfo") == null)
+//       {
+//         var errorFekInfo = document.createElement("div");
+//         errorFekInfo.setAttribute("id", "errorFekInfo");
+//         errorFekInfo.style.setProperty("position", "absolute");
+//         errorFekInfo.style.setProperty("top", "48px");
+//         errorFekInfo.style.setProperty("right", "-80px");
+//         errorFekInfo.style.setProperty("width", "350px");
+//       //errorFekInfo.style.setProperty("padding", "14px 20px 10px 40px");
+//         errorFekInfo.style.setProperty("padding", "10px 20px 10px 20px");
+//         errorFekInfo.style.setProperty("border-radius", "5px");
+//         errorFekInfo.style.setProperty("border-width", "1px");
+//         errorFekInfo.style.setProperty("border-style", "solid");
+//         errorFekInfo.style.setProperty("border-color", "#7E744E #B6A671 #55513A");
+//         errorFekInfo.style.setProperty("box-shadow", "0px 0px 3px 1px rgba(0, 0, 0, 0.3) inset, -1px 1px 10px 0px rgba(0, 0, 0, 0.8)");
+//         errorFekInfo.style.setProperty("background", "transparent linear-gradient(#1F3948, #0D1417) repeat scroll 0% 0%");
+//         errorFekInfo.style.setProperty("-webkit-touch-callout", "text");
+//         errorFekInfo.style.setProperty("-webkit-user-select", "text");
+//         errorFekInfo.style.setProperty("-khtml-user-select", "text");
+//         errorFekInfo.style.setProperty("-moz-user-select", "text");
+//         errorFekInfo.style.setProperty("-ms-user-select", "text");
+//         errorFekInfo.style.setProperty("-ms-user-select", "text");
 
-        errorFekInfo.style.setProperty("font-family", "Tahoma");
-        errorFekInfo.style.setProperty("color", "#9B9480");
-        errorFekInfo.style.setProperty("font-size", "12px");
-        errorFekInfo.style.setProperty("line-height", "1.4em");
-        errorFekInfo.style.setProperty("z-index", "10");
+//         errorFekInfo.style.setProperty("font-family", "Tahoma");
+//         errorFekInfo.style.setProperty("color", "#9B9480");
+//         errorFekInfo.style.setProperty("font-size", "12px");
+//         errorFekInfo.style.setProperty("line-height", "1.4em");
+//         errorFekInfo.style.setProperty("z-index", "10");
 
-        errorFekInfo.innerHTML = errorMessage;
-        $(errorFek).append(errorFekInfo);
+//         errorFekInfo.innerHTML = errorMessage;
+//         $(errorFek).append(errorFekInfo);
 
-        var errorFekArrowContainer = document.createElement("div");
-        errorFekArrowContainer.setAttribute("id", "errorFekArrowContainer");
-        errorFekArrowContainer.style.setProperty("height", "15px");
-        errorFekArrowContainer.style.setProperty("overflow", "hidden");
-        $(errorFek).append(errorFekArrowContainer);
+//         var errorFekArrowContainer = document.createElement("div");
+//         errorFekArrowContainer.setAttribute("id", "errorFekArrowContainer");
+//         errorFekArrowContainer.style.setProperty("height", "15px");
+//         errorFekArrowContainer.style.setProperty("overflow", "hidden");
+//         $(errorFek).append(errorFekArrowContainer);
 
-        var errorFekArrow = document.createElement("div");
-        errorFekArrow.setAttribute("id", "errorFekArrow");
-        errorFekArrow.style.setProperty("position", "relative");
-        errorFekArrow.style.setProperty("content", "");
-        errorFekArrow.style.setProperty("top", "10px");
-        errorFekArrow.style.setProperty("right", "-10px");
-        errorFekArrow.style.setProperty("width", "10px");
-        errorFekArrow.style.setProperty("height", "10px");
-        errorFekArrow.style.setProperty("background", "repeating-linear-gradient(135deg, #044247 0px, #232930 6.5px)");
-        errorFekArrow.style.setProperty("border-top", "1px solid #7E744E");
-        errorFekArrow.style.setProperty("border-left", "1px solid #7E744E");
-        errorFekArrow.style.setProperty("-webkit-transform", "rotate(45deg)");
-        errorFekArrow.style.setProperty("-moz-transform", "rotate(45deg)");
-        errorFekArrow.style.setProperty("-ms-transform", "rotate(45deg)");
-        errorFekArrow.style.setProperty("transform", "rotate(45deg)");
-        errorFekArrow.style.setProperty("z-index", "10");
-        $(errorFekArrowContainer).append(errorFekArrow);
+//         var errorFekArrow = document.createElement("div");
+//         errorFekArrow.setAttribute("id", "errorFekArrow");
+//         errorFekArrow.style.setProperty("position", "relative");
+//         errorFekArrow.style.setProperty("content", "");
+//         errorFekArrow.style.setProperty("top", "10px");
+//         errorFekArrow.style.setProperty("right", "-10px");
+//         errorFekArrow.style.setProperty("width", "10px");
+//         errorFekArrow.style.setProperty("height", "10px");
+//         errorFekArrow.style.setProperty("background", "repeating-linear-gradient(135deg, #044247 0px, #232930 6.5px)");
+//         errorFekArrow.style.setProperty("border-top", "1px solid #7E744E");
+//         errorFekArrow.style.setProperty("border-left", "1px solid #7E744E");
+//         errorFekArrow.style.setProperty("-webkit-transform", "rotate(45deg)");
+//         errorFekArrow.style.setProperty("-moz-transform", "rotate(45deg)");
+//         errorFekArrow.style.setProperty("-ms-transform", "rotate(45deg)");
+//         errorFekArrow.style.setProperty("transform", "rotate(45deg)");
+//         errorFekArrow.style.setProperty("z-index", "10");
+//         $(errorFekArrowContainer).append(errorFekArrow);
 
-        // Allow clicking away from the panel to close the message box
-        $("body").click(function()
-        {
-          document.getElementById("errorFekArrow").remove();
-          document.getElementById("errorFekArrowContainer").remove();
-          document.getElementById("errorFekInfo").remove();
-        });
-      }
-      else
-      {
-        document.getElementById("errorFekArrow").remove();
-        document.getElementById("errorFekArrowContainer").remove();
-        document.getElementById("errorFekInfo").remove();
-      }
-    });
-  }
+//         // Allow clicking away from the panel to close the message box
+//         $("body").click(function()
+//         {
+//           document.getElementById("errorFekArrow").remove();
+//           document.getElementById("errorFekArrowContainer").remove();
+//           document.getElementById("errorFekInfo").remove();
+//         });
+//       }
+//       else
+//       {
+//         document.getElementById("errorFekArrow").remove();
+//         document.getElementById("errorFekArrowContainer").remove();
+//         document.getElementById("errorFekInfo").remove();
+//       }
+//     });
+//   }
 }
 
 ///////////////////////////////////////
@@ -293,7 +293,7 @@ function ReportError(msg){
   CreateGUI();
   CreateFeatures();
   SettleGUI();
-  $("#fekpanel").style.setProperty("visibility", "hidden", "important");
+  // $("#fekpanel").style.setProperty("visibility", "hidden", "important");
   KeyWatch();
 
   if(document.title == "Boards"){
@@ -500,7 +500,7 @@ function QueryFEKServer(){
   formData.append("users",   users);
   formData.append("regions", regions);
 
-  SendToServer("post-url-here", formData, function(data){
+  SendToServer("http://localhost:9001/database", formData, function(data){
     results   = data.records;
     FEKtweets = data.tweets;
     FEKevent  = data.event;
@@ -2953,7 +2953,7 @@ function ColorVotes(){
     if($(this).html()[0] == "-")
       this.style.setProperty( "color", "#FF5C5C", "important"); // Make red for downvotes
     else if($(this).html()[0] == "•")
-      // Do nothing
+      {} // Do nothing
     else if($(this).html() != "0" && $(this).html() != "1")
       this.style.setProperty( "color", "#05E100", "important"); // Make green for upvotes
   });

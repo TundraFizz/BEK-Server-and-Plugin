@@ -5,8 +5,10 @@ var mysql      = require("mysql");
 var fs         = require("fs");
 
 function MySqlConnection(){return new Promise((resolve) => {
-  fs.readFile("mysql", "utf-8", (err, data) => {
-    data = data.split("\n");
+  fs.readFile("mysql.csv", "utf-8", (err, data) => {
+    data = data.split(",");
+    data[3] = data[3].trim();
+
     conn = mysql.createConnection({
       host    : data[0],
       user    : data[1],
