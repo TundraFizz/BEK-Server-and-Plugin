@@ -655,6 +655,43 @@ app.post("/managecosmetics", function(req, res){
   .then(() => res.json(manageCosmetics.response))
 })
 
+function WebPanel(){}
+
+WebPanel.prototype.Initialize = function(req){return new Promise((resolve) => {
+  var self = this;
+  self.response = {};
+
+  self.form = new formidable.IncomingForm();
+  self.form.parse(req, function(err, data, files){
+    for(key in data)
+      self[key] = data[key];
+
+    resolve();
+  });
+})}
+
+WebPanel.prototype.GetWebPanel = function(){return new Promise((resolve) => {
+  var self = this;
+
+  self.response = `webpanels/${self.page}.ejs`;
+  var checkPath = `views/${self.response}`;
+
+  fs.access(checkPath, (err) => {
+    if(err)
+      self.response = `404.ejs`;
+
+    resolve();
+  });
+})}
+
+app.post("/webpanel", function(req, res){
+  var webPanel = new WebPanel();
+
+  webPanel.Initialize(req)
+  .then(() => webPanel.GetWebPanel())
+  .then(() => res.render(webPanel.response))
+})
+
 // getFriends
 // addFriend
 // acceptFriend

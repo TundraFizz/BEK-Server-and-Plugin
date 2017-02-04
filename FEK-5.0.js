@@ -85,7 +85,6 @@ var title = $("h2 a")[0].text;
 if(typeof title === "undefined") console.log("Undefined Title");
 if(title == "My Updates")        page = "My Updates";
 
-
 // var title;      if     (typeof ($("h2 a")[0]) === "undefined")               title      = $("h2 a")[0].html();          // Gets the title of the page
 //                 else                                                         title      = $("h2")[0].("a")[0].html(); // Gets the title of the page
 //                 if     (title == "My Updates")                               page       = "My Updates";               // My Updates is special and must match the title
@@ -501,7 +500,6 @@ function QueryFEKServer(){
   formData.append("regions", regions);
 
   SendToServer(`${domain}/database`, formData, function(data){
-    console.log(data);
     results   = data.records;
     FEKtweets = data.announcements;
     FEKevent  = data.event;
@@ -1955,12 +1953,8 @@ function CreateFeatures(){
   // Feature: Fish Chips //
   /////////////////////////
   PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
-    $(`#tab[tab="core-mods-fish-chips"]`).click(function()
-    {
-      LoadWebPanel("fishchips", contentview, function()
-      {
-        // Load web panel finished
-      });
+    $(`#tab[tab="core-mods-fish-chips"]`).click(function(){
+      LoadWebPanel("fishchips", contentview);
     });
   });
 
@@ -1969,22 +1963,19 @@ function CreateFeatures(){
 
   PanelCreateTab(tabgroup, "Friends", function(contentview){
     $(`#tab[tab="social-friends"]`).click(function(){
-      LoadWebPanel("placeholder", contentview, function(){});
-      // LoadWebPanel2("NO PAGE", "getFriends", contentview, function(){});
+      LoadWebPanel("friends", contentview);
     });
   });
 
   PanelCreateTab(tabgroup, "Messages", function(contentview){
     $(`#tab[tab="social-messages"]`).click(function(){
-      LoadWebPanel("placeholder", contentview, function(){});
-      // LoadWebPanel2("NO PAGE", "messages", contentview, function(){});
+      LoadWebPanel("messages", contentview);
     });
   });
 
   PanelCreateTab(tabgroup, "Send PM", function(contentview){
     $(`#tab[tab="social-send-pm"]`).click(function(){
-      LoadWebPanel("placeholder", contentview, function(){});
-      // LoadWebPanel2("NO PAGE", "writePM", contentview, function(){});
+      LoadWebPanel("sendpm", contentview);
     });
   });
 
@@ -2003,18 +1994,18 @@ function CreateFeatures(){
 
     $(document).on("tweetsLoaded", function(){
       contentview.html("<h1>Announcements</h1>");
-      if(FEKtweets.records && FEKtweets.records.length > 0){
-        for(var i = 0; i < FEKtweets.records.length; i++){
+      if(FEKtweets.length){
+        for(var i = 0; i < FEKtweets.length; i++){
           contentview.append(`
           <div id="twitter_row">
             <div id="twitterlink">
-              <a href="http://twitter.com/${FEKtweets.records[i].user.screenName}" target="_blank">
+              <a href="http://twitter.com/${FEKtweets[i].user[0]}" target="_blank">
                 <img src="${FEKgfx}twittericon.png">
               </a>
             </div>
-            <h2>${ParseTwitterDate(FEKtweets.records[i].created_at)}</h2>
-            <img id="twitter_img" src="${FEKtweets.records[i].user.profile_image_url}">
-            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets.records[i].text.replace("#FEK ", ""))}</span>
+            <h2>${ParseTwitterDate(FEKtweets[i].created_at)}</h2>
+            <img id="twitter_img" src="${FEKtweets[i].user[2]}">
+            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets[i].text.replace("#FEK ", ""))}</span>
             <span style="opacity:0; clear:both;">.</span>
             <div id="spike"></div>
           </div>
@@ -2022,7 +2013,7 @@ function CreateFeatures(){
         }
 
         //Compare last read announcement to current one
-        if(GM_getValue("_lastReadTwitter", "") == FEKtweets.records[0].id){
+        if(GM_getValue("_lastReadTwitter", "") == FEKtweets[0].id){
           // The latest announcement has been read
         }else{
           // The latest announcement has NOT been read yet
@@ -2039,11 +2030,11 @@ function CreateFeatures(){
             </a>
           </div>
           <h2>
-            ${ParseTwitterDate(FEKtweets.records[0].created_at)}
+            ${ParseTwitterDate(FEKtweets[0].created_at)}
           </h2>
-          <img id="twitter_img" src="${FEKtweets.records[0].user.profile_image_url}">
+          <img id="twitter_img" src="${FEKtweets[0].user[2]}">
           <span id="twitter_text">
-            ${ReplaceUrlWithHtmlLink(FEKtweets.records[0].text.replace("#FEK ", ""))}
+            ${ReplaceUrlWithHtmlLink(FEKtweets[0].text.replace("#FEK ", ""))}
           </span>
           <div id="dismiss">
             Click here to dismiss the notification
@@ -2060,8 +2051,8 @@ function CreateFeatures(){
 
       // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
       $("#dismiss").click(function(event){
-        if(FEKtweets.records[0])
-          GM_setValue("_lastReadTwitter", FEKtweets.records[0].id);
+        if(FEKtweets[0])
+          GM_setValue("_lastReadTwitter", FEKtweets[0].id);
         $("body #twitter_row.popup").fadeOut();
         $("body #fekalert").each(function(){
           $(this).fadeOut();
@@ -2075,9 +2066,7 @@ function CreateFeatures(){
   ///////////////
   PanelCreateTab(tabgroup, "Changelog", function(contentview){
     $(`#tab[tab*="fek-changelog"]`).click(function(){
-      LoadWebPanel("changelog", contentview, function(){
-        // Load web panel finished
-      });
+      LoadWebPanel("changelog", contentview);
     });
   });
 
@@ -2086,9 +2075,7 @@ function CreateFeatures(){
   ////////////
   PanelCreateTab(tabgroup, "Donate", function(contentview){
     $(`#tab[tab*="fek-donate"]`).click(function(){
-      LoadWebPanel("donate", contentview, function(){
-        // Load web panel finished
-      });
+      LoadWebPanel("donate", contentview);
     });
   });
 
@@ -2367,34 +2354,13 @@ function PanelToggle(){
 /////////////////////////////////////////////////////////////////////////////////
 // LoadWebPanel: Loads web panels such as Credits, Announcements, Events, etc. //
 /////////////////////////////////////////////////////////////////////////////////
-function LoadWebPanel(page, container, callback){
-  container.html("Loading...");
-  var webPanel = $.ajax({
-    dataType: "json",
-    url: `${domain}/getWebPanel`,
-    data:{page: page}
-  }).success(function(data){
-    container.html(data.html);
-    InitScrollbar(".fekScrollRegion");
-    callback();
-  });
-}
+function LoadWebPanel(page, container){
+  var formData = new FormData();
+  formData.append("page", page);
 
-///////////////////////////////////////
-// LoadWebPanel2: Experimental stuff //
-///////////////////////////////////////
-function LoadWebPanel2(page, action, container, callback){
-  container.html("Loading...");
-  var webPanel = $.ajax({
-    dataType: "json",
-    url: `${domain}/action`,
-    data: {page:     page,
-           myName:   myName,
-           myRegion: myRegion}
-  }).success(function(data){
-    container.html(data.html);
+  SendToServer(`${domain}/webpanel`, formData, function(data){
+    container.html(data);
     InitScrollbar(".fekScrollRegion");
-    callback();
   });
 }
 
@@ -2786,7 +2752,11 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
       }
 
         if(staff == "1")                                     {badges.push(FEKgfx + "fekbadge.png");}
-        if((badge !== "") && (typeof badge !== "undefined")) {badges.push(badge);}
+        if((badge !== "") && (typeof badge !== "undefined")){
+          var collection = badge.split(",");
+          for(var i = 0; i < collection.length; i++)
+            badges.push(collection[i]);
+        }
 
         var badgeContainer;
 
@@ -2801,6 +2771,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
                        else if(badges.length == 6) badgeSize = "26px";
                        else if(badges.length == 7) badgeSize = "22px";
                        else if(badges.length == 8) badgeSize = "20px";
+                       else                        badgeSize = "18px"; // Badges are not to exceed 8
 
         if(badges.length > 0){
           badgeContainer = document.createElement("div");
