@@ -85,7 +85,7 @@ FEK.prototype.GetBoardsInfo = function(){return new Promise((resolve) => {
 FEK.prototype.CheckIfUserExists = function(){return new Promise((resolve) => {
   // Check if the Boards ID exists in the database
   var self = this;
-  var sql = `SELECT * FROM users WHERE boards_id=?`;
+  var sql  = `SELECT * FROM users WHERE boards_id=?`;
   var args = [self.boardsId];
 
   conn.query(sql, args, function(err, rows){
@@ -167,6 +167,9 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
   var args = [];
   var firstRun = true;
 
+  self.users   = self.users.split(",");
+  self.regions = self.regions.split(",");
+
   for(var i = 0; i < self.users.length; i++){
     if(firstRun){
       firstRun = false;
@@ -207,8 +210,8 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
 })}
 
 FEK.prototype.FindAvatar = function(boardsId){
-  var localPath = "static/avatars/" + boardsId;
-  var publicPath = "http://localhost:9001/avatars/" + boardsId;
+  var localPath = "static/fek-avatars/" + boardsId;
+  var publicPath = "http://localhost:9001/fek-avatars/" + boardsId;
   var extensions = [".jpg", ".jpeg", ".png", ".gif", ".webm", ".bmp"];
 
   for(var i = 0; i < extensions.length; i++){

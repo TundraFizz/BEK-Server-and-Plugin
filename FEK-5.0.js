@@ -500,9 +500,10 @@ function QueryFEKServer(){
   formData.append("users",   users);
   formData.append("regions", regions);
 
-  SendToServer("http://localhost:9001/database", formData, function(data){
+  SendToServer(`${domain}/database`, formData, function(data){
+    console.log(data);
     results   = data.records;
-    FEKtweets = data.tweets;
+    FEKtweets = data.announcements;
     FEKevent  = data.event;
     var unixTime = Math.floor(Date.now() / 1000);
 
@@ -2061,19 +2062,7 @@ function CreateFeatures(){
       $("#dismiss").click(function(event){
         if(FEKtweets.records[0])
           GM_setValue("_lastReadTwitter", FEKtweets.records[0].id);
-
         $("body #twitter_row.popup").fadeOut();
-        $("body #fekalert").each(function(){
-          $(this).fadeOut();
-        });
-      });
-
-      $(`#tab[tab*="-announcements"]`).click(function(){
-        if(FEKtweets.records[0])
-          GM_setValue("_lastReadTwitter", FEKtweets.records[0].id);
-
-        $("body #twitter_row.popup").fadeOut();
-
         $("body #fekalert").each(function(){
           $(this).fadeOut();
         });
