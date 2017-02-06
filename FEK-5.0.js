@@ -5,1390 +5,247 @@
 // @namespace   https://tundrafizz.com/
 // @include     http://*.leagueoflegends.com/*
 // @run-at      document-end
-// @require     https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js
-// @require     http://35.161.242.105/fek/libs/perfect-scrollbar.js
 // @grant       GM_log
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_listValues
 // @grant       GM_deleteValue
 // ==/UserScript==
-// Copyright April 2016 - All Rights Reserved
+// Copyright 2017 - All Rights Reserved
 // You are free to modify this file as you like, but don't redistribute without my permission.
 // Written by Leif Coleman (Tundra Fizz - NA) <mageleif@yahoo.com>
 // http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK
 
-///////////////////////////////////////
-// ========== ENTRY POINT ========== //
-///////////////////////////////////////
-$(document).ready(function(){
-  if(window.top != window.self ||       // Prevent FEK from loading twice
-     typeof disableFEK !== "undefined") // Custom Wrenchmen script
-    return;
+// Library: jQuery v2.1.4
+!function(a,b){"object"==typeof module&&"object"==typeof module.exports?module.exports=a.document?b(a,!0):function(a){if(!a.document)throw new Error("jQuery requires a window with a document");return b(a)}:b(a)}("undefined"!=typeof window?window:this,function(a,b){var c=[],d=c.slice,e=c.concat,f=c.push,g=c.indexOf,h={},i=h.toString,j=h.hasOwnProperty,k={},l=a.document,m="2.1.4",n=function(a,b){return new n.fn.init(a,b)},o=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,p=/^-ms-/,q=/-([\da-z])/gi,r=function(a,b){return b.toUpperCase()};n.fn=n.prototype={jquery:m,constructor:n,selector:"",length:0,toArray:function(){return d.call(this)},get:function(a){return null!=a?0>a?this[a+this.length]:this[a]:d.call(this)},pushStack:function(a){var b=n.merge(this.constructor(),a);return b.prevObject=this,b.context=this.context,b},each:function(a,b){return n.each(this,a,b)},map:function(a){return this.pushStack(n.map(this,function(b,c){return a.call(b,c,b)}))},slice:function(){return this.pushStack(d.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},eq:function(a){var b=this.length,c=+a+(0>a?b:0);return this.pushStack(c>=0&&b>c?[this[c]]:[])},end:function(){return this.prevObject||this.constructor(null)},push:f,sort:c.sort,splice:c.splice},n.extend=n.fn.extend=function(){var a,b,c,d,e,f,g=arguments[0]||{},h=1,i=arguments.length,j=!1;for("boolean"==typeof g&&(j=g,g=arguments[h]||{},h++),"object"==typeof g||n.isFunction(g)||(g={}),h===i&&(g=this,h--);i>h;h++)if(null!=(a=arguments[h]))for(b in a)c=g[b],d=a[b],g!==d&&(j&&d&&(n.isPlainObject(d)||(e=n.isArray(d)))?(e?(e=!1,f=c&&n.isArray(c)?c:[]):f=c&&n.isPlainObject(c)?c:{},g[b]=n.extend(j,f,d)):void 0!==d&&(g[b]=d));return g},n.extend({expando:"jQuery"+(m+Math.random()).replace(/\D/g,""),isReady:!0,error:function(a){throw new Error(a)},noop:function(){},isFunction:function(a){return"function"===n.type(a)},isArray:Array.isArray,isWindow:function(a){return null!=a&&a===a.window},isNumeric:function(a){return!n.isArray(a)&&a-parseFloat(a)+1>=0},isPlainObject:function(a){return"object"!==n.type(a)||a.nodeType||n.isWindow(a)?!1:a.constructor&&!j.call(a.constructor.prototype,"isPrototypeOf")?!1:!0},isEmptyObject:function(a){var b;for(b in a)return!1;return!0},type:function(a){return null==a?a+"":"object"==typeof a||"function"==typeof a?h[i.call(a)]||"object":typeof a},globalEval:function(a){var b,c=eval;a=n.trim(a),a&&(1===a.indexOf("use strict")?(b=l.createElement("script"),b.text=a,l.head.appendChild(b).parentNode.removeChild(b)):c(a))},camelCase:function(a){return a.replace(p,"ms-").replace(q,r)},nodeName:function(a,b){return a.nodeName&&a.nodeName.toLowerCase()===b.toLowerCase()},each:function(a,b,c){var d,e=0,f=a.length,g=s(a);if(c){if(g){for(;f>e;e++)if(d=b.apply(a[e],c),d===!1)break}else for(e in a)if(d=b.apply(a[e],c),d===!1)break}else if(g){for(;f>e;e++)if(d=b.call(a[e],e,a[e]),d===!1)break}else for(e in a)if(d=b.call(a[e],e,a[e]),d===!1)break;return a},trim:function(a){return null==a?"":(a+"").replace(o,"")},makeArray:function(a,b){var c=b||[];return null!=a&&(s(Object(a))?n.merge(c,"string"==typeof a?[a]:a):f.call(c,a)),c},inArray:function(a,b,c){return null==b?-1:g.call(b,a,c)},merge:function(a,b){for(var c=+b.length,d=0,e=a.length;c>d;d++)a[e++]=b[d];return a.length=e,a},grep:function(a,b,c){for(var d,e=[],f=0,g=a.length,h=!c;g>f;f++)d=!b(a[f],f),d!==h&&e.push(a[f]);return e},map:function(a,b,c){var d,f=0,g=a.length,h=s(a),i=[];if(h)for(;g>f;f++)d=b(a[f],f,c),null!=d&&i.push(d);else for(f in a)d=b(a[f],f,c),null!=d&&i.push(d);return e.apply([],i)},guid:1,proxy:function(a,b){var c,e,f;return"string"==typeof b&&(c=a[b],b=a,a=c),n.isFunction(a)?(e=d.call(arguments,2),f=function(){return a.apply(b||this,e.concat(d.call(arguments)))},f.guid=a.guid=a.guid||n.guid++,f):void 0},now:Date.now,support:k}),n.each("Boolean Number String Function Array Date RegExp Object Error".split(" "),function(a,b){h["[object "+b+"]"]=b.toLowerCase()});function s(a){var b="length"in a&&a.length,c=n.type(a);return"function"===c||n.isWindow(a)?!1:1===a.nodeType&&b?!0:"array"===c||0===b||"number"==typeof b&&b>0&&b-1 in a}var t=function(a){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u="sizzle"+1*new Date,v=a.document,w=0,x=0,y=ha(),z=ha(),A=ha(),B=function(a,b){return a===b&&(l=!0),0},C=1<<31,D={}.hasOwnProperty,E=[],F=E.pop,G=E.push,H=E.push,I=E.slice,J=function(a,b){for(var c=0,d=a.length;d>c;c++)if(a[c]===b)return c;return-1},K="checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",L="[\\x20\\t\\r\\n\\f]",M="(?:\\\\.|[\\w-]|[^\\x00-\\xa0])+",N=M.replace("w","w#"),O="\\["+L+"*("+M+")(?:"+L+"*([*^$|!~]?=)"+L+"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|("+N+"))|)"+L+"*\\]",P=":("+M+")(?:\\((('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|((?:\\\\.|[^\\\\()[\\]]|"+O+")*)|.*)\\)|)",Q=new RegExp(L+"+","g"),R=new RegExp("^"+L+"+|((?:^|[^\\\\])(?:\\\\.)*)"+L+"+$","g"),S=new RegExp("^"+L+"*,"+L+"*"),T=new RegExp("^"+L+"*([>+~]|"+L+")"+L+"*"),U=new RegExp("="+L+"*([^\\]'\"]*?)"+L+"*\\]","g"),V=new RegExp(P),W=new RegExp("^"+N+"$"),X={ID:new RegExp("^#("+M+")"),CLASS:new RegExp("^\\.("+M+")"),TAG:new RegExp("^("+M.replace("w","w*")+")"),ATTR:new RegExp("^"+O),PSEUDO:new RegExp("^"+P),CHILD:new RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\("+L+"*(even|odd|(([+-]|)(\\d*)n|)"+L+"*(?:([+-]|)"+L+"*(\\d+)|))"+L+"*\\)|)","i"),bool:new RegExp("^(?:"+K+")$","i"),needsContext:new RegExp("^"+L+"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\("+L+"*((?:-\\d)?\\d*)"+L+"*\\)|)(?=[^-]|$)","i")},Y=/^(?:input|select|textarea|button)$/i,Z=/^h\d$/i,$=/^[^{]+\{\s*\[native \w/,_=/^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,aa=/[+~]/,ba=/'|\\/g,ca=new RegExp("\\\\([\\da-f]{1,6}"+L+"?|("+L+")|.)","ig"),da=function(a,b,c){var d="0x"+b-65536;return d!==d||c?b:0>d?String.fromCharCode(d+65536):String.fromCharCode(d>>10|55296,1023&d|56320)},ea=function(){m()};try{H.apply(E=I.call(v.childNodes),v.childNodes),E[v.childNodes.length].nodeType}catch(fa){H={apply:E.length?function(a,b){G.apply(a,I.call(b))}:function(a,b){var c=a.length,d=0;while(a[c++]=b[d++]);a.length=c-1}}}function ga(a,b,d,e){var f,h,j,k,l,o,r,s,w,x;if((b?b.ownerDocument||b:v)!==n&&m(b),b=b||n,d=d||[],k=b.nodeType,"string"!=typeof a||!a||1!==k&&9!==k&&11!==k)return d;if(!e&&p){if(11!==k&&(f=_.exec(a)))if(j=f[1]){if(9===k){if(h=b.getElementById(j),!h||!h.parentNode)return d;if(h.id===j)return d.push(h),d}else if(b.ownerDocument&&(h=b.ownerDocument.getElementById(j))&&t(b,h)&&h.id===j)return d.push(h),d}else{if(f[2])return H.apply(d,b.getElementsByTagName(a)),d;if((j=f[3])&&c.getElementsByClassName)return H.apply(d,b.getElementsByClassName(j)),d}if(c.qsa&&(!q||!q.test(a))){if(s=r=u,w=b,x=1!==k&&a,1===k&&"object"!==b.nodeName.toLowerCase()){o=g(a),(r=b.getAttribute("id"))?s=r.replace(ba,"\\$&"):b.setAttribute("id",s),s="[id='"+s+"'] ",l=o.length;while(l--)o[l]=s+ra(o[l]);w=aa.test(a)&&pa(b.parentNode)||b,x=o.join(",")}if(x)try{return H.apply(d,w.querySelectorAll(x)),d}catch(y){}finally{r||b.removeAttribute("id")}}}return i(a.replace(R,"$1"),b,d,e)}function ha(){var a=[];function b(c,e){return a.push(c+" ")>d.cacheLength&&delete b[a.shift()],b[c+" "]=e}return b}function ia(a){return a[u]=!0,a}function ja(a){var b=n.createElement("div");try{return!!a(b)}catch(c){return!1}finally{b.parentNode&&b.parentNode.removeChild(b),b=null}}function ka(a,b){var c=a.split("|"),e=a.length;while(e--)d.attrHandle[c[e]]=b}function la(a,b){var c=b&&a,d=c&&1===a.nodeType&&1===b.nodeType&&(~b.sourceIndex||C)-(~a.sourceIndex||C);if(d)return d;if(c)while(c=c.nextSibling)if(c===b)return-1;return a?1:-1}function ma(a){return function(b){var c=b.nodeName.toLowerCase();return"input"===c&&b.type===a}}function na(a){return function(b){var c=b.nodeName.toLowerCase();return("input"===c||"button"===c)&&b.type===a}}function oa(a){return ia(function(b){return b=+b,ia(function(c,d){var e,f=a([],c.length,b),g=f.length;while(g--)c[e=f[g]]&&(c[e]=!(d[e]=c[e]))})})}function pa(a){return a&&"undefined"!=typeof a.getElementsByTagName&&a}c=ga.support={},f=ga.isXML=function(a){var b=a&&(a.ownerDocument||a).documentElement;return b?"HTML"!==b.nodeName:!1},m=ga.setDocument=function(a){var b,e,g=a?a.ownerDocument||a:v;return g!==n&&9===g.nodeType&&g.documentElement?(n=g,o=g.documentElement,e=g.defaultView,e&&e!==e.top&&(e.addEventListener?e.addEventListener("unload",ea,!1):e.attachEvent&&e.attachEvent("onunload",ea)),p=!f(g),c.attributes=ja(function(a){return a.className="i",!a.getAttribute("className")}),c.getElementsByTagName=ja(function(a){return a.appendChild(g.createComment("")),!a.getElementsByTagName("*").length}),c.getElementsByClassName=$.test(g.getElementsByClassName),c.getById=ja(function(a){return o.appendChild(a).id=u,!g.getElementsByName||!g.getElementsByName(u).length}),c.getById?(d.find.ID=function(a,b){if("undefined"!=typeof b.getElementById&&p){var c=b.getElementById(a);return c&&c.parentNode?[c]:[]}},d.filter.ID=function(a){var b=a.replace(ca,da);return function(a){return a.getAttribute("id")===b}}):(delete d.find.ID,d.filter.ID=function(a){var b=a.replace(ca,da);return function(a){var c="undefined"!=typeof a.getAttributeNode&&a.getAttributeNode("id");return c&&c.value===b}}),d.find.TAG=c.getElementsByTagName?function(a,b){return"undefined"!=typeof b.getElementsByTagName?b.getElementsByTagName(a):c.qsa?b.querySelectorAll(a):void 0}:function(a,b){var c,d=[],e=0,f=b.getElementsByTagName(a);if("*"===a){while(c=f[e++])1===c.nodeType&&d.push(c);return d}return f},d.find.CLASS=c.getElementsByClassName&&function(a,b){return p?b.getElementsByClassName(a):void 0},r=[],q=[],(c.qsa=$.test(g.querySelectorAll))&&(ja(function(a){o.appendChild(a).innerHTML="<a id='"+u+"'></a><select id='"+u+"-\f]' msallowcapture=''><option selected=''></option></select>",a.querySelectorAll("[msallowcapture^='']").length&&q.push("[*^$]="+L+"*(?:''|\"\")"),a.querySelectorAll("[selected]").length||q.push("\\["+L+"*(?:value|"+K+")"),a.querySelectorAll("[id~="+u+"-]").length||q.push("~="),a.querySelectorAll(":checked").length||q.push(":checked"),a.querySelectorAll("a#"+u+"+*").length||q.push(".#.+[+~]")}),ja(function(a){var b=g.createElement("input");b.setAttribute("type","hidden"),a.appendChild(b).setAttribute("name","D"),a.querySelectorAll("[name=d]").length&&q.push("name"+L+"*[*^$|!~]?="),a.querySelectorAll(":enabled").length||q.push(":enabled",":disabled"),a.querySelectorAll("*,:x"),q.push(",.*:")})),(c.matchesSelector=$.test(s=o.matches||o.webkitMatchesSelector||o.mozMatchesSelector||o.oMatchesSelector||o.msMatchesSelector))&&ja(function(a){c.disconnectedMatch=s.call(a,"div"),s.call(a,"[s!='']:x"),r.push("!=",P)}),q=q.length&&new RegExp(q.join("|")),r=r.length&&new RegExp(r.join("|")),b=$.test(o.compareDocumentPosition),t=b||$.test(o.contains)?function(a,b){var c=9===a.nodeType?a.documentElement:a,d=b&&b.parentNode;return a===d||!(!d||1!==d.nodeType||!(c.contains?c.contains(d):a.compareDocumentPosition&&16&a.compareDocumentPosition(d)))}:function(a,b){if(b)while(b=b.parentNode)if(b===a)return!0;return!1},B=b?function(a,b){if(a===b)return l=!0,0;var d=!a.compareDocumentPosition-!b.compareDocumentPosition;return d?d:(d=(a.ownerDocument||a)===(b.ownerDocument||b)?a.compareDocumentPosition(b):1,1&d||!c.sortDetached&&b.compareDocumentPosition(a)===d?a===g||a.ownerDocument===v&&t(v,a)?-1:b===g||b.ownerDocument===v&&t(v,b)?1:k?J(k,a)-J(k,b):0:4&d?-1:1)}:function(a,b){if(a===b)return l=!0,0;var c,d=0,e=a.parentNode,f=b.parentNode,h=[a],i=[b];if(!e||!f)return a===g?-1:b===g?1:e?-1:f?1:k?J(k,a)-J(k,b):0;if(e===f)return la(a,b);c=a;while(c=c.parentNode)h.unshift(c);c=b;while(c=c.parentNode)i.unshift(c);while(h[d]===i[d])d++;return d?la(h[d],i[d]):h[d]===v?-1:i[d]===v?1:0},g):n},ga.matches=function(a,b){return ga(a,null,null,b)},ga.matchesSelector=function(a,b){if((a.ownerDocument||a)!==n&&m(a),b=b.replace(U,"='$1']"),!(!c.matchesSelector||!p||r&&r.test(b)||q&&q.test(b)))try{var d=s.call(a,b);if(d||c.disconnectedMatch||a.document&&11!==a.document.nodeType)return d}catch(e){}return ga(b,n,null,[a]).length>0},ga.contains=function(a,b){return(a.ownerDocument||a)!==n&&m(a),t(a,b)},ga.attr=function(a,b){(a.ownerDocument||a)!==n&&m(a);var e=d.attrHandle[b.toLowerCase()],f=e&&D.call(d.attrHandle,b.toLowerCase())?e(a,b,!p):void 0;return void 0!==f?f:c.attributes||!p?a.getAttribute(b):(f=a.getAttributeNode(b))&&f.specified?f.value:null},ga.error=function(a){throw new Error("Syntax error, unrecognized expression: "+a)},ga.uniqueSort=function(a){var b,d=[],e=0,f=0;if(l=!c.detectDuplicates,k=!c.sortStable&&a.slice(0),a.sort(B),l){while(b=a[f++])b===a[f]&&(e=d.push(f));while(e--)a.splice(d[e],1)}return k=null,a},e=ga.getText=function(a){var b,c="",d=0,f=a.nodeType;if(f){if(1===f||9===f||11===f){if("string"==typeof a.textContent)return a.textContent;for(a=a.firstChild;a;a=a.nextSibling)c+=e(a)}else if(3===f||4===f)return a.nodeValue}else while(b=a[d++])c+=e(b);return c},d=ga.selectors={cacheLength:50,createPseudo:ia,match:X,attrHandle:{},find:{},relative:{">":{dir:"parentNode",first:!0}," ":{dir:"parentNode"},"+":{dir:"previousSibling",first:!0},"~":{dir:"previousSibling"}},preFilter:{ATTR:function(a){return a[1]=a[1].replace(ca,da),a[3]=(a[3]||a[4]||a[5]||"").replace(ca,da),"~="===a[2]&&(a[3]=" "+a[3]+" "),a.slice(0,4)},CHILD:function(a){return a[1]=a[1].toLowerCase(),"nth"===a[1].slice(0,3)?(a[3]||ga.error(a[0]),a[4]=+(a[4]?a[5]+(a[6]||1):2*("even"===a[3]||"odd"===a[3])),a[5]=+(a[7]+a[8]||"odd"===a[3])):a[3]&&ga.error(a[0]),a},PSEUDO:function(a){var b,c=!a[6]&&a[2];return X.CHILD.test(a[0])?null:(a[3]?a[2]=a[4]||a[5]||"":c&&V.test(c)&&(b=g(c,!0))&&(b=c.indexOf(")",c.length-b)-c.length)&&(a[0]=a[0].slice(0,b),a[2]=c.slice(0,b)),a.slice(0,3))}},filter:{TAG:function(a){var b=a.replace(ca,da).toLowerCase();return"*"===a?function(){return!0}:function(a){return a.nodeName&&a.nodeName.toLowerCase()===b}},CLASS:function(a){var b=y[a+" "];return b||(b=new RegExp("(^|"+L+")"+a+"("+L+"|$)"))&&y(a,function(a){return b.test("string"==typeof a.className&&a.className||"undefined"!=typeof a.getAttribute&&a.getAttribute("class")||"")})},ATTR:function(a,b,c){return function(d){var e=ga.attr(d,a);return null==e?"!="===b:b?(e+="","="===b?e===c:"!="===b?e!==c:"^="===b?c&&0===e.indexOf(c):"*="===b?c&&e.indexOf(c)>-1:"$="===b?c&&e.slice(-c.length)===c:"~="===b?(" "+e.replace(Q," ")+" ").indexOf(c)>-1:"|="===b?e===c||e.slice(0,c.length+1)===c+"-":!1):!0}},CHILD:function(a,b,c,d,e){var f="nth"!==a.slice(0,3),g="last"!==a.slice(-4),h="of-type"===b;return 1===d&&0===e?function(a){return!!a.parentNode}:function(b,c,i){var j,k,l,m,n,o,p=f!==g?"nextSibling":"previousSibling",q=b.parentNode,r=h&&b.nodeName.toLowerCase(),s=!i&&!h;if(q){if(f){while(p){l=b;while(l=l[p])if(h?l.nodeName.toLowerCase()===r:1===l.nodeType)return!1;o=p="only"===a&&!o&&"nextSibling"}return!0}if(o=[g?q.firstChild:q.lastChild],g&&s){k=q[u]||(q[u]={}),j=k[a]||[],n=j[0]===w&&j[1],m=j[0]===w&&j[2],l=n&&q.childNodes[n];while(l=++n&&l&&l[p]||(m=n=0)||o.pop())if(1===l.nodeType&&++m&&l===b){k[a]=[w,n,m];break}}else if(s&&(j=(b[u]||(b[u]={}))[a])&&j[0]===w)m=j[1];else while(l=++n&&l&&l[p]||(m=n=0)||o.pop())if((h?l.nodeName.toLowerCase()===r:1===l.nodeType)&&++m&&(s&&((l[u]||(l[u]={}))[a]=[w,m]),l===b))break;return m-=e,m===d||m%d===0&&m/d>=0}}},PSEUDO:function(a,b){var c,e=d.pseudos[a]||d.setFilters[a.toLowerCase()]||ga.error("unsupported pseudo: "+a);return e[u]?e(b):e.length>1?(c=[a,a,"",b],d.setFilters.hasOwnProperty(a.toLowerCase())?ia(function(a,c){var d,f=e(a,b),g=f.length;while(g--)d=J(a,f[g]),a[d]=!(c[d]=f[g])}):function(a){return e(a,0,c)}):e}},pseudos:{not:ia(function(a){var b=[],c=[],d=h(a.replace(R,"$1"));return d[u]?ia(function(a,b,c,e){var f,g=d(a,null,e,[]),h=a.length;while(h--)(f=g[h])&&(a[h]=!(b[h]=f))}):function(a,e,f){return b[0]=a,d(b,null,f,c),b[0]=null,!c.pop()}}),has:ia(function(a){return function(b){return ga(a,b).length>0}}),contains:ia(function(a){return a=a.replace(ca,da),function(b){return(b.textContent||b.innerText||e(b)).indexOf(a)>-1}}),lang:ia(function(a){return W.test(a||"")||ga.error("unsupported lang: "+a),a=a.replace(ca,da).toLowerCase(),function(b){var c;do if(c=p?b.lang:b.getAttribute("xml:lang")||b.getAttribute("lang"))return c=c.toLowerCase(),c===a||0===c.indexOf(a+"-");while((b=b.parentNode)&&1===b.nodeType);return!1}}),target:function(b){var c=a.location&&a.location.hash;return c&&c.slice(1)===b.id},root:function(a){return a===o},focus:function(a){return a===n.activeElement&&(!n.hasFocus||n.hasFocus())&&!!(a.type||a.href||~a.tabIndex)},enabled:function(a){return a.disabled===!1},disabled:function(a){return a.disabled===!0},checked:function(a){var b=a.nodeName.toLowerCase();return"input"===b&&!!a.checked||"option"===b&&!!a.selected},selected:function(a){return a.parentNode&&a.parentNode.selectedIndex,a.selected===!0},empty:function(a){for(a=a.firstChild;a;a=a.nextSibling)if(a.nodeType<6)return!1;return!0},parent:function(a){return!d.pseudos.empty(a)},header:function(a){return Z.test(a.nodeName)},input:function(a){return Y.test(a.nodeName)},button:function(a){var b=a.nodeName.toLowerCase();return"input"===b&&"button"===a.type||"button"===b},text:function(a){var b;return"input"===a.nodeName.toLowerCase()&&"text"===a.type&&(null==(b=a.getAttribute("type"))||"text"===b.toLowerCase())},first:oa(function(){return[0]}),last:oa(function(a,b){return[b-1]}),eq:oa(function(a,b,c){return[0>c?c+b:c]}),even:oa(function(a,b){for(var c=0;b>c;c+=2)a.push(c);return a}),odd:oa(function(a,b){for(var c=1;b>c;c+=2)a.push(c);return a}),lt:oa(function(a,b,c){for(var d=0>c?c+b:c;--d>=0;)a.push(d);return a}),gt:oa(function(a,b,c){for(var d=0>c?c+b:c;++d<b;)a.push(d);return a})}},d.pseudos.nth=d.pseudos.eq;for(b in{radio:!0,checkbox:!0,file:!0,password:!0,image:!0})d.pseudos[b]=ma(b);for(b in{submit:!0,reset:!0})d.pseudos[b]=na(b);function qa(){}qa.prototype=d.filters=d.pseudos,d.setFilters=new qa,g=ga.tokenize=function(a,b){var c,e,f,g,h,i,j,k=z[a+" "];if(k)return b?0:k.slice(0);h=a,i=[],j=d.preFilter;while(h){(!c||(e=S.exec(h)))&&(e&&(h=h.slice(e[0].length)||h),i.push(f=[])),c=!1,(e=T.exec(h))&&(c=e.shift(),f.push({value:c,type:e[0].replace(R," ")}),h=h.slice(c.length));for(g in d.filter)!(e=X[g].exec(h))||j[g]&&!(e=j[g](e))||(c=e.shift(),f.push({value:c,type:g,matches:e}),h=h.slice(c.length));if(!c)break}return b?h.length:h?ga.error(a):z(a,i).slice(0)};function ra(a){for(var b=0,c=a.length,d="";c>b;b++)d+=a[b].value;return d}function sa(a,b,c){var d=b.dir,e=c&&"parentNode"===d,f=x++;return b.first?function(b,c,f){while(b=b[d])if(1===b.nodeType||e)return a(b,c,f)}:function(b,c,g){var h,i,j=[w,f];if(g){while(b=b[d])if((1===b.nodeType||e)&&a(b,c,g))return!0}else while(b=b[d])if(1===b.nodeType||e){if(i=b[u]||(b[u]={}),(h=i[d])&&h[0]===w&&h[1]===f)return j[2]=h[2];if(i[d]=j,j[2]=a(b,c,g))return!0}}}function ta(a){return a.length>1?function(b,c,d){var e=a.length;while(e--)if(!a[e](b,c,d))return!1;return!0}:a[0]}function ua(a,b,c){for(var d=0,e=b.length;e>d;d++)ga(a,b[d],c);return c}function va(a,b,c,d,e){for(var f,g=[],h=0,i=a.length,j=null!=b;i>h;h++)(f=a[h])&&(!c||c(f,d,e))&&(g.push(f),j&&b.push(h));return g}function wa(a,b,c,d,e,f){return d&&!d[u]&&(d=wa(d)),e&&!e[u]&&(e=wa(e,f)),ia(function(f,g,h,i){var j,k,l,m=[],n=[],o=g.length,p=f||ua(b||"*",h.nodeType?[h]:h,[]),q=!a||!f&&b?p:va(p,m,a,h,i),r=c?e||(f?a:o||d)?[]:g:q;if(c&&c(q,r,h,i),d){j=va(r,n),d(j,[],h,i),k=j.length;while(k--)(l=j[k])&&(r[n[k]]=!(q[n[k]]=l))}if(f){if(e||a){if(e){j=[],k=r.length;while(k--)(l=r[k])&&j.push(q[k]=l);e(null,r=[],j,i)}k=r.length;while(k--)(l=r[k])&&(j=e?J(f,l):m[k])>-1&&(f[j]=!(g[j]=l))}}else r=va(r===g?r.splice(o,r.length):r),e?e(null,g,r,i):H.apply(g,r)})}function xa(a){for(var b,c,e,f=a.length,g=d.relative[a[0].type],h=g||d.relative[" "],i=g?1:0,k=sa(function(a){return a===b},h,!0),l=sa(function(a){return J(b,a)>-1},h,!0),m=[function(a,c,d){var e=!g&&(d||c!==j)||((b=c).nodeType?k(a,c,d):l(a,c,d));return b=null,e}];f>i;i++)if(c=d.relative[a[i].type])m=[sa(ta(m),c)];else{if(c=d.filter[a[i].type].apply(null,a[i].matches),c[u]){for(e=++i;f>e;e++)if(d.relative[a[e].type])break;return wa(i>1&&ta(m),i>1&&ra(a.slice(0,i-1).concat({value:" "===a[i-2].type?"*":""})).replace(R,"$1"),c,e>i&&xa(a.slice(i,e)),f>e&&xa(a=a.slice(e)),f>e&&ra(a))}m.push(c)}return ta(m)}function ya(a,b){var c=b.length>0,e=a.length>0,f=function(f,g,h,i,k){var l,m,o,p=0,q="0",r=f&&[],s=[],t=j,u=f||e&&d.find.TAG("*",k),v=w+=null==t?1:Math.random()||.1,x=u.length;for(k&&(j=g!==n&&g);q!==x&&null!=(l=u[q]);q++){if(e&&l){m=0;while(o=a[m++])if(o(l,g,h)){i.push(l);break}k&&(w=v)}c&&((l=!o&&l)&&p--,f&&r.push(l))}if(p+=q,c&&q!==p){m=0;while(o=b[m++])o(r,s,g,h);if(f){if(p>0)while(q--)r[q]||s[q]||(s[q]=F.call(i));s=va(s)}H.apply(i,s),k&&!f&&s.length>0&&p+b.length>1&&ga.uniqueSort(i)}return k&&(w=v,j=t),r};return c?ia(f):f}return h=ga.compile=function(a,b){var c,d=[],e=[],f=A[a+" "];if(!f){b||(b=g(a)),c=b.length;while(c--)f=xa(b[c]),f[u]?d.push(f):e.push(f);f=A(a,ya(e,d)),f.selector=a}return f},i=ga.select=function(a,b,e,f){var i,j,k,l,m,n="function"==typeof a&&a,o=!f&&g(a=n.selector||a);if(e=e||[],1===o.length){if(j=o[0]=o[0].slice(0),j.length>2&&"ID"===(k=j[0]).type&&c.getById&&9===b.nodeType&&p&&d.relative[j[1].type]){if(b=(d.find.ID(k.matches[0].replace(ca,da),b)||[])[0],!b)return e;n&&(b=b.parentNode),a=a.slice(j.shift().value.length)}i=X.needsContext.test(a)?0:j.length;while(i--){if(k=j[i],d.relative[l=k.type])break;if((m=d.find[l])&&(f=m(k.matches[0].replace(ca,da),aa.test(j[0].type)&&pa(b.parentNode)||b))){if(j.splice(i,1),a=f.length&&ra(j),!a)return H.apply(e,f),e;break}}}return(n||h(a,o))(f,b,!p,e,aa.test(a)&&pa(b.parentNode)||b),e},c.sortStable=u.split("").sort(B).join("")===u,c.detectDuplicates=!!l,m(),c.sortDetached=ja(function(a){return 1&a.compareDocumentPosition(n.createElement("div"))}),ja(function(a){return a.innerHTML="<a href='#'></a>","#"===a.firstChild.getAttribute("href")})||ka("type|href|height|width",function(a,b,c){return c?void 0:a.getAttribute(b,"type"===b.toLowerCase()?1:2)}),c.attributes&&ja(function(a){return a.innerHTML="<input/>",a.firstChild.setAttribute("value",""),""===a.firstChild.getAttribute("value")})||ka("value",function(a,b,c){return c||"input"!==a.nodeName.toLowerCase()?void 0:a.defaultValue}),ja(function(a){return null==a.getAttribute("disabled")})||ka(K,function(a,b,c){var d;return c?void 0:a[b]===!0?b.toLowerCase():(d=a.getAttributeNode(b))&&d.specified?d.value:null}),ga}(a);n.find=t,n.expr=t.selectors,n.expr[":"]=n.expr.pseudos,n.unique=t.uniqueSort,n.text=t.getText,n.isXMLDoc=t.isXML,n.contains=t.contains;var u=n.expr.match.needsContext,v=/^<(\w+)\s*\/?>(?:<\/\1>|)$/,w=/^.[^:#\[\.,]*$/;function x(a,b,c){if(n.isFunction(b))return n.grep(a,function(a,d){return!!b.call(a,d,a)!==c});if(b.nodeType)return n.grep(a,function(a){return a===b!==c});if("string"==typeof b){if(w.test(b))return n.filter(b,a,c);b=n.filter(b,a)}return n.grep(a,function(a){return g.call(b,a)>=0!==c})}n.filter=function(a,b,c){var d=b[0];return c&&(a=":not("+a+")"),1===b.length&&1===d.nodeType?n.find.matchesSelector(d,a)?[d]:[]:n.find.matches(a,n.grep(b,function(a){return 1===a.nodeType}))},n.fn.extend({find:function(a){var b,c=this.length,d=[],e=this;if("string"!=typeof a)return this.pushStack(n(a).filter(function(){for(b=0;c>b;b++)if(n.contains(e[b],this))return!0}));for(b=0;c>b;b++)n.find(a,e[b],d);return d=this.pushStack(c>1?n.unique(d):d),d.selector=this.selector?this.selector+" "+a:a,d},filter:function(a){return this.pushStack(x(this,a||[],!1))},not:function(a){return this.pushStack(x(this,a||[],!0))},is:function(a){return!!x(this,"string"==typeof a&&u.test(a)?n(a):a||[],!1).length}});var y,z=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,A=n.fn.init=function(a,b){var c,d;if(!a)return this;if("string"==typeof a){if(c="<"===a[0]&&">"===a[a.length-1]&&a.length>=3?[null,a,null]:z.exec(a),!c||!c[1]&&b)return!b||b.jquery?(b||y).find(a):this.constructor(b).find(a);if(c[1]){if(b=b instanceof n?b[0]:b,n.merge(this,n.parseHTML(c[1],b&&b.nodeType?b.ownerDocument||b:l,!0)),v.test(c[1])&&n.isPlainObject(b))for(c in b)n.isFunction(this[c])?this[c](b[c]):this.attr(c,b[c]);return this}return d=l.getElementById(c[2]),d&&d.parentNode&&(this.length=1,this[0]=d),this.context=l,this.selector=a,this}return a.nodeType?(this.context=this[0]=a,this.length=1,this):n.isFunction(a)?"undefined"!=typeof y.ready?y.ready(a):a(n):(void 0!==a.selector&&(this.selector=a.selector,this.context=a.context),n.makeArray(a,this))};A.prototype=n.fn,y=n(l);var B=/^(?:parents|prev(?:Until|All))/,C={children:!0,contents:!0,next:!0,prev:!0};n.extend({dir:function(a,b,c){var d=[],e=void 0!==c;while((a=a[b])&&9!==a.nodeType)if(1===a.nodeType){if(e&&n(a).is(c))break;d.push(a)}return d},sibling:function(a,b){for(var c=[];a;a=a.nextSibling)1===a.nodeType&&a!==b&&c.push(a);return c}}),n.fn.extend({has:function(a){var b=n(a,this),c=b.length;return this.filter(function(){for(var a=0;c>a;a++)if(n.contains(this,b[a]))return!0})},closest:function(a,b){for(var c,d=0,e=this.length,f=[],g=u.test(a)||"string"!=typeof a?n(a,b||this.context):0;e>d;d++)for(c=this[d];c&&c!==b;c=c.parentNode)if(c.nodeType<11&&(g?g.index(c)>-1:1===c.nodeType&&n.find.matchesSelector(c,a))){f.push(c);break}return this.pushStack(f.length>1?n.unique(f):f)},index:function(a){return a?"string"==typeof a?g.call(n(a),this[0]):g.call(this,a.jquery?a[0]:a):this[0]&&this[0].parentNode?this.first().prevAll().length:-1},add:function(a,b){return this.pushStack(n.unique(n.merge(this.get(),n(a,b))))},addBack:function(a){return this.add(null==a?this.prevObject:this.prevObject.filter(a))}});function D(a,b){while((a=a[b])&&1!==a.nodeType);return a}n.each({parent:function(a){var b=a.parentNode;return b&&11!==b.nodeType?b:null},parents:function(a){return n.dir(a,"parentNode")},parentsUntil:function(a,b,c){return n.dir(a,"parentNode",c)},next:function(a){return D(a,"nextSibling")},prev:function(a){return D(a,"previousSibling")},nextAll:function(a){return n.dir(a,"nextSibling")},prevAll:function(a){return n.dir(a,"previousSibling")},nextUntil:function(a,b,c){return n.dir(a,"nextSibling",c)},prevUntil:function(a,b,c){return n.dir(a,"previousSibling",c)},siblings:function(a){return n.sibling((a.parentNode||{}).firstChild,a)},children:function(a){return n.sibling(a.firstChild)},contents:function(a){return a.contentDocument||n.merge([],a.childNodes)}},function(a,b){n.fn[a]=function(c,d){var e=n.map(this,b,c);return"Until"!==a.slice(-5)&&(d=c),d&&"string"==typeof d&&(e=n.filter(d,e)),this.length>1&&(C[a]||n.unique(e),B.test(a)&&e.reverse()),this.pushStack(e)}});var E=/\S+/g,F={};function G(a){var b=F[a]={};return n.each(a.match(E)||[],function(a,c){b[c]=!0}),b}n.Callbacks=function(a){a="string"==typeof a?F[a]||G(a):n.extend({},a);var b,c,d,e,f,g,h=[],i=!a.once&&[],j=function(l){for(b=a.memory&&l,c=!0,g=e||0,e=0,f=h.length,d=!0;h&&f>g;g++)if(h[g].apply(l[0],l[1])===!1&&a.stopOnFalse){b=!1;break}d=!1,h&&(i?i.length&&j(i.shift()):b?h=[]:k.disable())},k={add:function(){if(h){var c=h.length;!function g(b){n.each(b,function(b,c){var d=n.type(c);"function"===d?a.unique&&k.has(c)||h.push(c):c&&c.length&&"string"!==d&&g(c)})}(arguments),d?f=h.length:b&&(e=c,j(b))}return this},remove:function(){return h&&n.each(arguments,function(a,b){var c;while((c=n.inArray(b,h,c))>-1)h.splice(c,1),d&&(f>=c&&f--,g>=c&&g--)}),this},has:function(a){return a?n.inArray(a,h)>-1:!(!h||!h.length)},empty:function(){return h=[],f=0,this},disable:function(){return h=i=b=void 0,this},disabled:function(){return!h},lock:function(){return i=void 0,b||k.disable(),this},locked:function(){return!i},fireWith:function(a,b){return!h||c&&!i||(b=b||[],b=[a,b.slice?b.slice():b],d?i.push(b):j(b)),this},fire:function(){return k.fireWith(this,arguments),this},fired:function(){return!!c}};return k},n.extend({Deferred:function(a){var b=[["resolve","done",n.Callbacks("once memory"),"resolved"],["reject","fail",n.Callbacks("once memory"),"rejected"],["notify","progress",n.Callbacks("memory")]],c="pending",d={state:function(){return c},always:function(){return e.done(arguments).fail(arguments),this},then:function(){var a=arguments;return n.Deferred(function(c){n.each(b,function(b,f){var g=n.isFunction(a[b])&&a[b];e[f[1]](function(){var a=g&&g.apply(this,arguments);a&&n.isFunction(a.promise)?a.promise().done(c.resolve).fail(c.reject).progress(c.notify):c[f[0]+"With"](this===d?c.promise():this,g?[a]:arguments)})}),a=null}).promise()},promise:function(a){return null!=a?n.extend(a,d):d}},e={};return d.pipe=d.then,n.each(b,function(a,f){var g=f[2],h=f[3];d[f[1]]=g.add,h&&g.add(function(){c=h},b[1^a][2].disable,b[2][2].lock),e[f[0]]=function(){return e[f[0]+"With"](this===e?d:this,arguments),this},e[f[0]+"With"]=g.fireWith}),d.promise(e),a&&a.call(e,e),e},when:function(a){var b=0,c=d.call(arguments),e=c.length,f=1!==e||a&&n.isFunction(a.promise)?e:0,g=1===f?a:n.Deferred(),h=function(a,b,c){return function(e){b[a]=this,c[a]=arguments.length>1?d.call(arguments):e,c===i?g.notifyWith(b,c):--f||g.resolveWith(b,c)}},i,j,k;if(e>1)for(i=new Array(e),j=new Array(e),k=new Array(e);e>b;b++)c[b]&&n.isFunction(c[b].promise)?c[b].promise().done(h(b,k,c)).fail(g.reject).progress(h(b,j,i)):--f;return f||g.resolveWith(k,c),g.promise()}});var H;n.fn.ready=function(a){return n.ready.promise().done(a),this},n.extend({isReady:!1,readyWait:1,holdReady:function(a){a?n.readyWait++:n.ready(!0)},ready:function(a){(a===!0?--n.readyWait:n.isReady)||(n.isReady=!0,a!==!0&&--n.readyWait>0||(H.resolveWith(l,[n]),n.fn.triggerHandler&&(n(l).triggerHandler("ready"),n(l).off("ready"))))}});function I(){l.removeEventListener("DOMContentLoaded",I,!1),a.removeEventListener("load",I,!1),n.ready()}n.ready.promise=function(b){return H||(H=n.Deferred(),"complete"===l.readyState?setTimeout(n.ready):(l.addEventListener("DOMContentLoaded",I,!1),a.addEventListener("load",I,!1))),H.promise(b)},n.ready.promise();var J=n.access=function(a,b,c,d,e,f,g){var h=0,i=a.length,j=null==c;if("object"===n.type(c)){e=!0;for(h in c)n.access(a,b,h,c[h],!0,f,g)}else if(void 0!==d&&(e=!0,n.isFunction(d)||(g=!0),j&&(g?(b.call(a,d),b=null):(j=b,b=function(a,b,c){return j.call(n(a),c)})),b))for(;i>h;h++)b(a[h],c,g?d:d.call(a[h],h,b(a[h],c)));return e?a:j?b.call(a):i?b(a[0],c):f};n.acceptData=function(a){return 1===a.nodeType||9===a.nodeType||!+a.nodeType};function K(){Object.defineProperty(this.cache={},0,{get:function(){return{}}}),this.expando=n.expando+K.uid++}K.uid=1,K.accepts=n.acceptData,K.prototype={key:function(a){if(!K.accepts(a))return 0;var b={},c=a[this.expando];if(!c){c=K.uid++;try{b[this.expando]={value:c},Object.defineProperties(a,b)}catch(d){b[this.expando]=c,n.extend(a,b)}}return this.cache[c]||(this.cache[c]={}),c},set:function(a,b,c){var d,e=this.key(a),f=this.cache[e];if("string"==typeof b)f[b]=c;else if(n.isEmptyObject(f))n.extend(this.cache[e],b);else for(d in b)f[d]=b[d];return f},get:function(a,b){var c=this.cache[this.key(a)];return void 0===b?c:c[b]},access:function(a,b,c){var d;return void 0===b||b&&"string"==typeof b&&void 0===c?(d=this.get(a,b),void 0!==d?d:this.get(a,n.camelCase(b))):(this.set(a,b,c),void 0!==c?c:b)},remove:function(a,b){var c,d,e,f=this.key(a),g=this.cache[f];if(void 0===b)this.cache[f]={};else{n.isArray(b)?d=b.concat(b.map(n.camelCase)):(e=n.camelCase(b),b in g?d=[b,e]:(d=e,d=d in g?[d]:d.match(E)||[])),c=d.length;while(c--)delete g[d[c]]}},hasData:function(a){return!n.isEmptyObject(this.cache[a[this.expando]]||{})},discard:function(a){a[this.expando]&&delete this.cache[a[this.expando]]}};var L=new K,M=new K,N=/^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,O=/([A-Z])/g;function P(a,b,c){var d;if(void 0===c&&1===a.nodeType)if(d="data-"+b.replace(O,"-$1").toLowerCase(),c=a.getAttribute(d),"string"==typeof c){try{c="true"===c?!0:"false"===c?!1:"null"===c?null:+c+""===c?+c:N.test(c)?n.parseJSON(c):c}catch(e){}M.set(a,b,c)}else c=void 0;return c}n.extend({hasData:function(a){return M.hasData(a)||L.hasData(a)},data:function(a,b,c){
+return M.access(a,b,c)},removeData:function(a,b){M.remove(a,b)},_data:function(a,b,c){return L.access(a,b,c)},_removeData:function(a,b){L.remove(a,b)}}),n.fn.extend({data:function(a,b){var c,d,e,f=this[0],g=f&&f.attributes;if(void 0===a){if(this.length&&(e=M.get(f),1===f.nodeType&&!L.get(f,"hasDataAttrs"))){c=g.length;while(c--)g[c]&&(d=g[c].name,0===d.indexOf("data-")&&(d=n.camelCase(d.slice(5)),P(f,d,e[d])));L.set(f,"hasDataAttrs",!0)}return e}return"object"==typeof a?this.each(function(){M.set(this,a)}):J(this,function(b){var c,d=n.camelCase(a);if(f&&void 0===b){if(c=M.get(f,a),void 0!==c)return c;if(c=M.get(f,d),void 0!==c)return c;if(c=P(f,d,void 0),void 0!==c)return c}else this.each(function(){var c=M.get(this,d);M.set(this,d,b),-1!==a.indexOf("-")&&void 0!==c&&M.set(this,a,b)})},null,b,arguments.length>1,null,!0)},removeData:function(a){return this.each(function(){M.remove(this,a)})}}),n.extend({queue:function(a,b,c){var d;return a?(b=(b||"fx")+"queue",d=L.get(a,b),c&&(!d||n.isArray(c)?d=L.access(a,b,n.makeArray(c)):d.push(c)),d||[]):void 0},dequeue:function(a,b){b=b||"fx";var c=n.queue(a,b),d=c.length,e=c.shift(),f=n._queueHooks(a,b),g=function(){n.dequeue(a,b)};"inprogress"===e&&(e=c.shift(),d--),e&&("fx"===b&&c.unshift("inprogress"),delete f.stop,e.call(a,g,f)),!d&&f&&f.empty.fire()},_queueHooks:function(a,b){var c=b+"queueHooks";return L.get(a,c)||L.access(a,c,{empty:n.Callbacks("once memory").add(function(){L.remove(a,[b+"queue",c])})})}}),n.fn.extend({queue:function(a,b){var c=2;return"string"!=typeof a&&(b=a,a="fx",c--),arguments.length<c?n.queue(this[0],a):void 0===b?this:this.each(function(){var c=n.queue(this,a,b);n._queueHooks(this,a),"fx"===a&&"inprogress"!==c[0]&&n.dequeue(this,a)})},dequeue:function(a){return this.each(function(){n.dequeue(this,a)})},clearQueue:function(a){return this.queue(a||"fx",[])},promise:function(a,b){var c,d=1,e=n.Deferred(),f=this,g=this.length,h=function(){--d||e.resolveWith(f,[f])};"string"!=typeof a&&(b=a,a=void 0),a=a||"fx";while(g--)c=L.get(f[g],a+"queueHooks"),c&&c.empty&&(d++,c.empty.add(h));return h(),e.promise(b)}});var Q=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,R=["Top","Right","Bottom","Left"],S=function(a,b){return a=b||a,"none"===n.css(a,"display")||!n.contains(a.ownerDocument,a)},T=/^(?:checkbox|radio)$/i;!function(){var a=l.createDocumentFragment(),b=a.appendChild(l.createElement("div")),c=l.createElement("input");c.setAttribute("type","radio"),c.setAttribute("checked","checked"),c.setAttribute("name","t"),b.appendChild(c),k.checkClone=b.cloneNode(!0).cloneNode(!0).lastChild.checked,b.innerHTML="<textarea>x</textarea>",k.noCloneChecked=!!b.cloneNode(!0).lastChild.defaultValue}();var U="undefined";k.focusinBubbles="onfocusin"in a;var V=/^key/,W=/^(?:mouse|pointer|contextmenu)|click/,X=/^(?:focusinfocus|focusoutblur)$/,Y=/^([^.]*)(?:\.(.+)|)$/;function Z(){return!0}function $(){return!1}function _(){try{return l.activeElement}catch(a){}}n.event={global:{},add:function(a,b,c,d,e){var f,g,h,i,j,k,l,m,o,p,q,r=L.get(a);if(r){c.handler&&(f=c,c=f.handler,e=f.selector),c.guid||(c.guid=n.guid++),(i=r.events)||(i=r.events={}),(g=r.handle)||(g=r.handle=function(b){return typeof n!==U&&n.event.triggered!==b.type?n.event.dispatch.apply(a,arguments):void 0}),b=(b||"").match(E)||[""],j=b.length;while(j--)h=Y.exec(b[j])||[],o=q=h[1],p=(h[2]||"").split(".").sort(),o&&(l=n.event.special[o]||{},o=(e?l.delegateType:l.bindType)||o,l=n.event.special[o]||{},k=n.extend({type:o,origType:q,data:d,handler:c,guid:c.guid,selector:e,needsContext:e&&n.expr.match.needsContext.test(e),namespace:p.join(".")},f),(m=i[o])||(m=i[o]=[],m.delegateCount=0,l.setup&&l.setup.call(a,d,p,g)!==!1||a.addEventListener&&a.addEventListener(o,g,!1)),l.add&&(l.add.call(a,k),k.handler.guid||(k.handler.guid=c.guid)),e?m.splice(m.delegateCount++,0,k):m.push(k),n.event.global[o]=!0)}},remove:function(a,b,c,d,e){var f,g,h,i,j,k,l,m,o,p,q,r=L.hasData(a)&&L.get(a);if(r&&(i=r.events)){b=(b||"").match(E)||[""],j=b.length;while(j--)if(h=Y.exec(b[j])||[],o=q=h[1],p=(h[2]||"").split(".").sort(),o){l=n.event.special[o]||{},o=(d?l.delegateType:l.bindType)||o,m=i[o]||[],h=h[2]&&new RegExp("(^|\\.)"+p.join("\\.(?:.*\\.|)")+"(\\.|$)"),g=f=m.length;while(f--)k=m[f],!e&&q!==k.origType||c&&c.guid!==k.guid||h&&!h.test(k.namespace)||d&&d!==k.selector&&("**"!==d||!k.selector)||(m.splice(f,1),k.selector&&m.delegateCount--,l.remove&&l.remove.call(a,k));g&&!m.length&&(l.teardown&&l.teardown.call(a,p,r.handle)!==!1||n.removeEvent(a,o,r.handle),delete i[o])}else for(o in i)n.event.remove(a,o+b[j],c,d,!0);n.isEmptyObject(i)&&(delete r.handle,L.remove(a,"events"))}},trigger:function(b,c,d,e){var f,g,h,i,k,m,o,p=[d||l],q=j.call(b,"type")?b.type:b,r=j.call(b,"namespace")?b.namespace.split("."):[];if(g=h=d=d||l,3!==d.nodeType&&8!==d.nodeType&&!X.test(q+n.event.triggered)&&(q.indexOf(".")>=0&&(r=q.split("."),q=r.shift(),r.sort()),k=q.indexOf(":")<0&&"on"+q,b=b[n.expando]?b:new n.Event(q,"object"==typeof b&&b),b.isTrigger=e?2:3,b.namespace=r.join("."),b.namespace_re=b.namespace?new RegExp("(^|\\.)"+r.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,b.result=void 0,b.target||(b.target=d),c=null==c?[b]:n.makeArray(c,[b]),o=n.event.special[q]||{},e||!o.trigger||o.trigger.apply(d,c)!==!1)){if(!e&&!o.noBubble&&!n.isWindow(d)){for(i=o.delegateType||q,X.test(i+q)||(g=g.parentNode);g;g=g.parentNode)p.push(g),h=g;h===(d.ownerDocument||l)&&p.push(h.defaultView||h.parentWindow||a)}f=0;while((g=p[f++])&&!b.isPropagationStopped())b.type=f>1?i:o.bindType||q,m=(L.get(g,"events")||{})[b.type]&&L.get(g,"handle"),m&&m.apply(g,c),m=k&&g[k],m&&m.apply&&n.acceptData(g)&&(b.result=m.apply(g,c),b.result===!1&&b.preventDefault());return b.type=q,e||b.isDefaultPrevented()||o._default&&o._default.apply(p.pop(),c)!==!1||!n.acceptData(d)||k&&n.isFunction(d[q])&&!n.isWindow(d)&&(h=d[k],h&&(d[k]=null),n.event.triggered=q,d[q](),n.event.triggered=void 0,h&&(d[k]=h)),b.result}},dispatch:function(a){a=n.event.fix(a);var b,c,e,f,g,h=[],i=d.call(arguments),j=(L.get(this,"events")||{})[a.type]||[],k=n.event.special[a.type]||{};if(i[0]=a,a.delegateTarget=this,!k.preDispatch||k.preDispatch.call(this,a)!==!1){h=n.event.handlers.call(this,a,j),b=0;while((f=h[b++])&&!a.isPropagationStopped()){a.currentTarget=f.elem,c=0;while((g=f.handlers[c++])&&!a.isImmediatePropagationStopped())(!a.namespace_re||a.namespace_re.test(g.namespace))&&(a.handleObj=g,a.data=g.data,e=((n.event.special[g.origType]||{}).handle||g.handler).apply(f.elem,i),void 0!==e&&(a.result=e)===!1&&(a.preventDefault(),a.stopPropagation()))}return k.postDispatch&&k.postDispatch.call(this,a),a.result}},handlers:function(a,b){var c,d,e,f,g=[],h=b.delegateCount,i=a.target;if(h&&i.nodeType&&(!a.button||"click"!==a.type))for(;i!==this;i=i.parentNode||this)if(i.disabled!==!0||"click"!==a.type){for(d=[],c=0;h>c;c++)f=b[c],e=f.selector+" ",void 0===d[e]&&(d[e]=f.needsContext?n(e,this).index(i)>=0:n.find(e,this,null,[i]).length),d[e]&&d.push(f);d.length&&g.push({elem:i,handlers:d})}return h<b.length&&g.push({elem:this,handlers:b.slice(h)}),g},props:"altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),fixHooks:{},keyHooks:{props:"char charCode key keyCode".split(" "),filter:function(a,b){return null==a.which&&(a.which=null!=b.charCode?b.charCode:b.keyCode),a}},mouseHooks:{props:"button buttons clientX clientY offsetX offsetY pageX pageY screenX screenY toElement".split(" "),filter:function(a,b){var c,d,e,f=b.button;return null==a.pageX&&null!=b.clientX&&(c=a.target.ownerDocument||l,d=c.documentElement,e=c.body,a.pageX=b.clientX+(d&&d.scrollLeft||e&&e.scrollLeft||0)-(d&&d.clientLeft||e&&e.clientLeft||0),a.pageY=b.clientY+(d&&d.scrollTop||e&&e.scrollTop||0)-(d&&d.clientTop||e&&e.clientTop||0)),a.which||void 0===f||(a.which=1&f?1:2&f?3:4&f?2:0),a}},fix:function(a){if(a[n.expando])return a;var b,c,d,e=a.type,f=a,g=this.fixHooks[e];g||(this.fixHooks[e]=g=W.test(e)?this.mouseHooks:V.test(e)?this.keyHooks:{}),d=g.props?this.props.concat(g.props):this.props,a=new n.Event(f),b=d.length;while(b--)c=d[b],a[c]=f[c];return a.target||(a.target=l),3===a.target.nodeType&&(a.target=a.target.parentNode),g.filter?g.filter(a,f):a},special:{load:{noBubble:!0},focus:{trigger:function(){return this!==_()&&this.focus?(this.focus(),!1):void 0},delegateType:"focusin"},blur:{trigger:function(){return this===_()&&this.blur?(this.blur(),!1):void 0},delegateType:"focusout"},click:{trigger:function(){return"checkbox"===this.type&&this.click&&n.nodeName(this,"input")?(this.click(),!1):void 0},_default:function(a){return n.nodeName(a.target,"a")}},beforeunload:{postDispatch:function(a){void 0!==a.result&&a.originalEvent&&(a.originalEvent.returnValue=a.result)}}},simulate:function(a,b,c,d){var e=n.extend(new n.Event,c,{type:a,isSimulated:!0,originalEvent:{}});d?n.event.trigger(e,null,b):n.event.dispatch.call(b,e),e.isDefaultPrevented()&&c.preventDefault()}},n.removeEvent=function(a,b,c){a.removeEventListener&&a.removeEventListener(b,c,!1)},n.Event=function(a,b){return this instanceof n.Event?(a&&a.type?(this.originalEvent=a,this.type=a.type,this.isDefaultPrevented=a.defaultPrevented||void 0===a.defaultPrevented&&a.returnValue===!1?Z:$):this.type=a,b&&n.extend(this,b),this.timeStamp=a&&a.timeStamp||n.now(),void(this[n.expando]=!0)):new n.Event(a,b)},n.Event.prototype={isDefaultPrevented:$,isPropagationStopped:$,isImmediatePropagationStopped:$,preventDefault:function(){var a=this.originalEvent;this.isDefaultPrevented=Z,a&&a.preventDefault&&a.preventDefault()},stopPropagation:function(){var a=this.originalEvent;this.isPropagationStopped=Z,a&&a.stopPropagation&&a.stopPropagation()},stopImmediatePropagation:function(){var a=this.originalEvent;this.isImmediatePropagationStopped=Z,a&&a.stopImmediatePropagation&&a.stopImmediatePropagation(),this.stopPropagation()}},n.each({mouseenter:"mouseover",mouseleave:"mouseout",pointerenter:"pointerover",pointerleave:"pointerout"},function(a,b){n.event.special[a]={delegateType:b,bindType:b,handle:function(a){var c,d=this,e=a.relatedTarget,f=a.handleObj;return(!e||e!==d&&!n.contains(d,e))&&(a.type=f.origType,c=f.handler.apply(this,arguments),a.type=b),c}}}),k.focusinBubbles||n.each({focus:"focusin",blur:"focusout"},function(a,b){var c=function(a){n.event.simulate(b,a.target,n.event.fix(a),!0)};n.event.special[b]={setup:function(){var d=this.ownerDocument||this,e=L.access(d,b);e||d.addEventListener(a,c,!0),L.access(d,b,(e||0)+1)},teardown:function(){var d=this.ownerDocument||this,e=L.access(d,b)-1;e?L.access(d,b,e):(d.removeEventListener(a,c,!0),L.remove(d,b))}}}),n.fn.extend({on:function(a,b,c,d,e){var f,g;if("object"==typeof a){"string"!=typeof b&&(c=c||b,b=void 0);for(g in a)this.on(g,b,c,a[g],e);return this}if(null==c&&null==d?(d=b,c=b=void 0):null==d&&("string"==typeof b?(d=c,c=void 0):(d=c,c=b,b=void 0)),d===!1)d=$;else if(!d)return this;return 1===e&&(f=d,d=function(a){return n().off(a),f.apply(this,arguments)},d.guid=f.guid||(f.guid=n.guid++)),this.each(function(){n.event.add(this,a,d,c,b)})},one:function(a,b,c,d){return this.on(a,b,c,d,1)},off:function(a,b,c){var d,e;if(a&&a.preventDefault&&a.handleObj)return d=a.handleObj,n(a.delegateTarget).off(d.namespace?d.origType+"."+d.namespace:d.origType,d.selector,d.handler),this;if("object"==typeof a){for(e in a)this.off(e,b,a[e]);return this}return(b===!1||"function"==typeof b)&&(c=b,b=void 0),c===!1&&(c=$),this.each(function(){n.event.remove(this,a,c,b)})},trigger:function(a,b){return this.each(function(){n.event.trigger(a,b,this)})},triggerHandler:function(a,b){var c=this[0];return c?n.event.trigger(a,b,c,!0):void 0}});var aa=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,ba=/<([\w:]+)/,ca=/<|&#?\w+;/,da=/<(?:script|style|link)/i,ea=/checked\s*(?:[^=]|=\s*.checked.)/i,fa=/^$|\/(?:java|ecma)script/i,ga=/^true\/(.*)/,ha=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,ia={option:[1,"<select multiple='multiple'>","</select>"],thead:[1,"<table>","</table>"],col:[2,"<table><colgroup>","</colgroup></table>"],tr:[2,"<table><tbody>","</tbody></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:[0,"",""]};ia.optgroup=ia.option,ia.tbody=ia.tfoot=ia.colgroup=ia.caption=ia.thead,ia.th=ia.td;function ja(a,b){return n.nodeName(a,"table")&&n.nodeName(11!==b.nodeType?b:b.firstChild,"tr")?a.getElementsByTagName("tbody")[0]||a.appendChild(a.ownerDocument.createElement("tbody")):a}function ka(a){return a.type=(null!==a.getAttribute("type"))+"/"+a.type,a}function la(a){var b=ga.exec(a.type);return b?a.type=b[1]:a.removeAttribute("type"),a}function ma(a,b){for(var c=0,d=a.length;d>c;c++)L.set(a[c],"globalEval",!b||L.get(b[c],"globalEval"))}function na(a,b){var c,d,e,f,g,h,i,j;if(1===b.nodeType){if(L.hasData(a)&&(f=L.access(a),g=L.set(b,f),j=f.events)){delete g.handle,g.events={};for(e in j)for(c=0,d=j[e].length;d>c;c++)n.event.add(b,e,j[e][c])}M.hasData(a)&&(h=M.access(a),i=n.extend({},h),M.set(b,i))}}function oa(a,b){var c=a.getElementsByTagName?a.getElementsByTagName(b||"*"):a.querySelectorAll?a.querySelectorAll(b||"*"):[];return void 0===b||b&&n.nodeName(a,b)?n.merge([a],c):c}function pa(a,b){var c=b.nodeName.toLowerCase();"input"===c&&T.test(a.type)?b.checked=a.checked:("input"===c||"textarea"===c)&&(b.defaultValue=a.defaultValue)}n.extend({clone:function(a,b,c){var d,e,f,g,h=a.cloneNode(!0),i=n.contains(a.ownerDocument,a);if(!(k.noCloneChecked||1!==a.nodeType&&11!==a.nodeType||n.isXMLDoc(a)))for(g=oa(h),f=oa(a),d=0,e=f.length;e>d;d++)pa(f[d],g[d]);if(b)if(c)for(f=f||oa(a),g=g||oa(h),d=0,e=f.length;e>d;d++)na(f[d],g[d]);else na(a,h);return g=oa(h,"script"),g.length>0&&ma(g,!i&&oa(a,"script")),h},buildFragment:function(a,b,c,d){for(var e,f,g,h,i,j,k=b.createDocumentFragment(),l=[],m=0,o=a.length;o>m;m++)if(e=a[m],e||0===e)if("object"===n.type(e))n.merge(l,e.nodeType?[e]:e);else if(ca.test(e)){f=f||k.appendChild(b.createElement("div")),g=(ba.exec(e)||["",""])[1].toLowerCase(),h=ia[g]||ia._default,f.innerHTML=h[1]+e.replace(aa,"<$1></$2>")+h[2],j=h[0];while(j--)f=f.lastChild;n.merge(l,f.childNodes),f=k.firstChild,f.textContent=""}else l.push(b.createTextNode(e));k.textContent="",m=0;while(e=l[m++])if((!d||-1===n.inArray(e,d))&&(i=n.contains(e.ownerDocument,e),f=oa(k.appendChild(e),"script"),i&&ma(f),c)){j=0;while(e=f[j++])fa.test(e.type||"")&&c.push(e)}return k},cleanData:function(a){for(var b,c,d,e,f=n.event.special,g=0;void 0!==(c=a[g]);g++){if(n.acceptData(c)&&(e=c[L.expando],e&&(b=L.cache[e]))){if(b.events)for(d in b.events)f[d]?n.event.remove(c,d):n.removeEvent(c,d,b.handle);L.cache[e]&&delete L.cache[e]}delete M.cache[c[M.expando]]}}}),n.fn.extend({text:function(a){return J(this,function(a){return void 0===a?n.text(this):this.empty().each(function(){(1===this.nodeType||11===this.nodeType||9===this.nodeType)&&(this.textContent=a)})},null,a,arguments.length)},append:function(){return this.domManip(arguments,function(a){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var b=ja(this,a);b.appendChild(a)}})},prepend:function(){return this.domManip(arguments,function(a){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var b=ja(this,a);b.insertBefore(a,b.firstChild)}})},before:function(){return this.domManip(arguments,function(a){this.parentNode&&this.parentNode.insertBefore(a,this)})},after:function(){return this.domManip(arguments,function(a){this.parentNode&&this.parentNode.insertBefore(a,this.nextSibling)})},remove:function(a,b){for(var c,d=a?n.filter(a,this):this,e=0;null!=(c=d[e]);e++)b||1!==c.nodeType||n.cleanData(oa(c)),c.parentNode&&(b&&n.contains(c.ownerDocument,c)&&ma(oa(c,"script")),c.parentNode.removeChild(c));return this},empty:function(){for(var a,b=0;null!=(a=this[b]);b++)1===a.nodeType&&(n.cleanData(oa(a,!1)),a.textContent="");return this},clone:function(a,b){return a=null==a?!1:a,b=null==b?a:b,this.map(function(){return n.clone(this,a,b)})},html:function(a){return J(this,function(a){var b=this[0]||{},c=0,d=this.length;if(void 0===a&&1===b.nodeType)return b.innerHTML;if("string"==typeof a&&!da.test(a)&&!ia[(ba.exec(a)||["",""])[1].toLowerCase()]){a=a.replace(aa,"<$1></$2>");try{for(;d>c;c++)b=this[c]||{},1===b.nodeType&&(n.cleanData(oa(b,!1)),b.innerHTML=a);b=0}catch(e){}}b&&this.empty().append(a)},null,a,arguments.length)},replaceWith:function(){var a=arguments[0];return this.domManip(arguments,function(b){a=this.parentNode,n.cleanData(oa(this)),a&&a.replaceChild(b,this)}),a&&(a.length||a.nodeType)?this:this.remove()},detach:function(a){return this.remove(a,!0)},domManip:function(a,b){a=e.apply([],a);var c,d,f,g,h,i,j=0,l=this.length,m=this,o=l-1,p=a[0],q=n.isFunction(p);if(q||l>1&&"string"==typeof p&&!k.checkClone&&ea.test(p))return this.each(function(c){var d=m.eq(c);q&&(a[0]=p.call(this,c,d.html())),d.domManip(a,b)});if(l&&(c=n.buildFragment(a,this[0].ownerDocument,!1,this),d=c.firstChild,1===c.childNodes.length&&(c=d),d)){for(f=n.map(oa(c,"script"),ka),g=f.length;l>j;j++)h=c,j!==o&&(h=n.clone(h,!0,!0),g&&n.merge(f,oa(h,"script"))),b.call(this[j],h,j);if(g)for(i=f[f.length-1].ownerDocument,n.map(f,la),j=0;g>j;j++)h=f[j],fa.test(h.type||"")&&!L.access(h,"globalEval")&&n.contains(i,h)&&(h.src?n._evalUrl&&n._evalUrl(h.src):n.globalEval(h.textContent.replace(ha,"")))}return this}}),n.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(a,b){n.fn[a]=function(a){for(var c,d=[],e=n(a),g=e.length-1,h=0;g>=h;h++)c=h===g?this:this.clone(!0),n(e[h])[b](c),f.apply(d,c.get());return this.pushStack(d)}});var qa,ra={};function sa(b,c){var d,e=n(c.createElement(b)).appendTo(c.body),f=a.getDefaultComputedStyle&&(d=a.getDefaultComputedStyle(e[0]))?d.display:n.css(e[0],"display");return e.detach(),f}function ta(a){var b=l,c=ra[a];return c||(c=sa(a,b),"none"!==c&&c||(qa=(qa||n("<iframe frameborder='0' width='0' height='0'/>")).appendTo(b.documentElement),b=qa[0].contentDocument,b.write(),b.close(),c=sa(a,b),qa.detach()),ra[a]=c),c}var ua=/^margin/,va=new RegExp("^("+Q+")(?!px)[a-z%]+$","i"),wa=function(b){return b.ownerDocument.defaultView.opener?b.ownerDocument.defaultView.getComputedStyle(b,null):a.getComputedStyle(b,null)};function xa(a,b,c){var d,e,f,g,h=a.style;return c=c||wa(a),c&&(g=c.getPropertyValue(b)||c[b]),c&&(""!==g||n.contains(a.ownerDocument,a)||(g=n.style(a,b)),va.test(g)&&ua.test(b)&&(d=h.width,e=h.minWidth,f=h.maxWidth,h.minWidth=h.maxWidth=h.width=g,g=c.width,h.width=d,h.minWidth=e,h.maxWidth=f)),void 0!==g?g+"":g}function ya(a,b){return{get:function(){return a()?void delete this.get:(this.get=b).apply(this,arguments)}}}!function(){var b,c,d=l.documentElement,e=l.createElement("div"),f=l.createElement("div");if(f.style){f.style.backgroundClip="content-box",f.cloneNode(!0).style.backgroundClip="",k.clearCloneStyle="content-box"===f.style.backgroundClip,e.style.cssText="border:0;width:0;height:0;top:0;left:-9999px;margin-top:1px;position:absolute",e.appendChild(f);function g(){f.style.cssText="-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;display:block;margin-top:1%;top:1%;border:1px;padding:1px;width:4px;position:absolute",f.innerHTML="",d.appendChild(e);var g=a.getComputedStyle(f,null);b="1%"!==g.top,c="4px"===g.width,d.removeChild(e)}a.getComputedStyle&&n.extend(k,{pixelPosition:function(){return g(),b},boxSizingReliable:function(){return null==c&&g(),c},reliableMarginRight:function(){var b,c=f.appendChild(l.createElement("div"));return c.style.cssText=f.style.cssText="-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:block;margin:0;border:0;padding:0",c.style.marginRight=c.style.width="0",f.style.width="1px",d.appendChild(e),b=!parseFloat(a.getComputedStyle(c,null).marginRight),d.removeChild(e),f.removeChild(c),b}})}}(),n.swap=function(a,b,c,d){var e,f,g={};for(f in b)g[f]=a.style[f],a.style[f]=b[f];e=c.apply(a,d||[]);for(f in b)a.style[f]=g[f];return e};var za=/^(none|table(?!-c[ea]).+)/,Aa=new RegExp("^("+Q+")(.*)$","i"),Ba=new RegExp("^([+-])=("+Q+")","i"),Ca={position:"absolute",visibility:"hidden",display:"block"},Da={letterSpacing:"0",fontWeight:"400"},Ea=["Webkit","O","Moz","ms"];function Fa(a,b){if(b in a)return b;var c=b[0].toUpperCase()+b.slice(1),d=b,e=Ea.length;while(e--)if(b=Ea[e]+c,b in a)return b;return d}function Ga(a,b,c){var d=Aa.exec(b);return d?Math.max(0,d[1]-(c||0))+(d[2]||"px"):b}function Ha(a,b,c,d,e){for(var f=c===(d?"border":"content")?4:"width"===b?1:0,g=0;4>f;f+=2)"margin"===c&&(g+=n.css(a,c+R[f],!0,e)),d?("content"===c&&(g-=n.css(a,"padding"+R[f],!0,e)),"margin"!==c&&(g-=n.css(a,"border"+R[f]+"Width",!0,e))):(g+=n.css(a,"padding"+R[f],!0,e),"padding"!==c&&(g+=n.css(a,"border"+R[f]+"Width",!0,e)));return g}function Ia(a,b,c){var d=!0,e="width"===b?a.offsetWidth:a.offsetHeight,f=wa(a),g="border-box"===n.css(a,"boxSizing",!1,f);if(0>=e||null==e){if(e=xa(a,b,f),(0>e||null==e)&&(e=a.style[b]),va.test(e))return e;d=g&&(k.boxSizingReliable()||e===a.style[b]),e=parseFloat(e)||0}return e+Ha(a,b,c||(g?"border":"content"),d,f)+"px"}function Ja(a,b){for(var c,d,e,f=[],g=0,h=a.length;h>g;g++)d=a[g],d.style&&(f[g]=L.get(d,"olddisplay"),c=d.style.display,b?(f[g]||"none"!==c||(d.style.display=""),""===d.style.display&&S(d)&&(f[g]=L.access(d,"olddisplay",ta(d.nodeName)))):(e=S(d),"none"===c&&e||L.set(d,"olddisplay",e?c:n.css(d,"display"))));for(g=0;h>g;g++)d=a[g],d.style&&(b&&"none"!==d.style.display&&""!==d.style.display||(d.style.display=b?f[g]||"":"none"));return a}n.extend({cssHooks:{opacity:{get:function(a,b){if(b){var c=xa(a,"opacity");return""===c?"1":c}}}},cssNumber:{columnCount:!0,fillOpacity:!0,flexGrow:!0,flexShrink:!0,fontWeight:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{"float":"cssFloat"},style:function(a,b,c,d){if(a&&3!==a.nodeType&&8!==a.nodeType&&a.style){var e,f,g,h=n.camelCase(b),i=a.style;return b=n.cssProps[h]||(n.cssProps[h]=Fa(i,h)),g=n.cssHooks[b]||n.cssHooks[h],void 0===c?g&&"get"in g&&void 0!==(e=g.get(a,!1,d))?e:i[b]:(f=typeof c,"string"===f&&(e=Ba.exec(c))&&(c=(e[1]+1)*e[2]+parseFloat(n.css(a,b)),f="number"),null!=c&&c===c&&("number"!==f||n.cssNumber[h]||(c+="px"),k.clearCloneStyle||""!==c||0!==b.indexOf("background")||(i[b]="inherit"),g&&"set"in g&&void 0===(c=g.set(a,c,d))||(i[b]=c)),void 0)}},css:function(a,b,c,d){var e,f,g,h=n.camelCase(b);return b=n.cssProps[h]||(n.cssProps[h]=Fa(a.style,h)),g=n.cssHooks[b]||n.cssHooks[h],g&&"get"in g&&(e=g.get(a,!0,c)),void 0===e&&(e=xa(a,b,d)),"normal"===e&&b in Da&&(e=Da[b]),""===c||c?(f=parseFloat(e),c===!0||n.isNumeric(f)?f||0:e):e}}),n.each(["height","width"],function(a,b){n.cssHooks[b]={get:function(a,c,d){return c?za.test(n.css(a,"display"))&&0===a.offsetWidth?n.swap(a,Ca,function(){return Ia(a,b,d)}):Ia(a,b,d):void 0},set:function(a,c,d){var e=d&&wa(a);return Ga(a,c,d?Ha(a,b,d,"border-box"===n.css(a,"boxSizing",!1,e),e):0)}}}),n.cssHooks.marginRight=ya(k.reliableMarginRight,function(a,b){return b?n.swap(a,{display:"inline-block"},xa,[a,"marginRight"]):void 0}),n.each({margin:"",padding:"",border:"Width"},function(a,b){n.cssHooks[a+b]={expand:function(c){for(var d=0,e={},f="string"==typeof c?c.split(" "):[c];4>d;d++)e[a+R[d]+b]=f[d]||f[d-2]||f[0];return e}},ua.test(a)||(n.cssHooks[a+b].set=Ga)}),n.fn.extend({css:function(a,b){return J(this,function(a,b,c){var d,e,f={},g=0;if(n.isArray(b)){for(d=wa(a),e=b.length;e>g;g++)f[b[g]]=n.css(a,b[g],!1,d);return f}return void 0!==c?n.style(a,b,c):n.css(a,b)},a,b,arguments.length>1)},show:function(){return Ja(this,!0)},hide:function(){return Ja(this)},toggle:function(a){return"boolean"==typeof a?a?this.show():this.hide():this.each(function(){S(this)?n(this).show():n(this).hide()})}});function Ka(a,b,c,d,e){return new Ka.prototype.init(a,b,c,d,e)}n.Tween=Ka,Ka.prototype={constructor:Ka,init:function(a,b,c,d,e,f){this.elem=a,this.prop=c,this.easing=e||"swing",this.options=b,this.start=this.now=this.cur(),this.end=d,this.unit=f||(n.cssNumber[c]?"":"px")},cur:function(){var a=Ka.propHooks[this.prop];return a&&a.get?a.get(this):Ka.propHooks._default.get(this)},run:function(a){var b,c=Ka.propHooks[this.prop];return this.options.duration?this.pos=b=n.easing[this.easing](a,this.options.duration*a,0,1,this.options.duration):this.pos=b=a,this.now=(this.end-this.start)*b+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),c&&c.set?c.set(this):Ka.propHooks._default.set(this),this}},Ka.prototype.init.prototype=Ka.prototype,Ka.propHooks={_default:{get:function(a){var b;return null==a.elem[a.prop]||a.elem.style&&null!=a.elem.style[a.prop]?(b=n.css(a.elem,a.prop,""),b&&"auto"!==b?b:0):a.elem[a.prop]},set:function(a){n.fx.step[a.prop]?n.fx.step[a.prop](a):a.elem.style&&(null!=a.elem.style[n.cssProps[a.prop]]||n.cssHooks[a.prop])?n.style(a.elem,a.prop,a.now+a.unit):a.elem[a.prop]=a.now}}},Ka.propHooks.scrollTop=Ka.propHooks.scrollLeft={set:function(a){a.elem.nodeType&&a.elem.parentNode&&(a.elem[a.prop]=a.now)}},n.easing={linear:function(a){return a},swing:function(a){return.5-Math.cos(a*Math.PI)/2}},n.fx=Ka.prototype.init,n.fx.step={};var La,Ma,Na=/^(?:toggle|show|hide)$/,Oa=new RegExp("^(?:([+-])=|)("+Q+")([a-z%]*)$","i"),Pa=/queueHooks$/,Qa=[Va],Ra={"*":[function(a,b){var c=this.createTween(a,b),d=c.cur(),e=Oa.exec(b),f=e&&e[3]||(n.cssNumber[a]?"":"px"),g=(n.cssNumber[a]||"px"!==f&&+d)&&Oa.exec(n.css(c.elem,a)),h=1,i=20;if(g&&g[3]!==f){f=f||g[3],e=e||[],g=+d||1;do h=h||".5",g/=h,n.style(c.elem,a,g+f);while(h!==(h=c.cur()/d)&&1!==h&&--i)}return e&&(g=c.start=+g||+d||0,c.unit=f,c.end=e[1]?g+(e[1]+1)*e[2]:+e[2]),c}]};function Sa(){return setTimeout(function(){La=void 0}),La=n.now()}function Ta(a,b){var c,d=0,e={height:a};for(b=b?1:0;4>d;d+=2-b)c=R[d],e["margin"+c]=e["padding"+c]=a;return b&&(e.opacity=e.width=a),e}function Ua(a,b,c){for(var d,e=(Ra[b]||[]).concat(Ra["*"]),f=0,g=e.length;g>f;f++)if(d=e[f].call(c,b,a))return d}function Va(a,b,c){var d,e,f,g,h,i,j,k,l=this,m={},o=a.style,p=a.nodeType&&S(a),q=L.get(a,"fxshow");c.queue||(h=n._queueHooks(a,"fx"),null==h.unqueued&&(h.unqueued=0,i=h.empty.fire,h.empty.fire=function(){h.unqueued||i()}),h.unqueued++,l.always(function(){l.always(function(){h.unqueued--,n.queue(a,"fx").length||h.empty.fire()})})),1===a.nodeType&&("height"in b||"width"in b)&&(c.overflow=[o.overflow,o.overflowX,o.overflowY],j=n.css(a,"display"),k="none"===j?L.get(a,"olddisplay")||ta(a.nodeName):j,"inline"===k&&"none"===n.css(a,"float")&&(o.display="inline-block")),c.overflow&&(o.overflow="hidden",l.always(function(){o.overflow=c.overflow[0],o.overflowX=c.overflow[1],o.overflowY=c.overflow[2]}));for(d in b)if(e=b[d],Na.exec(e)){if(delete b[d],f=f||"toggle"===e,e===(p?"hide":"show")){if("show"!==e||!q||void 0===q[d])continue;p=!0}m[d]=q&&q[d]||n.style(a,d)}else j=void 0;if(n.isEmptyObject(m))"inline"===("none"===j?ta(a.nodeName):j)&&(o.display=j);else{q?"hidden"in q&&(p=q.hidden):q=L.access(a,"fxshow",{}),f&&(q.hidden=!p),p?n(a).show():l.done(function(){n(a).hide()}),l.done(function(){var b;L.remove(a,"fxshow");for(b in m)n.style(a,b,m[b])});for(d in m)g=Ua(p?q[d]:0,d,l),d in q||(q[d]=g.start,p&&(g.end=g.start,g.start="width"===d||"height"===d?1:0))}}function Wa(a,b){var c,d,e,f,g;for(c in a)if(d=n.camelCase(c),e=b[d],f=a[c],n.isArray(f)&&(e=f[1],f=a[c]=f[0]),c!==d&&(a[d]=f,delete a[c]),g=n.cssHooks[d],g&&"expand"in g){f=g.expand(f),delete a[d];for(c in f)c in a||(a[c]=f[c],b[c]=e)}else b[d]=e}function Xa(a,b,c){var d,e,f=0,g=Qa.length,h=n.Deferred().always(function(){delete i.elem}),i=function(){if(e)return!1;for(var b=La||Sa(),c=Math.max(0,j.startTime+j.duration-b),d=c/j.duration||0,f=1-d,g=0,i=j.tweens.length;i>g;g++)j.tweens[g].run(f);return h.notifyWith(a,[j,f,c]),1>f&&i?c:(h.resolveWith(a,[j]),!1)},j=h.promise({elem:a,props:n.extend({},b),opts:n.extend(!0,{specialEasing:{}},c),originalProperties:b,originalOptions:c,startTime:La||Sa(),duration:c.duration,tweens:[],createTween:function(b,c){var d=n.Tween(a,j.opts,b,c,j.opts.specialEasing[b]||j.opts.easing);return j.tweens.push(d),d},stop:function(b){var c=0,d=b?j.tweens.length:0;if(e)return this;for(e=!0;d>c;c++)j.tweens[c].run(1);return b?h.resolveWith(a,[j,b]):h.rejectWith(a,[j,b]),this}}),k=j.props;for(Wa(k,j.opts.specialEasing);g>f;f++)if(d=Qa[f].call(j,a,k,j.opts))return d;return n.map(k,Ua,j),n.isFunction(j.opts.start)&&j.opts.start.call(a,j),n.fx.timer(n.extend(i,{elem:a,anim:j,queue:j.opts.queue})),j.progress(j.opts.progress).done(j.opts.done,j.opts.complete).fail(j.opts.fail).always(j.opts.always)}n.Animation=n.extend(Xa,{tweener:function(a,b){n.isFunction(a)?(b=a,a=["*"]):a=a.split(" ");for(var c,d=0,e=a.length;e>d;d++)c=a[d],Ra[c]=Ra[c]||[],Ra[c].unshift(b)},prefilter:function(a,b){b?Qa.unshift(a):Qa.push(a)}}),n.speed=function(a,b,c){var d=a&&"object"==typeof a?n.extend({},a):{complete:c||!c&&b||n.isFunction(a)&&a,duration:a,easing:c&&b||b&&!n.isFunction(b)&&b};return d.duration=n.fx.off?0:"number"==typeof d.duration?d.duration:d.duration in n.fx.speeds?n.fx.speeds[d.duration]:n.fx.speeds._default,(null==d.queue||d.queue===!0)&&(d.queue="fx"),d.old=d.complete,d.complete=function(){n.isFunction(d.old)&&d.old.call(this),d.queue&&n.dequeue(this,d.queue)},d},n.fn.extend({fadeTo:function(a,b,c,d){return this.filter(S).css("opacity",0).show().end().animate({opacity:b},a,c,d)},animate:function(a,b,c,d){var e=n.isEmptyObject(a),f=n.speed(b,c,d),g=function(){var b=Xa(this,n.extend({},a),f);(e||L.get(this,"finish"))&&b.stop(!0)};return g.finish=g,e||f.queue===!1?this.each(g):this.queue(f.queue,g)},stop:function(a,b,c){var d=function(a){var b=a.stop;delete a.stop,b(c)};return"string"!=typeof a&&(c=b,b=a,a=void 0),b&&a!==!1&&this.queue(a||"fx",[]),this.each(function(){var b=!0,e=null!=a&&a+"queueHooks",f=n.timers,g=L.get(this);if(e)g[e]&&g[e].stop&&d(g[e]);else for(e in g)g[e]&&g[e].stop&&Pa.test(e)&&d(g[e]);for(e=f.length;e--;)f[e].elem!==this||null!=a&&f[e].queue!==a||(f[e].anim.stop(c),b=!1,f.splice(e,1));(b||!c)&&n.dequeue(this,a)})},finish:function(a){return a!==!1&&(a=a||"fx"),this.each(function(){var b,c=L.get(this),d=c[a+"queue"],e=c[a+"queueHooks"],f=n.timers,g=d?d.length:0;for(c.finish=!0,n.queue(this,a,[]),e&&e.stop&&e.stop.call(this,!0),b=f.length;b--;)f[b].elem===this&&f[b].queue===a&&(f[b].anim.stop(!0),f.splice(b,1));for(b=0;g>b;b++)d[b]&&d[b].finish&&d[b].finish.call(this);delete c.finish})}}),n.each(["toggle","show","hide"],function(a,b){var c=n.fn[b];n.fn[b]=function(a,d,e){return null==a||"boolean"==typeof a?c.apply(this,arguments):this.animate(Ta(b,!0),a,d,e)}}),n.each({slideDown:Ta("show"),slideUp:Ta("hide"),slideToggle:Ta("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(a,b){n.fn[a]=function(a,c,d){return this.animate(b,a,c,d)}}),n.timers=[],n.fx.tick=function(){var a,b=0,c=n.timers;for(La=n.now();b<c.length;b++)a=c[b],a()||c[b]!==a||c.splice(b--,1);c.length||n.fx.stop(),La=void 0},n.fx.timer=function(a){n.timers.push(a),a()?n.fx.start():n.timers.pop()},n.fx.interval=13,n.fx.start=function(){Ma||(Ma=setInterval(n.fx.tick,n.fx.interval))},n.fx.stop=function(){clearInterval(Ma),Ma=null},n.fx.speeds={slow:600,fast:200,_default:400},n.fn.delay=function(a,b){return a=n.fx?n.fx.speeds[a]||a:a,b=b||"fx",this.queue(b,function(b,c){var d=setTimeout(b,a);c.stop=function(){clearTimeout(d)}})},function(){var a=l.createElement("input"),b=l.createElement("select"),c=b.appendChild(l.createElement("option"));a.type="checkbox",k.checkOn=""!==a.value,k.optSelected=c.selected,b.disabled=!0,k.optDisabled=!c.disabled,a=l.createElement("input"),a.value="t",a.type="radio",k.radioValue="t"===a.value}();var Ya,Za,$a=n.expr.attrHandle;n.fn.extend({attr:function(a,b){return J(this,n.attr,a,b,arguments.length>1)},removeAttr:function(a){return this.each(function(){n.removeAttr(this,a)})}}),n.extend({attr:function(a,b,c){var d,e,f=a.nodeType;if(a&&3!==f&&8!==f&&2!==f)return typeof a.getAttribute===U?n.prop(a,b,c):(1===f&&n.isXMLDoc(a)||(b=b.toLowerCase(),d=n.attrHooks[b]||(n.expr.match.bool.test(b)?Za:Ya)),
+void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?void 0:e):null!==c?d&&"set"in d&&void 0!==(e=d.set(a,c,b))?e:(a.setAttribute(b,c+""),c):void n.removeAttr(a,b))},removeAttr:function(a,b){var c,d,e=0,f=b&&b.match(E);if(f&&1===a.nodeType)while(c=f[e++])d=n.propFix[c]||c,n.expr.match.bool.test(c)&&(a[d]=!1),a.removeAttribute(c)},attrHooks:{type:{set:function(a,b){if(!k.radioValue&&"radio"===b&&n.nodeName(a,"input")){var c=a.value;return a.setAttribute("type",b),c&&(a.value=c),b}}}}}),Za={set:function(a,b,c){return b===!1?n.removeAttr(a,c):a.setAttribute(c,c),c}},n.each(n.expr.match.bool.source.match(/\w+/g),function(a,b){var c=$a[b]||n.find.attr;$a[b]=function(a,b,d){var e,f;return d||(f=$a[b],$a[b]=e,e=null!=c(a,b,d)?b.toLowerCase():null,$a[b]=f),e}});var _a=/^(?:input|select|textarea|button)$/i;n.fn.extend({prop:function(a,b){return J(this,n.prop,a,b,arguments.length>1)},removeProp:function(a){return this.each(function(){delete this[n.propFix[a]||a]})}}),n.extend({propFix:{"for":"htmlFor","class":"className"},prop:function(a,b,c){var d,e,f,g=a.nodeType;if(a&&3!==g&&8!==g&&2!==g)return f=1!==g||!n.isXMLDoc(a),f&&(b=n.propFix[b]||b,e=n.propHooks[b]),void 0!==c?e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:a[b]=c:e&&"get"in e&&null!==(d=e.get(a,b))?d:a[b]},propHooks:{tabIndex:{get:function(a){return a.hasAttribute("tabindex")||_a.test(a.nodeName)||a.href?a.tabIndex:-1}}}}),k.optSelected||(n.propHooks.selected={get:function(a){var b=a.parentNode;return b&&b.parentNode&&b.parentNode.selectedIndex,null}}),n.each(["tabIndex","readOnly","maxLength","cellSpacing","cellPadding","rowSpan","colSpan","useMap","frameBorder","contentEditable"],function(){n.propFix[this.toLowerCase()]=this});var ab=/[\t\r\n\f]/g;n.fn.extend({addClass:function(a){var b,c,d,e,f,g,h="string"==typeof a&&a,i=0,j=this.length;if(n.isFunction(a))return this.each(function(b){n(this).addClass(a.call(this,b,this.className))});if(h)for(b=(a||"").match(E)||[];j>i;i++)if(c=this[i],d=1===c.nodeType&&(c.className?(" "+c.className+" ").replace(ab," "):" ")){f=0;while(e=b[f++])d.indexOf(" "+e+" ")<0&&(d+=e+" ");g=n.trim(d),c.className!==g&&(c.className=g)}return this},removeClass:function(a){var b,c,d,e,f,g,h=0===arguments.length||"string"==typeof a&&a,i=0,j=this.length;if(n.isFunction(a))return this.each(function(b){n(this).removeClass(a.call(this,b,this.className))});if(h)for(b=(a||"").match(E)||[];j>i;i++)if(c=this[i],d=1===c.nodeType&&(c.className?(" "+c.className+" ").replace(ab," "):"")){f=0;while(e=b[f++])while(d.indexOf(" "+e+" ")>=0)d=d.replace(" "+e+" "," ");g=a?n.trim(d):"",c.className!==g&&(c.className=g)}return this},toggleClass:function(a,b){var c=typeof a;return"boolean"==typeof b&&"string"===c?b?this.addClass(a):this.removeClass(a):this.each(n.isFunction(a)?function(c){n(this).toggleClass(a.call(this,c,this.className,b),b)}:function(){if("string"===c){var b,d=0,e=n(this),f=a.match(E)||[];while(b=f[d++])e.hasClass(b)?e.removeClass(b):e.addClass(b)}else(c===U||"boolean"===c)&&(this.className&&L.set(this,"__className__",this.className),this.className=this.className||a===!1?"":L.get(this,"__className__")||"")})},hasClass:function(a){for(var b=" "+a+" ",c=0,d=this.length;d>c;c++)if(1===this[c].nodeType&&(" "+this[c].className+" ").replace(ab," ").indexOf(b)>=0)return!0;return!1}});var bb=/\r/g;n.fn.extend({val:function(a){var b,c,d,e=this[0];{if(arguments.length)return d=n.isFunction(a),this.each(function(c){var e;1===this.nodeType&&(e=d?a.call(this,c,n(this).val()):a,null==e?e="":"number"==typeof e?e+="":n.isArray(e)&&(e=n.map(e,function(a){return null==a?"":a+""})),b=n.valHooks[this.type]||n.valHooks[this.nodeName.toLowerCase()],b&&"set"in b&&void 0!==b.set(this,e,"value")||(this.value=e))});if(e)return b=n.valHooks[e.type]||n.valHooks[e.nodeName.toLowerCase()],b&&"get"in b&&void 0!==(c=b.get(e,"value"))?c:(c=e.value,"string"==typeof c?c.replace(bb,""):null==c?"":c)}}}),n.extend({valHooks:{option:{get:function(a){var b=n.find.attr(a,"value");return null!=b?b:n.trim(n.text(a))}},select:{get:function(a){for(var b,c,d=a.options,e=a.selectedIndex,f="select-one"===a.type||0>e,g=f?null:[],h=f?e+1:d.length,i=0>e?h:f?e:0;h>i;i++)if(c=d[i],!(!c.selected&&i!==e||(k.optDisabled?c.disabled:null!==c.getAttribute("disabled"))||c.parentNode.disabled&&n.nodeName(c.parentNode,"optgroup"))){if(b=n(c).val(),f)return b;g.push(b)}return g},set:function(a,b){var c,d,e=a.options,f=n.makeArray(b),g=e.length;while(g--)d=e[g],(d.selected=n.inArray(d.value,f)>=0)&&(c=!0);return c||(a.selectedIndex=-1),f}}}}),n.each(["radio","checkbox"],function(){n.valHooks[this]={set:function(a,b){return n.isArray(b)?a.checked=n.inArray(n(a).val(),b)>=0:void 0}},k.checkOn||(n.valHooks[this].get=function(a){return null===a.getAttribute("value")?"on":a.value})}),n.each("blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu".split(" "),function(a,b){n.fn[b]=function(a,c){return arguments.length>0?this.on(b,null,a,c):this.trigger(b)}}),n.fn.extend({hover:function(a,b){return this.mouseenter(a).mouseleave(b||a)},bind:function(a,b,c){return this.on(a,null,b,c)},unbind:function(a,b){return this.off(a,null,b)},delegate:function(a,b,c,d){return this.on(b,a,c,d)},undelegate:function(a,b,c){return 1===arguments.length?this.off(a,"**"):this.off(b,a||"**",c)}});var cb=n.now(),db=/\?/;n.parseJSON=function(a){return JSON.parse(a+"")},n.parseXML=function(a){var b,c;if(!a||"string"!=typeof a)return null;try{c=new DOMParser,b=c.parseFromString(a,"text/xml")}catch(d){b=void 0}return(!b||b.getElementsByTagName("parsererror").length)&&n.error("Invalid XML: "+a),b};var eb=/#.*$/,fb=/([?&])_=[^&]*/,gb=/^(.*?):[ \t]*([^\r\n]*)$/gm,hb=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,ib=/^(?:GET|HEAD)$/,jb=/^\/\//,kb=/^([\w.+-]+:)(?:\/\/(?:[^\/?#]*@|)([^\/?#:]*)(?::(\d+)|)|)/,lb={},mb={},nb="*/".concat("*"),ob=a.location.href,pb=kb.exec(ob.toLowerCase())||[];function qb(a){return function(b,c){"string"!=typeof b&&(c=b,b="*");var d,e=0,f=b.toLowerCase().match(E)||[];if(n.isFunction(c))while(d=f[e++])"+"===d[0]?(d=d.slice(1)||"*",(a[d]=a[d]||[]).unshift(c)):(a[d]=a[d]||[]).push(c)}}function rb(a,b,c,d){var e={},f=a===mb;function g(h){var i;return e[h]=!0,n.each(a[h]||[],function(a,h){var j=h(b,c,d);return"string"!=typeof j||f||e[j]?f?!(i=j):void 0:(b.dataTypes.unshift(j),g(j),!1)}),i}return g(b.dataTypes[0])||!e["*"]&&g("*")}function sb(a,b){var c,d,e=n.ajaxSettings.flatOptions||{};for(c in b)void 0!==b[c]&&((e[c]?a:d||(d={}))[c]=b[c]);return d&&n.extend(!0,a,d),a}function tb(a,b,c){var d,e,f,g,h=a.contents,i=a.dataTypes;while("*"===i[0])i.shift(),void 0===d&&(d=a.mimeType||b.getResponseHeader("Content-Type"));if(d)for(e in h)if(h[e]&&h[e].test(d)){i.unshift(e);break}if(i[0]in c)f=i[0];else{for(e in c){if(!i[0]||a.converters[e+" "+i[0]]){f=e;break}g||(g=e)}f=f||g}return f?(f!==i[0]&&i.unshift(f),c[f]):void 0}function ub(a,b,c,d){var e,f,g,h,i,j={},k=a.dataTypes.slice();if(k[1])for(g in a.converters)j[g.toLowerCase()]=a.converters[g];f=k.shift();while(f)if(a.responseFields[f]&&(c[a.responseFields[f]]=b),!i&&d&&a.dataFilter&&(b=a.dataFilter(b,a.dataType)),i=f,f=k.shift())if("*"===f)f=i;else if("*"!==i&&i!==f){if(g=j[i+" "+f]||j["* "+f],!g)for(e in j)if(h=e.split(" "),h[1]===f&&(g=j[i+" "+h[0]]||j["* "+h[0]])){g===!0?g=j[e]:j[e]!==!0&&(f=h[0],k.unshift(h[1]));break}if(g!==!0)if(g&&a["throws"])b=g(b);else try{b=g(b)}catch(l){return{state:"parsererror",error:g?l:"No conversion from "+i+" to "+f}}}return{state:"success",data:b}}n.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:ob,type:"GET",isLocal:hb.test(pb[1]),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":nb,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/xml/,html:/html/,json:/json/},responseFields:{xml:"responseXML",text:"responseText",json:"responseJSON"},converters:{"* text":String,"text html":!0,"text json":n.parseJSON,"text xml":n.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(a,b){return b?sb(sb(a,n.ajaxSettings),b):sb(n.ajaxSettings,a)},ajaxPrefilter:qb(lb),ajaxTransport:qb(mb),ajax:function(a,b){"object"==typeof a&&(b=a,a=void 0),b=b||{};var c,d,e,f,g,h,i,j,k=n.ajaxSetup({},b),l=k.context||k,m=k.context&&(l.nodeType||l.jquery)?n(l):n.event,o=n.Deferred(),p=n.Callbacks("once memory"),q=k.statusCode||{},r={},s={},t=0,u="canceled",v={readyState:0,getResponseHeader:function(a){var b;if(2===t){if(!f){f={};while(b=gb.exec(e))f[b[1].toLowerCase()]=b[2]}b=f[a.toLowerCase()]}return null==b?null:b},getAllResponseHeaders:function(){return 2===t?e:null},setRequestHeader:function(a,b){var c=a.toLowerCase();return t||(a=s[c]=s[c]||a,r[a]=b),this},overrideMimeType:function(a){return t||(k.mimeType=a),this},statusCode:function(a){var b;if(a)if(2>t)for(b in a)q[b]=[q[b],a[b]];else v.always(a[v.status]);return this},abort:function(a){var b=a||u;return c&&c.abort(b),x(0,b),this}};if(o.promise(v).complete=p.add,v.success=v.done,v.error=v.fail,k.url=((a||k.url||ob)+"").replace(eb,"").replace(jb,pb[1]+"//"),k.type=b.method||b.type||k.method||k.type,k.dataTypes=n.trim(k.dataType||"*").toLowerCase().match(E)||[""],null==k.crossDomain&&(h=kb.exec(k.url.toLowerCase()),k.crossDomain=!(!h||h[1]===pb[1]&&h[2]===pb[2]&&(h[3]||("http:"===h[1]?"80":"443"))===(pb[3]||("http:"===pb[1]?"80":"443")))),k.data&&k.processData&&"string"!=typeof k.data&&(k.data=n.param(k.data,k.traditional)),rb(lb,k,b,v),2===t)return v;i=n.event&&k.global,i&&0===n.active++&&n.event.trigger("ajaxStart"),k.type=k.type.toUpperCase(),k.hasContent=!ib.test(k.type),d=k.url,k.hasContent||(k.data&&(d=k.url+=(db.test(d)?"&":"?")+k.data,delete k.data),k.cache===!1&&(k.url=fb.test(d)?d.replace(fb,"$1_="+cb++):d+(db.test(d)?"&":"?")+"_="+cb++)),k.ifModified&&(n.lastModified[d]&&v.setRequestHeader("If-Modified-Since",n.lastModified[d]),n.etag[d]&&v.setRequestHeader("If-None-Match",n.etag[d])),(k.data&&k.hasContent&&k.contentType!==!1||b.contentType)&&v.setRequestHeader("Content-Type",k.contentType),v.setRequestHeader("Accept",k.dataTypes[0]&&k.accepts[k.dataTypes[0]]?k.accepts[k.dataTypes[0]]+("*"!==k.dataTypes[0]?", "+nb+"; q=0.01":""):k.accepts["*"]);for(j in k.headers)v.setRequestHeader(j,k.headers[j]);if(k.beforeSend&&(k.beforeSend.call(l,v,k)===!1||2===t))return v.abort();u="abort";for(j in{success:1,error:1,complete:1})v[j](k[j]);if(c=rb(mb,k,b,v)){v.readyState=1,i&&m.trigger("ajaxSend",[v,k]),k.async&&k.timeout>0&&(g=setTimeout(function(){v.abort("timeout")},k.timeout));try{t=1,c.send(r,x)}catch(w){if(!(2>t))throw w;x(-1,w)}}else x(-1,"No Transport");function x(a,b,f,h){var j,r,s,u,w,x=b;2!==t&&(t=2,g&&clearTimeout(g),c=void 0,e=h||"",v.readyState=a>0?4:0,j=a>=200&&300>a||304===a,f&&(u=tb(k,v,f)),u=ub(k,u,v,j),j?(k.ifModified&&(w=v.getResponseHeader("Last-Modified"),w&&(n.lastModified[d]=w),w=v.getResponseHeader("etag"),w&&(n.etag[d]=w)),204===a||"HEAD"===k.type?x="nocontent":304===a?x="notmodified":(x=u.state,r=u.data,s=u.error,j=!s)):(s=x,(a||!x)&&(x="error",0>a&&(a=0))),v.status=a,v.statusText=(b||x)+"",j?o.resolveWith(l,[r,x,v]):o.rejectWith(l,[v,x,s]),v.statusCode(q),q=void 0,i&&m.trigger(j?"ajaxSuccess":"ajaxError",[v,k,j?r:s]),p.fireWith(l,[v,x]),i&&(m.trigger("ajaxComplete",[v,k]),--n.active||n.event.trigger("ajaxStop")))}return v},getJSON:function(a,b,c){return n.get(a,b,c,"json")},getScript:function(a,b){return n.get(a,void 0,b,"script")}}),n.each(["get","post"],function(a,b){n[b]=function(a,c,d,e){return n.isFunction(c)&&(e=e||d,d=c,c=void 0),n.ajax({url:a,type:b,dataType:e,data:c,success:d})}}),n._evalUrl=function(a){return n.ajax({url:a,type:"GET",dataType:"script",async:!1,global:!1,"throws":!0})},n.fn.extend({wrapAll:function(a){var b;return n.isFunction(a)?this.each(function(b){n(this).wrapAll(a.call(this,b))}):(this[0]&&(b=n(a,this[0].ownerDocument).eq(0).clone(!0),this[0].parentNode&&b.insertBefore(this[0]),b.map(function(){var a=this;while(a.firstElementChild)a=a.firstElementChild;return a}).append(this)),this)},wrapInner:function(a){return this.each(n.isFunction(a)?function(b){n(this).wrapInner(a.call(this,b))}:function(){var b=n(this),c=b.contents();c.length?c.wrapAll(a):b.append(a)})},wrap:function(a){var b=n.isFunction(a);return this.each(function(c){n(this).wrapAll(b?a.call(this,c):a)})},unwrap:function(){return this.parent().each(function(){n.nodeName(this,"body")||n(this).replaceWith(this.childNodes)}).end()}}),n.expr.filters.hidden=function(a){return a.offsetWidth<=0&&a.offsetHeight<=0},n.expr.filters.visible=function(a){return!n.expr.filters.hidden(a)};var vb=/%20/g,wb=/\[\]$/,xb=/\r?\n/g,yb=/^(?:submit|button|image|reset|file)$/i,zb=/^(?:input|select|textarea|keygen)/i;function Ab(a,b,c,d){var e;if(n.isArray(b))n.each(b,function(b,e){c||wb.test(a)?d(a,e):Ab(a+"["+("object"==typeof e?b:"")+"]",e,c,d)});else if(c||"object"!==n.type(b))d(a,b);else for(e in b)Ab(a+"["+e+"]",b[e],c,d)}n.param=function(a,b){var c,d=[],e=function(a,b){b=n.isFunction(b)?b():null==b?"":b,d[d.length]=encodeURIComponent(a)+"="+encodeURIComponent(b)};if(void 0===b&&(b=n.ajaxSettings&&n.ajaxSettings.traditional),n.isArray(a)||a.jquery&&!n.isPlainObject(a))n.each(a,function(){e(this.name,this.value)});else for(c in a)Ab(c,a[c],b,e);return d.join("&").replace(vb,"+")},n.fn.extend({serialize:function(){return n.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var a=n.prop(this,"elements");return a?n.makeArray(a):this}).filter(function(){var a=this.type;return this.name&&!n(this).is(":disabled")&&zb.test(this.nodeName)&&!yb.test(a)&&(this.checked||!T.test(a))}).map(function(a,b){var c=n(this).val();return null==c?null:n.isArray(c)?n.map(c,function(a){return{name:b.name,value:a.replace(xb,"\r\n")}}):{name:b.name,value:c.replace(xb,"\r\n")}}).get()}}),n.ajaxSettings.xhr=function(){try{return new XMLHttpRequest}catch(a){}};var Bb=0,Cb={},Db={0:200,1223:204},Eb=n.ajaxSettings.xhr();a.attachEvent&&a.attachEvent("onunload",function(){for(var a in Cb)Cb[a]()}),k.cors=!!Eb&&"withCredentials"in Eb,k.ajax=Eb=!!Eb,n.ajaxTransport(function(a){var b;return k.cors||Eb&&!a.crossDomain?{send:function(c,d){var e,f=a.xhr(),g=++Bb;if(f.open(a.type,a.url,a.async,a.username,a.password),a.xhrFields)for(e in a.xhrFields)f[e]=a.xhrFields[e];a.mimeType&&f.overrideMimeType&&f.overrideMimeType(a.mimeType),a.crossDomain||c["X-Requested-With"]||(c["X-Requested-With"]="XMLHttpRequest");for(e in c)f.setRequestHeader(e,c[e]);b=function(a){return function(){b&&(delete Cb[g],b=f.onload=f.onerror=null,"abort"===a?f.abort():"error"===a?d(f.status,f.statusText):d(Db[f.status]||f.status,f.statusText,"string"==typeof f.responseText?{text:f.responseText}:void 0,f.getAllResponseHeaders()))}},f.onload=b(),f.onerror=b("error"),b=Cb[g]=b("abort");try{f.send(a.hasContent&&a.data||null)}catch(h){if(b)throw h}},abort:function(){b&&b()}}:void 0}),n.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/(?:java|ecma)script/},converters:{"text script":function(a){return n.globalEval(a),a}}}),n.ajaxPrefilter("script",function(a){void 0===a.cache&&(a.cache=!1),a.crossDomain&&(a.type="GET")}),n.ajaxTransport("script",function(a){if(a.crossDomain){var b,c;return{send:function(d,e){b=n("<script>").prop({async:!0,charset:a.scriptCharset,src:a.url}).on("load error",c=function(a){b.remove(),c=null,a&&e("error"===a.type?404:200,a.type)}),l.head.appendChild(b[0])},abort:function(){c&&c()}}}});var Fb=[],Gb=/(=)\?(?=&|$)|\?\?/;n.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var a=Fb.pop()||n.expando+"_"+cb++;return this[a]=!0,a}}),n.ajaxPrefilter("json jsonp",function(b,c,d){var e,f,g,h=b.jsonp!==!1&&(Gb.test(b.url)?"url":"string"==typeof b.data&&!(b.contentType||"").indexOf("application/x-www-form-urlencoded")&&Gb.test(b.data)&&"data");return h||"jsonp"===b.dataTypes[0]?(e=b.jsonpCallback=n.isFunction(b.jsonpCallback)?b.jsonpCallback():b.jsonpCallback,h?b[h]=b[h].replace(Gb,"$1"+e):b.jsonp!==!1&&(b.url+=(db.test(b.url)?"&":"?")+b.jsonp+"="+e),b.converters["script json"]=function(){return g||n.error(e+" was not called"),g[0]},b.dataTypes[0]="json",f=a[e],a[e]=function(){g=arguments},d.always(function(){a[e]=f,b[e]&&(b.jsonpCallback=c.jsonpCallback,Fb.push(e)),g&&n.isFunction(f)&&f(g[0]),g=f=void 0}),"script"):void 0}),n.parseHTML=function(a,b,c){if(!a||"string"!=typeof a)return null;"boolean"==typeof b&&(c=b,b=!1),b=b||l;var d=v.exec(a),e=!c&&[];return d?[b.createElement(d[1])]:(d=n.buildFragment([a],b,e),e&&e.length&&n(e).remove(),n.merge([],d.childNodes))};var Hb=n.fn.load;n.fn.load=function(a,b,c){if("string"!=typeof a&&Hb)return Hb.apply(this,arguments);var d,e,f,g=this,h=a.indexOf(" ");return h>=0&&(d=n.trim(a.slice(h)),a=a.slice(0,h)),n.isFunction(b)?(c=b,b=void 0):b&&"object"==typeof b&&(e="POST"),g.length>0&&n.ajax({url:a,type:e,dataType:"html",data:b}).done(function(a){f=arguments,g.html(d?n("<div>").append(n.parseHTML(a)).find(d):a)}).complete(c&&function(a,b){g.each(c,f||[a.responseText,b,a])}),this},n.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(a,b){n.fn[b]=function(a){return this.on(b,a)}}),n.expr.filters.animated=function(a){return n.grep(n.timers,function(b){return a===b.elem}).length};var Ib=a.document.documentElement;function Jb(a){return n.isWindow(a)?a:9===a.nodeType&&a.defaultView}n.offset={setOffset:function(a,b,c){var d,e,f,g,h,i,j,k=n.css(a,"position"),l=n(a),m={};"static"===k&&(a.style.position="relative"),h=l.offset(),f=n.css(a,"top"),i=n.css(a,"left"),j=("absolute"===k||"fixed"===k)&&(f+i).indexOf("auto")>-1,j?(d=l.position(),g=d.top,e=d.left):(g=parseFloat(f)||0,e=parseFloat(i)||0),n.isFunction(b)&&(b=b.call(a,c,h)),null!=b.top&&(m.top=b.top-h.top+g),null!=b.left&&(m.left=b.left-h.left+e),"using"in b?b.using.call(a,m):l.css(m)}},n.fn.extend({offset:function(a){if(arguments.length)return void 0===a?this:this.each(function(b){n.offset.setOffset(this,a,b)});var b,c,d=this[0],e={top:0,left:0},f=d&&d.ownerDocument;if(f)return b=f.documentElement,n.contains(b,d)?(typeof d.getBoundingClientRect!==U&&(e=d.getBoundingClientRect()),c=Jb(f),{top:e.top+c.pageYOffset-b.clientTop,left:e.left+c.pageXOffset-b.clientLeft}):e},position:function(){if(this[0]){var a,b,c=this[0],d={top:0,left:0};return"fixed"===n.css(c,"position")?b=c.getBoundingClientRect():(a=this.offsetParent(),b=this.offset(),n.nodeName(a[0],"html")||(d=a.offset()),d.top+=n.css(a[0],"borderTopWidth",!0),d.left+=n.css(a[0],"borderLeftWidth",!0)),{top:b.top-d.top-n.css(c,"marginTop",!0),left:b.left-d.left-n.css(c,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var a=this.offsetParent||Ib;while(a&&!n.nodeName(a,"html")&&"static"===n.css(a,"position"))a=a.offsetParent;return a||Ib})}}),n.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(b,c){var d="pageYOffset"===c;n.fn[b]=function(e){return J(this,function(b,e,f){var g=Jb(b);return void 0===f?g?g[c]:b[e]:void(g?g.scrollTo(d?a.pageXOffset:f,d?f:a.pageYOffset):b[e]=f)},b,e,arguments.length,null)}}),n.each(["top","left"],function(a,b){n.cssHooks[b]=ya(k.pixelPosition,function(a,c){return c?(c=xa(a,b),va.test(c)?n(a).position()[b]+"px":c):void 0})}),n.each({Height:"height",Width:"width"},function(a,b){n.each({padding:"inner"+a,content:b,"":"outer"+a},function(c,d){n.fn[d]=function(d,e){var f=arguments.length&&(c||"boolean"!=typeof d),g=c||(d===!0||e===!0?"margin":"border");return J(this,function(b,c,d){var e;return n.isWindow(b)?b.document.documentElement["client"+a]:9===b.nodeType?(e=b.documentElement,Math.max(b.body["scroll"+a],e["scroll"+a],b.body["offset"+a],e["offset"+a],e["client"+a])):void 0===d?n.css(b,c,g):n.style(b,c,d,g)},b,f?d:void 0,f,null)}})}),n.fn.size=function(){return this.length},n.fn.andSelf=n.fn.addBack,"function"==typeof define&&define.amd&&define("jquery",[],function(){return n});var Kb=a.jQuery,Lb=a.$;return n.noConflict=function(b){return a.$===n&&(a.$=Lb),b&&a.jQuery===n&&(a.jQuery=Kb),n},typeof b===U&&(a.jQuery=a.$=n),n});
 
-  //var domain = "http://35.161.242.105";
-  //var domain = "http://35.167.193.168:9001";
-  var domain = "http://localhost:9001";
+// Library: Perfect Scrollbar v0.4.8
+"use strict";(function(e){"function"==typeof define&&define.amd?define(["jquery"],e):e(jQuery)})(function(e){var n={wheelSpeed:10,wheelPropagation:!1,minScrollbarLength:null,useBothWheelAxes:!1,useKeyboard:!0,suppressScrollX:!1,suppressScrollY:!1,scrollXMarginOffset:0,scrollYMarginOffset:0},t=function(){var e=0;return function(){var n=e;return e+=1,".perfect-scrollbar-"+n}}();e.fn.perfectScrollbar=function(o,r){return this.each(function(){var l=e.extend(!0,{},n),s=e(this);if("object"==typeof o?e.extend(!0,l,o):r=o,"update"===r)return s.data("perfect-scrollbar-update")&&s.data("perfect-scrollbar-update")(),s;if("destroy"===r)return s.data("perfect-scrollbar-destroy")&&s.data("perfect-scrollbar-destroy")(),s;if(s.data("perfect-scrollbar"))return s.data("perfect-scrollbar");s.addClass("ps-container");var a,i,c,u,p,d,f,h,v,b,g=e("<div class='ps-scrollbar-x-rail'></div>").appendTo(s),m=e("<div class='ps-scrollbar-y-rail'></div>").appendTo(s),w=e("<div class='ps-scrollbar-x'></div>").appendTo(g),T=e("<div class='ps-scrollbar-y'></div>").appendTo(m),L=parseInt(g.css("bottom"),10),y=parseInt(m.css("right"),10),S=t(),I=function(e,n){var t=e+n,o=u-v;b=0>t?0:t>o?o:t;var r=parseInt(b*(d-u)/(u-v),10);s.scrollTop(r),g.css({bottom:L-r})},D=function(e,n){var t=e+n,o=c-f;h=0>t?0:t>o?o:t;var r=parseInt(h*(p-c)/(c-f),10);s.scrollLeft(r),m.css({right:y-r})},x=function(e){return l.minScrollbarLength&&(e=Math.max(e,l.minScrollbarLength)),e},k=function(){g.css({left:s.scrollLeft(),bottom:L-s.scrollTop(),width:c,display:a?"inherit":"none"}),m.css({top:s.scrollTop(),right:y-s.scrollLeft(),height:u,display:i?"inherit":"none"}),w.css({left:h,width:f}),T.css({top:b,height:v})},X=function(){c=s.width(),u=s.height(),p=s.prop("scrollWidth"),d=s.prop("scrollHeight"),!l.suppressScrollX&&p>c+l.scrollXMarginOffset?(a=!0,f=x(parseInt(c*c/p,10)),h=parseInt(s.scrollLeft()*(c-f)/(p-c),10)):(a=!1,f=0,h=0,s.scrollLeft(0)),!l.suppressScrollY&&d>u+l.scrollYMarginOffset?(i=!0,v=x(parseInt(u*u/d,10)),b=parseInt(s.scrollTop()*(u-v)/(d-u),10)):(i=!1,v=0,b=0,s.scrollTop(0)),b>=u-v&&(b=u-v),h>=c-f&&(h=c-f),k()},C=function(){var n,t;w.bind("mousedown"+S,function(e){t=e.pageX,n=w.position().left,g.addClass("in-scrolling"),e.stopPropagation(),e.preventDefault()}),e(document).bind("mousemove"+S,function(e){g.hasClass("in-scrolling")&&(D(n,e.pageX-t),e.stopPropagation(),e.preventDefault())}),e(document).bind("mouseup"+S,function(){g.hasClass("in-scrolling")&&g.removeClass("in-scrolling")}),n=t=null},Y=function(){var n,t;T.bind("mousedown"+S,function(e){t=e.pageY,n=T.position().top,m.addClass("in-scrolling"),e.stopPropagation(),e.preventDefault()}),e(document).bind("mousemove"+S,function(e){m.hasClass("in-scrolling")&&(I(n,e.pageY-t),e.stopPropagation(),e.preventDefault())}),e(document).bind("mouseup"+S,function(){m.hasClass("in-scrolling")&&m.removeClass("in-scrolling")}),n=t=null},P=function(e,n){var t=s.scrollTop();if(0===e){if(!i)return!1;if(0===t&&n>0||t>=d-u&&0>n)return!l.wheelPropagation}var o=s.scrollLeft();if(0===n){if(!a)return!1;if(0===o&&0>e||o>=p-c&&e>0)return!l.wheelPropagation}return!0},M=function(){var e=!1;s.bind("mousewheel"+S,function(n,t,o,r){l.useBothWheelAxes?i&&!a?r?s.scrollTop(s.scrollTop()-r*l.wheelSpeed):s.scrollTop(s.scrollTop()+o*l.wheelSpeed):a&&!i&&(o?s.scrollLeft(s.scrollLeft()+o*l.wheelSpeed):s.scrollLeft(s.scrollLeft()-r*l.wheelSpeed)):(s.scrollTop(s.scrollTop()-r*l.wheelSpeed),s.scrollLeft(s.scrollLeft()+o*l.wheelSpeed)),X(),e=P(o,r),e&&n.preventDefault()}),s.bind("MozMousePixelScroll"+S,function(n){e&&n.preventDefault()})},O=function(){var n=!1;s.bind("mouseenter"+S,function(){n=!0}),s.bind("mouseleave"+S,function(){n=!1});var t=!1;e(document).bind("keydown"+S,function(e){if(n){var o=0,r=0;switch(e.which){case 37:o=-3;break;case 38:r=3;break;case 39:o=3;break;case 40:r=-3;break;case 33:r=9;break;case 32:case 34:r=-9;break;case 35:r=-u;break;case 36:r=u;break;default:return}s.scrollTop(s.scrollTop()-r*l.wheelSpeed),s.scrollLeft(s.scrollLeft()+o*l.wheelSpeed),t=P(o,r),t&&e.preventDefault()}})},E=function(){var e=function(e){e.stopPropagation()};T.bind("click"+S,e),m.bind("click"+S,function(e){var n=parseInt(v/2,10),t=e.pageY-m.offset().top-n,o=u-v,r=t/o;0>r?r=0:r>1&&(r=1),s.scrollTop((d-u)*r)}),w.bind("click"+S,e),g.bind("click"+S,function(e){var n=parseInt(f/2,10),t=e.pageX-g.offset().left-n,o=c-f,r=t/o;0>r?r=0:r>1&&(r=1),s.scrollLeft((p-c)*r)})},A=function(){var n=function(e,n){s.scrollTop(s.scrollTop()-n),s.scrollLeft(s.scrollLeft()-e),X()},t={},o=0,r={},l=null,a=!1;e(window).bind("touchstart"+S,function(){a=!0}),e(window).bind("touchend"+S,function(){a=!1}),s.bind("touchstart"+S,function(e){var n=e.originalEvent.targetTouches[0];t.pageX=n.pageX,t.pageY=n.pageY,o=(new Date).getTime(),null!==l&&clearInterval(l),e.stopPropagation()}),s.bind("touchmove"+S,function(e){if(!a&&1===e.originalEvent.targetTouches.length){var l=e.originalEvent.targetTouches[0],s={};s.pageX=l.pageX,s.pageY=l.pageY;var i=s.pageX-t.pageX,c=s.pageY-t.pageY;n(i,c),t=s;var u=(new Date).getTime();r.x=i/(u-o),r.y=c/(u-o),o=u,e.preventDefault()}}),s.bind("touchend"+S,function(){clearInterval(l),l=setInterval(function(){return.01>Math.abs(r.x)&&.01>Math.abs(r.y)?(clearInterval(l),void 0):(n(30*r.x,30*r.y),r.x*=.8,r.y*=.8,void 0)},10)})},j=function(){s.bind("scroll"+S,function(){X()})},W=function(){s.unbind(S),e(window).unbind(S),e(document).unbind(S),s.data("perfect-scrollbar",null),s.data("perfect-scrollbar-update",null),s.data("perfect-scrollbar-destroy",null),w.remove(),T.remove(),g.remove(),m.remove(),w=T=c=u=p=d=f=h=L=v=b=y=null},H=function(n){s.addClass("ie").addClass("ie"+n);var t=function(){var n=function(){e(this).addClass("hover")},t=function(){e(this).removeClass("hover")};s.bind("mouseenter"+S,n).bind("mouseleave"+S,t),g.bind("mouseenter"+S,n).bind("mouseleave"+S,t),m.bind("mouseenter"+S,n).bind("mouseleave"+S,t),w.bind("mouseenter"+S,n).bind("mouseleave"+S,t),T.bind("mouseenter"+S,n).bind("mouseleave"+S,t)},o=function(){k=function(){w.css({left:h+s.scrollLeft(),bottom:L,width:f}),T.css({top:b+s.scrollTop(),right:y,height:v}),w.hide().show(),T.hide().show()}};6===n&&(t(),o())},B="ontouchstart"in window||window.DocumentTouch&&document instanceof window.DocumentTouch,K=function(){var e=navigator.userAgent.toLowerCase().match(/(msie) ([\w.]+)/);e&&"msie"===e[1]&&H(parseInt(e[2],10)),X(),j(),C(),Y(),E(),B&&A(),s.mousewheel&&M(),l.useKeyboard&&O(),s.data("perfect-scrollbar",s),s.data("perfect-scrollbar-update",X),s.data("perfect-scrollbar-destroy",W)};return K(),s})}}),function(e){function n(n){var t=n||window.event,o=[].slice.call(arguments,1),r=0,l=0,s=0;return n=e.event.fix(t),n.type="mousewheel",t.wheelDelta&&(r=t.wheelDelta/120),t.detail&&(r=-t.detail/3),s=r,void 0!==t.axis&&t.axis===t.HORIZONTAL_AXIS&&(s=0,l=-1*r),void 0!==t.wheelDeltaY&&(s=t.wheelDeltaY/120),void 0!==t.wheelDeltaX&&(l=-1*t.wheelDeltaX/120),o.unshift(n,r,l,s),(e.event.dispatch||e.event.handle).apply(this,o)}var t=["DOMMouseScroll","mousewheel"];if(e.event.fixHooks)for(var o=t.length;o;)e.event.fixHooks[t[--o]]=e.event.mouseHooks;e.event.special.mousewheel={setup:function(){if(this.addEventListener)for(var e=t.length;e;)this.addEventListener(t[--e],n,!1);else this.onmousewheel=n},teardown:function(){if(this.removeEventListener)for(var e=t.length;e;)this.removeEventListener(t[--e],n,!1);else this.onmousewheel=null}},e.fn.extend({mousewheel:function(e){return e?this.bind("mousewheel",e):this.trigger("mousewheel")},unmousewheel:function(e){return this.unbind("mousewheel",e)}})}(jQuery);
 
-  // var formData = new FormData();
-  // formData.append("key1", "data1");
-  // formData.append("key3", "data2");
-  // SendToServer("post-url-here", formData, function(data){});
+// Library: ChangeElementType
+(function($) {$.fn.ChangeElementType = function(newType) {var attrs = {}; $.each(this[0].attributes, function(idx, attr) {attrs[attr.nodeName] = attr.nodeValue;}); this.replaceWith(function() {return $("<" + newType + "/>", attrs).append($(this).contents());});};})(jQuery);
 
-  var FEKversion       = "5.0.0";
-  var FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
-  var FEKgfx           = `${domain}/fek/gfx/misc/`;
-  var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
-  var FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
-  var FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
-  var FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
-  var FEKtweets        = [];
-  var activeKeys       = [];
-  var hotkeys          = [];
-  var users            = [];
-  var regions          = [];
-  var results          = [];
-  var errorMessage     = "";
+// Library: GradientText (this is really awful, find a better way to make gradient text)
+(function(e){e("head").append('<style type="text/css">.sn-pxg .pxg-set{user-select:none;-moz-user-select:none;-webkit-user-select:none;}.sn-pxg span.pxg-source{position:relative;display:inline-block;z-index:2;}.sn-pxg U.pxg-set,.sn-pxg U.pxg-set S,.sn-pxg U.pxg-set S B{left:0;right:0;top:0;bottom:0;height:inherit;width:inherit;position:absolute;display:inline-block;text-decoration:none;font-weight:inherit;}.sn-pxg U.pxg-set S{overflow:hidden;}.sn-pxg U.pxg-set{text-decoration:none;z-index:1;display:inline-block;position:relative;}</style>');e.fn.GradientText=function(t){function r(e){if("#"==e.substr(0,1)){e=e.substr(1)}if(3==e.length){e=e.substr(0,1)+e.substr(0,1)+e.substr(1,1)+e.substr(1,1)+e.substr(2,1)+e.substr(2,1)}return[parseInt(e.substr(0,2),16),parseInt(e.substr(2,2),16),parseInt(e.substr(4,2),16)]}function i(e){var t="0123456789abcdef";return"#"+t.charAt(parseInt(e[0]/16))+t.charAt(e[0]%16)+t.charAt(parseInt(e[1]/16))+t.charAt(e[1]%16)+t.charAt(parseInt(e[2]/16))+t.charAt(e[2]%16)}function s(e,n){var r=e>0?e/n:0;for(var i=0;i<t.colors.length;i++){fStopPosition=i/(t.colors.length-1);fLastPosition=i>0?(i-1)/(t.colors.length-1):0;if(r==fStopPosition){return t.colors[i]}else if(r<fStopPosition){fCurrentStop=(r-fLastPosition)/(fStopPosition-fLastPosition);return o(t.RGBcolors[i-1],t.RGBcolors[i],fCurrentStop)}}return t.colors[t.colors.length-1]}function o(e,t,n){var r=[];for(var s=0;s<3;s++){r[s]=e[s]+Math.round((t[s]-e[s])*n)}return i(r)}var t=e.extend({step:10,colors:["#ffcc00","#cc0000","#000000"],dir:"y"},t);t.RGBcolors=[];for(var n=0;n<t.colors.length;n++){t.RGBcolors[n]=r(t.colors[n])}return this.each(function(n,r){var i=e(r);if(!i.hasClass("sn-pxg")){var o=i.html();i.html('<span class="pxg-source" style="visibility: hidden;">'+o+"</span>").append('<u class="pxg-set"></u>');var u=i.find(".pxg-set");var a=i.find(".pxg-source");var f=a.innerWidth();var l=a.innerHeight();a.hide();i.addClass("sn-pxg");if(t.dir=="x"){var c=f}else if(t.dir=="y"){var c=l}var h=Math.floor(c/t.step);var p=h;var d=c-h*t.step;if(d>0){p++}u.css({width:f,height:l});var v=0;var m="";if(t.dir=="x"){for(var n=0;n<p;n++){var g=s(v,c);m+='<s style="height:'+l+"px;width:"+t.step+"px;left:"+v+"px;color:"+g+'"><b style="left:-'+v+"px;width:"+f+"px;height:"+l+'px;">'+o+"</b></s>";v=v+t.step}}else if(t.dir=="y"){for(var n=0;n<p;n++){var g=s(v,c);m+='<s style="width:'+f+"px;height:"+t.step+"px;top:"+v+"px;color:"+g+'"><b style="top:-'+v+"px;height:"+f+"px;height:"+l+'px;">'+o+"</b></s>";v=v+t.step}}u.append(m)}})}})(jQuery);
 
-  LoadCSS(`${domain}/fek/css/fekv4panel.css`);
-  LoadCSS(`${domain}/fek/css/fekevent.css`);
-  LoadCSS(`${domain}/fek/css/thread.css`);
+// Library: Extend jQuery for FEK control panel
+$.fn.hasOverflow = function(){
+  var leeway = 0;
+  var element = $(this)[0];
+  if(element.clientWidth < (element.scrollWidth - leeway) || element.clientHeight < (element.scrollHeight - leeway))
+    return true;
+
+  return false;
+};
+
+// Library: Extend jQuery for FEK control panel
+$.fn.hasOverflowX = function(){
+  var leeway = 0;
+  var element = $(this)[0];
+  if(element.offsetWidth < (element.scrollWidth - leeway)){
+    $(this).attr("overflowX", (element.scrollWidth - leeway) - element.offsetWidth);
+    return true;
+  }else{
+    $(this).attr("overflowX", "0");
+    return false;
+  }
+};
+
+// Library: Extend jQuery for FEK control panel
+$.fn.hasOverflowY = function(){
+  var leeway = 0;
+  var element = $(this)[0];
+  if(element.offsetHeight < (element.scrollHeight - leeway)){
+    $(this).attr("overflowY", (element.scrollHeight - leeway) - element.offsetHeight);
+    return true;
+  }else{
+    $(this).attr("overflowY", "0");
+    return false;
+  }
+};
+
+function Fek(){
+  var self = this;
+
+  self.version          = "5.0.0";
+  self.FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
+  //self.domain         = "http://35.161.242.105";
+  //self.domain         = "http://35.167.193.168:9001";
+  self.domain           = "http://localhost:9001";
+  self.FEKgfx           = `${self.domain}/fek/gfx/misc/`;
+  self.cIcons           = `${self.domain}/fek/gfx/iconsmallchampion/`;
+  self.FEKgfxLargeChamp = `${self.domain}/fek/gfx/iconlargechampion/`;
+  self.FEKgfxLargeSpell = `${self.domain}/fek/gfx/iconlargespell/`;
+  self.FEKgfxLargeItem  = `${self.domain}/fek/gfx/iconlargeitem/`;
+  self.FEKtweets        = [];
+  self.activeKeys       = [];
+  self.hotkeys          = [];
+  self.users            = [];
+  self.regions          = [];
+  self.results          = [];
+  self.errorMessage     = "";
+
+  // How to use the SendToServer function:
+  // var formData = new FormData();                             <-- First create a new FormData
+  // formData.append("key1", "data1");                          <-- Next append keys and data
+  // SendToServer("post-url-here", formData, function(data){}); <-- Finally call it
+
+  this.LoadCss(`${self.domain}/fek/css/fekv4panel.css`);
+  this.LoadCss(`${self.domain}/fek/css/fekevent.css`);
+  this.LoadCss(`${self.domain}/fek/css/thread.css`);
 
   //////////////////////////////////////////////////////
   // Modify the navigation bar at the top of the page //
   //////////////////////////////////////////////////////
 
-  document.body.style.setProperty("min-width", "1050px"); // Resizes the minimum width for the page
-  var RiotBar = $("#riotbar-bar");
-  if(RiotBar)
-    $(RiotBar).attr("z-index", "-5000 !important");
+  // Resizes the minimum width for the page (CAN I DO THIS WITH CSS)
+  $(document).style("min-width", "1050px");
+  // document.body.style.setProperty("min-width", "1050px"); <-- OLD
 
-  /////////////////////////////////
-  // Get Board's Platform Region //
-  /////////////////////////////////
-  var windowURL      = window.location.href;
-  var start          = windowURL.indexOf(".") + 1;
-  var end            = windowURL.indexOf(".", start);
-  var platformRegion = windowURL.substring(start, end);
+  self.RiotBar = $("#riotbar-bar");
+  if(self.RiotBar)
+    $(self.RiotBar).attr("z-index", "-5000 !important");
 
-  //////////////////////////
-  // Variables: Page Data //
-  //////////////////////////
-  var page;
-  if($("#discussions").length)   page = "Index";  // Board Index
-  else if($("#comments").length) page = "Thread"; // Inside a thread
-  else                           page = "NULL";   // Not on the index or in a thread
+  // Get board's platform region
+  var windowURL       = window.location.href;
+  var start           = windowURL.indexOf(".") + 1;
+  var end             = windowURL.indexOf(".", start);
+  self.platformRegion = windowURL.substring(start, end);
 
-  var title = $("h2 a")[0].text;
-  if(typeof title === "undefined") console.log("Undefined Title");
-  if(title == "My Updates")        page = "My Updates";
+  // Get page data
+  self.page = null;
+  if     ($("#discussions").length) self.page = "Index";  // Board Index
+  else if($("#comments").length)    self.page = "Thread"; // Inside a thread
 
-  // var title;      if     (typeof ($("h2 a")[0]) === "undefined")               title      = $("h2 a")[0].html();          // Gets the title of the page
-  //                 else                                                         title      = $("h2")[0].("a")[0].html(); // Gets the title of the page
-  //                 if     (title == "My Updates")                               page       = "My Updates";               // My Updates is special and must match the title
-  var threadMode; if     (page == "Thread" && $(".flat-comments").length)      threadMode = "Chrono";                   // Chronological Mode
-                  else if(page == "Thread" && $(".flat-comments").length == 0) threadMode = "Discuss";                  // Discussion Mode
-                  else                                                         threadMode = "NULL";                     // We're not in a thread
+  self.title = $("#breadcrumbs h2")[0].textContent;
+  if(typeof self.title === "undefined") alert("Undefined Title"); // ERROR! THIS SHOULD NOT HAPPEN!
+  if(self.title == "My Updates")        self.page = "My Updates";
 
-  if(page == "Thread"){
-    var head  = $("head")[0];
-    var link  = document.createElement("link");
-    link.id   = "fek-thread-css";
-    link.rel  = "stylesheet";
-    link.type = "text/css";
-    link.href = `${domain}/fek/css/thread.css`;
-    link.media = "all";
-    head.appendChild(link);
+  self.threadMode = null;
+  if     (self.page == "Thread" && $(".flat-comments").length)       self.threadMode = "Chrono";  // Chronological Mode
+  else if(self.page == "Thread" && $(".flat-comments").length === 0) self.threadMode = "Discuss"; // Discussion Mode
+
+  // Testing function that will probably be useful
+  if(self.page == "Thread"){
+    // === NEW ===
+    // fek.LoadCss(`${domain}/fek/css/thread.css`);
+
+    // === OLD ===
+    // var head  = $("head")[0];
+    // var link  = document.createElement("link");
+    // link.id   = "fek-thread-css";
+    // link.rel  = "stylesheet";
+    // link.type = "text/css";
+    // link.href = `${domain}/fek/css/thread.css`;
+    // link.media = "all";
+    // head.appendChild(link);
   }
 
-  ////////////////////////////
-  // Variables: FEK Options //
-  ////////////////////////////
-  var hide                      = {};
-  var avatarSize                = "off";
-  var fallbackAvatar            = "off";
-  var votingDisplay             = "off";
-  var blacklisting              = "off";
-  var OPStyle                   = "off";
-  var removeProfHovPop          = "off";
-  var enhancedThreadPreview     = "off";
-  var highlightMyThreads        = "off";
-  var boardsDropdownMenu        = "off";
-  var animateThumbnails         = "off";
-  var emptyVoteReplacement      = "off";
-  var embedMedia                = "off";
-  var favoriteChampion          = "off";
-  var favoriteSpell             = "off";
-  var favoriteItem              = "off";
-  var favoriteIcons             = "off";
-  var rollDice                  = "off";
-  var recordOverhead            = GM_getValue("_recordOverhead", "off");
+  // FEK Options
+  self.avatarSize                           = "off";
+  self.fallbackAvatar                       = "off";
+  self.votingDisplay                        = "off";
+  self.blacklisting                         = "off";
+  self.OPStyle                              = "off";
+  self.removeProfHovPop                     = "off";
+  self.enhancedThreadPreview                = "off";
+  self.highlightMyThreads                   = "off";
+  self.boardsDropdownMenu                   = "off";
+  self.animateThumbnails                    = "off";
+  self.emptyVoteReplacement                 = "off";
+  self.embedMedia                           = "off";
+  self.favoriteChampion                     = "off";
+  self.favoriteSpell                        = "off";
+  self.favoriteItem                         = "off";
+  self.favoriteIcons                        = "off";
+  self.rollDice                             = "off";
+  self.hide                                 = {};
+  self.hide["Gameplay"]                     = "off";
+  self.hide["Story, Art, & Sound"]          = "off";
+  self.hide["Esports"]                      = "off";
+  self.hide["Team Recruitment"]             = "off";
+  self.hide["Concepts & Creations"]         = "off";
+  self.hide["Player Behavior & Moderation"] = "off";
+  self.hide["Miscellaneous"]                = "off";
+  self.hide["Memes & Games"]                = "off";
+  self.hide["General Discussion"]           = "off";
+  self.hide["Roleplay"]                     = "off";
+  self.hide["Help & Support"]               = "off";
+  self.hide["Report a Bug"]                 = "off";
+  self.hide["Boards Feedback"]              = "off";
 
-  hide["Gameplay"]                     = "off";
-  hide["Story, Art, & Sound"]          = "off";
-  hide["Esports"]                      = "off";
-  hide["Team Recruitment"]             = "off";
-  hide["Concepts & Creations"]         = "off";
-  hide["Player Behavior & Moderation"] = "off";
-  hide["Miscellaneous"]                = "off";
-  hide["Memes & Games"]                = "off";
-  hide["General Discussion"]           = "off";
-  hide["Roleplay"]                     = "off";
-  hide["Help & Support"]               = "off";
-  hide["Report a Bug"]                 = "off";
-  hide["Boards Feedback"]              = "off";
-
-  /////////////////////
-  // Variables: Misc //
-  /////////////////////
-  var originalPoster    = "";                    // The name of the original poster in a thread
-  var currentDate       = new Date();            // Gets today's date
-  var RPint             = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
-  var alertPopUp        = false;                 // Only one alert can display at a time
-                                                 // 1: Can't connect to FEK server
-                                                 // 2: FEK needs to be updated
-                                                 // 3: API Error
-                                                 // 4: Account Management
-                                                 // 5: Roleplaying Alert
-  //////////////////////////
-  // Variables: User Data //
-  //////////////////////////
-  var myName;
-  var myRegion;
-
+  // User data
   if($(".riotbar-summoner-info").length){
-    myName   = $(".riotbar-summoner-name").first().text()
-    myRegion = $(".riotbar-summoner-region").first().text()
+    self.myName   = $(".riotbar-summoner-name").first().text();
+    self.myRegion = $(".riotbar-summoner-region").first().text();
 
-    if     (myRegion == "North America")    myRegion = "NA";
-    else if(myRegion == "Oceania")          myRegion = "OCE";
-    else if(myRegion == "EU West")          myRegion = "EUW";
-    else if(myRegion == "EU Nordic & East") myRegion = "EUNE";
+    if     (self.myRegion == "North America")    self.myRegion = "NA";
+    else if(self.myRegion == "Oceania")          self.myRegion = "OCE";
+    else if(self.myRegion == "EU West")          self.myRegion = "EUW";
+    else if(self.myRegion == "EU Nordic & East") self.myRegion = "EUNE";
   }
 
-  ///////////////////////////////
-  // LoadCSS: Loads a CSS file //
-  ///////////////////////////////
-  function LoadCSS(url){
-    var head     = document.getElementsByTagName("head")[0];
-    var cssFile  = document.createElement("link");
-    cssFile.type = "text/css";
-    cssFile.rel  = "stylesheet";
-    cssFile.href = encodeURI(url);
-    head.appendChild(cssFile);
-  }
+  // Misc
+  self.originalPoster = "";                    // The name of the original poster in a thread
+  self.currentDate    = new Date();            // Gets today's date
+  self.RPint          = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
+  self.alertPopUp     = false;                 // Only one alert can display at a time
+                                               // 1: Can't connect to FEK server
+                                               // 2: FEK needs to be updated
+                                               // 3: API Error
+                                               // 4: Account Management
+                                               // 5: Roleplaying Alert
+}
 
-  CreateGUI();
-  CreateFeatures();
-  SettleGUI();
-  // $("#fekpanel").style.setProperty("visibility", "hidden", "important");
-  KeyWatch();
+///////////////////////////////
+// LoadCSS: Loads a CSS file //
+///////////////////////////////
+Fek.prototype.LoadCss = function(url){
+  var link = `<link rel="stylesheet" type="text/css" />`;
+  $("head").append($(link).attr("href", url));
+  // $("head").append($(abc).attr("href", encodeURI(url)));
+};
 
-  if(document.title == "Boards"){
-    HideSubboards();
-  }
+//////////////////////////////////////////////////
+// CreateGUI: Creates the GUI for the FEK panel //
+//////////////////////////////////////////////////
+Fek.prototype.CreateGUI = function(){
+  var self = this;
+  var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
 
-  try{
-    AddFEKNavBar();
-  }catch(err){
-    ReportError("Error Code: 2");
-  }
-
-  // try{
-  //   if(boardsDropdownMenu == "on")
-  //     AddBoardsNavBar();
-  // }catch(err){
-  //   ReportError("Error Code: 3");
-  // }
-
-  try{
-    if((page == "Thread" || page == "Index") && platformRegion == "na"){
-      var markdownNav = document.getElementById("markdown-nav");
-      var timeOut     = 2000, currentTime = 0;
-
-      var interval = setInterval(function(){
-        currentTime = currentTime + 1;
-
-        if(currentTime >= timeOut){
-          clearInterval(interval);
-        }else{
-          if(markdownNav.children.length){
-            clearInterval(interval);
-            RemoveNavListLinks();
-          }
-        }
-      }, 1);
-    }
-  }
-  catch(err){
-    ReportError("Error Code: 4");
-  }
-
-  if(page == "Index"){
-    if(emptyVoteReplacement != "off")
-      EmptyVoteReplacement(); // For boards without voting
-
-    if($(".no-voting").length)
-      WaitAndRun(".no-voting", LoadIndex);
-    else{
-      WaitAndRun(".total-votes", LoadIndex);
-    }
-  }else if(page == "Thread"){
-    WaitAndRun(".profile-hover", LoadThread);
-  }
-
-  if(page == "Thread" && favoriteIcons != "off")
-    WaitAndRun(".button.gamedata.champion", FavoriteIcons);
-
-  document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
-
-  if(RPint < 15 && title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
-
-  Observer();
-});
-
-// This function is used in the minimized function below
-function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);}
-
-// Minimized function I made which helps sending form POST data easily
-function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(){cab();});}
-
-//////////////////////////////////////////////////////////////////////////////
-// EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
-//////////////////////////////////////////////////////////////////////////////
-function EmptyVoteReplacement(){
-  if(emptyVoteReplacement == "banners"){
-    $(".inline-profile").each(function(){
-      var src           = "http://i.imgur.com/NcHbI1d.png";
-      var votingElement = $(this).parent().parent().parent().find(".no-voting");
-      $(votingElement).html(`
-      <div class="riot-apollo voting">
-        <ul class="riot-voting">
-          <li class="total-votes">
-            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}">
-          </li>
-        </ul>
+  var panelhtml = `
+  <div id="fekpanel">
+    <div id="col1">
+      <div id="logo" style="background:url(${self.FEKgfx}logo.png) no-repeat"></div>
+      <div id="version">v${self.FEKversion}</div>
+      <div id="tabs"></div>
+    </div>
+    <div id="col2">
+      <div id="refreshNotice">
+        Changes Saved. Click Here To Refresh The Page.
       </div>
-      `);
-    });
-  }else if(emptyVoteReplacement == "bannersavatars"){
-    users   = [];
-    regions = [];
-
-    $(".inline-profile").each(function(){
-      var username = this.getElementsByClassName("username")[0].textContent;
-      var region   = this.getElementsByClassName("realm")[0].textContent;
-          region   = region.substring(1, region.length - 1);
-
-      users.push(username);
-      regions.push(region);
-    });
-
-    var formData = new FormData();
-    formData.append("users",   users);
-    formData.append("regions", regions);
-
-    SendToServer(`${domain}/GetOnlyAvatars`, formData, function(data){
-      $(".inline-profile").each(function(){
-        var username = this.getElementsByClassName("username")[0].textContent;
-        var region   = this.getElementsByClassName("realm")[0].textContent;
-            region   = region.substring(1, region.length - 1);
-        var votingElement = $(this).parent().parent().parent().find(".no-voting");
-        var avatar = data["records"][username][region].avatar;
-        var src;
-
-        if(avatar !== undefined) src = avatar;
-        else                     src = "http://i.imgur.com/NcHbI1d.png";
-
-        $(votingElement).html(`
-        <div class="riot-apollo voting">
-          <ul class="riot-voting">
-            <li class="total-votes">
-            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}"></li>
-          </ul>
-        </div>
-        `);
-      });
-    });
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////
-// HideSubboards: Hides the sub-boards that the user doesn't want to see //
-///////////////////////////////////////////////////////////////////////////
-function HideSubboards(){
-  $(".discussion-list-item").each(function(){
-
-    // Always show pinned threads
-    if(!$(this.getElementsByClassName("pin")[0]).length){
-      var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
-
-      // Only hide the thread if it's from a board that is recognized
-      if(typeof subboard !== "undefined"){
-        var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
-        if(hide[subboard] == "on")
-          $(this).remove();
-      }
-    }
-  });
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// FavoriteIcons: Changes the champion/spell/item icons in the posting area //
-//////////////////////////////////////////////////////////////////////////////
-function FavoriteIcons(){
-  $(".button.gamedata.champion").each(function(){
-    var url = FEKgfxLargeChamp + favoriteChampion;
-    this.style.setProperty("background-image", `url("${url}.png")`, "important");
-    this.style.setProperty("background-position", "-3px -3px", "important");
-    this.style.setProperty("background-size", "120% auto", "important");
-
-    if(favoriteIcons == "mouseover")
-      SetGrayscaleProperties(this);
-  });
-
-  $(".button.gamedata.summoner").each(function(){
-    var url = FEKgfxLargeSpell + favoriteSpell;
-    this.style.setProperty("background-image", `url("${url}.png")`, "important");
-    this.style.setProperty("background-position", "-3px -3px", "important");
-    this.style.setProperty("background-size", "120% auto", "important");
-
-    if(favoriteIcons == "mouseover")
-      SetGrayscaleProperties(this);
-  });
-
-  $(".button.gamedata.item").each(function()
-  {
-    var url = FEKgfxLargeItem + favoriteItem;
-    this.style.setProperty("background-image", `url("${url}.png")`, "important");
-    this.style.setProperty("background-position", "-3px -3px", "important");
-    this.style.setProperty("background-size", "120% auto", "important");
-
-    if(favoriteIcons == "mouseover")
-      SetGrayscaleProperties(this);
-  });
-}
-
-///////////////////////////////////////////////////////
-// SetGrayscaleProperties: Sets grayscale properties //
-///////////////////////////////////////////////////////
-function SetGrayscaleProperties(obj){
-  obj.style.setProperty("filter", "grayscale(1)", "important");
-
-  $(obj).hover(function(){
-    obj.style.setProperty("filter", "grayscale(0)", "important");
-  }, function(){
-    obj.style.setProperty("filter", "grayscale(1)", "important");
-  });
-}
-
-//////////////////////////////////////
-// ========== LOAD PAGES ========== //
-//////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// QueryFEKServer: Makes a connection to the FEK server for information //
-//////////////////////////////////////////////////////////////////////////
-function QueryFEKServer(){
-  var formData = new FormData();
-  formData.append("name",    myName);
-  formData.append("region",  myRegion);
-  formData.append("users",   users);
-  formData.append("regions", regions);
-
-  SendToServer(`${domain}/database`, formData, function(data){
-    results   = data.records;
-    FEKtweets = data.announcements;
-    FEKevent  = data.event;
-    var unixTime = Math.floor(Date.now() / 1000);
-
-    // THIS FEATURE TEMPORARILY DISABLED!
-    // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
-    // ===== START =====
-    // var NavBarEvent = document.createElement("li");
-    // var html = `
-    // <a href="#">Event</a>
-    // <div id="fek-event">
-    //   <div id="fek-event-top">${FEKevent.message}</div>
-    //   <div id="fek-event-bottom-left">
-    //     <a href="${FEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
-    //   </div>
-    //   <div id="fek-event-bottom-right">
-    //     <a href="${FEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
-    //   </div>
-    // </div>
-    // `;
-    // ====== END ======
-
-    // AddToNavBar(NavBarEvent, "touchpoint-event", html, RiotBar, 8);
-
-    // window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
-
-    // // Hides dropdown event information by default, and displays it with mouse hover
-    // $("#fek-event").hide();
-    // $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
-
-    if(FEKversion != results.version && window.location.href != FEKpage){
-      var html = `
-      There has been an update to FEK!<br><br>
-      <a href="${results.details}" style="color:#00C0FF;">Click here</a>
-      for the post detailing new changes and to download version ${results.version}
-      `;
-
-      CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
-    }else{
-      if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
-        CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
-                       "Error " + results.apiStatusCode + ": " + results.apiMessage);
-      }
-
-      if(typeof results.alert !== "undefined" && alertPopUp === false){
-        CreateAlertBox(results.top, results.color1, results.color2, results.font,
-                       results.alert);
-      }
-    }
-
-    if(page == "Thread")
-      FormatAllPosts(true);
-
-    $.event.trigger({type: "tweetsLoaded"});
-  });
-}
-
-////////////////////////////////////////////////////
-// LoadIndex: Loads everything for the Index page //
-////////////////////////////////////////////////////
-function LoadIndex(){
-  if(blacklisting)
-    IndexBlacklist();
-
-  RemoveThumbnailBackground();
-  ColorVotes();
-  HoverVotes();
-
-  if(enhancedThreadPreview == "on")
-    EnhancedThreadPreview();
-
-  if(highlightMyThreads != "off")
-    HighlightMyThreads();
-
-  QueryFEKServer();
-}
-
-/////////////////////////////////////////////////////////////////////
-// IndexBlacklist: Hides threads by blacklisted users on the index //
-/////////////////////////////////////////////////////////////////////
-function IndexBlacklist(){
-  $(".discussion-list-item.row").each(function(){
-    // Skip threads that have no username (such as Announcements)
-    if($(this).find(".username")[0]){
-      var usernameT = this.getElementsByClassName("username")[0].textContent;
-      var regionT   = this.getElementsByClassName("realm")[0].textContent;
-
-      // If it's a person you blacklisted, hide the thread
-      if(GM_getValue(usernameT + " " + regionT, 0) == 1)
-        $(this).remove();
-    }
-  });
-}
-
-//////////////////////////////////////////////////////
-// LoadThread: Loads everything for the Thread page //
-//////////////////////////////////////////////////////
-function LoadThread(){
-  // Remove all "Posting as X" fields
-  $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
-
-  // Make sure that the users/regions arrays are empty, since they will have
-  // left-over data from when people switch pages in chronological view
-  users   = [];
-  regions = [];
-
-  // Get information on every person within the thread
-  $(".inline-profile").each(function(){
-    var username = this.getElementsByClassName("username")[0].textContent;
-    var region   = this.getElementsByClassName("realm")[0].textContent;
-        region   = region.substring(1, region.length - 1);
-
-    // FEK staff have special gradient names, so I need to extract them using this method
-    if(this.getElementsByClassName("pxg-set").length > 0)
-      username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-
-    users.push(username);
-    regions.push(region);
-  });
-
-  // Bring .toggle-minimized to the front so people can click on it
-  $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
-
-  WaitAndRun(".profile-hover", FormatAllPosts);
-
-  ColorVotes();
-  HoverVotes();
-  QueryFEKServer();
-
-  if(embedMedia == "on")
-    EmbedMedia();
-}
-
-////////////////////////////////////////////////////////////////
-// FormatSomePosts: Calls FormatSinglePost on only some posts //
-////////////////////////////////////////////////////////////////
-function FormatSomePosts(FEKData = false){
-  if(!FEKData){
-    $(".body-container").each(function(){
-      FormatSinglePost1(this, false);
-    });
-  }else{
-    $(".body-container").each(function(){
-      // Only execute the function if the post is not deleted
-      if(!$($(this).find(".deleted")[0]).is(":visible"))
-        FormatSinglePost2(this, false);
-    });
-  }
-}
-
-//////////////////////////////////////////////////////////////////////
-// FormatAllPosts: Calls FormatSinglePost on every post that exists //
-//////////////////////////////////////////////////////////////////////
-function FormatAllPosts(FEKData = false){
-  $(document).find(".toggle-minimized").remove();
-
-  if(!FEKData){
-    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
-      $(".op-container").each(function(){
-        FormatSinglePost1(this, true);
-      });
-    }
-
-    $(".body-container").each(function(){
-      FormatSinglePost1(this, false);
-    });
-  }else{
-    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
-      $(".op-container").each(function(){
-        FormatSinglePost2(this, true);
-      });
-    }
-
-    $(".body-container").each(function(){
-      // Only execute the function if the post is not deleted
-      if(!$($(this).find(".deleted")[0]).is(":visible"))
-        FormatSinglePost2(this, false);
-    });
-  }
-
-  // isMinimized
-  $(".toggle-minimized").click(function(){
-    // Put everything in a container and then hide it
-
-    var post = $(this).parent()[0];
-
-    if($(this).parent().hasClass("isMinimized")){
-      // Minimizing the post
-
-      if($(post).find(".hide-post").length == 0){
-        // If the container doesn't exist, make it
-        // Classes:
-        // 0. masthead
-        // 1. toggle-minimized
-        // 2. newline
-        // 3. small
-        // 4. body-container
-        // 5. list
-        // 6. paging
-        //
-        // Put 2-5 in their own span and keep it between 1 and 7
-
-        var testing = document.createElement("span");
-        $(testing).attr("class", "hide-post");
-
-        $(testing).append($(post).find(".new-line")[0]);
-        $(testing).append($(post).find(".small")[0]);
-        $(testing).append($(post).find(".body-container")[0]);
-        $(testing).append($(post).find(".list")[0]);
-
-        // Finally append it to the post
-        $(testing).insertAfter($(post).find(".toggle-minimized")[0]);
-        $(testing).css("display", "none");
-      }else{
-        // If the container already exists
-        $($(post).find(".hide-post")[0]).css("display", "none");
-      }
-    }else{
-      // Maximizing the post
-      $($(post).find(".hide-post")[0]).css("display", "");
-
-      // Load FEK stuff for posts
-      var list = $(post).find(".list")[0];
-
-      $(list).each(function(){
-        $(".body-container").each(function(){
-          FormatSinglePost1(this, false);
-          FormatSinglePost2(this, false);
-          ColorVotes();
-          HoverVotes();
-          $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
-        });
-      });
-    }
-  })
-}
-
-////////////////////////////////////////////////////////////////////////
-// FormatSinglePost1: Formats a single post before inserting FEK data //
-////////////////////////////////////////////////////////////////////////
-function FormatSinglePost1(obj, op){
-  if(op === false){
-    // Show downvoted posts
-    $(obj).parent().removeClass("isLowQuality");
-
-    // See if the post is deleted
-    var isThisDeleted = obj.children[0].children[1].getAttribute("style");
-
-    if(isThisDeleted === null)
-      return;
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  var usernameT = obj.getElementsByClassName("username")[0].textContent;
-  var regionT   = obj.getElementsByClassName("realm")[0].textContent;
-  regionT       = regionT.substring(1, regionT.length - 1);
-
-  // If it's a person you blacklisted, hide the post if it's not the op
-  if(blacklisting === "on"){
-    if(GM_getValue(usernameT + " (" + regionT + ")", 0) == 1 && op === false)
-      $(obj).parent().remove();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // Define standard variables for this scope
-  var riotVoting    = $(obj).parent()[0].getElementsByClassName("riot-voting")[0];
-  var inlineProfile = obj.getElementsByClassName("inline-profile")[0];
-  var profHover     = obj.getElementsByClassName("profile-hover")[0];
-  var timeago       = obj.getElementsByClassName("timeago")[0];
-  var icon          = obj.getElementsByTagName("img")[0];
-  var body          = obj.getElementsByClassName("body")[0];
-  var isRioter      = obj.getElementsByClassName("isRioter")[0];
-  var username      = obj.getElementsByClassName("username")[0];
-  var region        = obj.getElementsByClassName("realm")[0];
-
-  // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-
-  // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
-  var tinyIcon; if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
-
-  // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
-  tinyIcon.style.setProperty("z-index", "1");
-
-  // Declare variables that will be used later
-  var opTitle;      // op
-  var authorInfo;   // op
-  var content;      // op
-  var controlLinks; // op
-  var attachments;  // not op
-  var footer;       // not op
-
-  var innerDiv;
-
-  $(tinyIcon).each(function(){
-    if(this.id != "popupHook"){
-      this.id = "popupHook";
-
-      $(this).hover(function(){
-        var avatar = $($(this).find("img")[0]).attr("src");
-
-        // Now create and append to innerDiv
-        innerDiv = document.createElement("div");
-        innerDiv.className = "popup";
-        innerDiv.style.setProperty("position", "relative");
-        innerDiv.style.setProperty("border", "solid 1px black");
-        innerDiv.style.setProperty("width", avatarSize + "px");
-        innerDiv.style.setProperty("height", avatarSize + "px");
-        innerDiv.style.setProperty("left", "99%");
-        innerDiv.style.setProperty("display", "none");
-        innerDiv.style.setProperty("background-color", "white");
-        innerDiv.style.setProperty("z-index", "-1");
-        innerDiv.style.setProperty("padding-top", "0px");
-        innerDiv.style.setProperty("padding-left", "5%");
-
-        if(op) innerDiv.style.setProperty("top", -avatarSize - 8 + "px");
-        else   innerDiv.style.setProperty("top", -avatarSize - 5 + "px");
-
-        /*   font-size | line-height
-        100:    14     |     18
-        125:    18     |     23
-        150:    22     |     28
-        175:    26     |     33
-        200:    30     |     38
-        */
-        innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
-        innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
-
-        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
-                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
-                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
-                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
-                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
-
-        this.appendChild(innerDiv);
-
-        profHover.setAttribute("href", "#");
-
-        $(profHover).click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-        });
-
-        $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-
-        $("#prfle").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://boards." + platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#avatr").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open(avatar, "_blank");
-          win.focus();
-        });
-
-        $("#lolnx").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#opgg").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#black").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-
-          var target = usernameT + " (" + regionT + ")";
-
-          // Add the person to our blacklist, or remove them from if they're already on there
-          if(GM_getValue(target, 0) === 0){
-            GM_setValue(target, 1);
-            alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
-          }else{
-            GM_deleteValue(target);
-            alert(target + " has been removed from your blacklist");
-          }
-        });
-
-        // Fade the FEK popup box in
-        $(innerDiv).fadeIn(200);
-      }, function(){
-        innerDiv.remove();
-      });
-    }
-  });
-
-  if(removeProfHovPop == "on"){
-    // Removes Riot's profile hover popup
-    $(profHover).hover(function(){
-      WaitAndRunManual(1000, function(){
-        $(document.getElementsByClassName("information-container")).parent().parent().parent().remove();
-      });
-    });
-  }
-
-  // Modifying variables
-  if(typeof riotVoting == "undefined"){
-    var discussionTitle = obj.getElementsByClassName("discussion-title")[0];
-    discussionTitle.style.setProperty("position",    "relative", "important");
-    discussionTitle.style.setProperty("margin-left", "75px",     "important");
-  }
-
-  if(op === true){
-    originalPoster = usernameT;
-    opTitle        = obj.getElementsByClassName("title")[0];
-    authorInfo     = obj.getElementsByClassName("author-info")[0];
-    content        = document.getElementById("content");
-  }
-
-  if(op === true){
-    controlLinks = obj.getElementsByClassName("control-links")[0];
-    controlLinks.style.setProperty("padding-left", avatarSize + 85 + "px", "important");
-  }
-
-  if(op === false){
-    footer      = obj.getElementsByClassName("footer")[0];
-    attachments = obj.getElementsByClassName("attachments")[0];
-  }
-
-  //if(op === false || (op === true && (document.getElementById("opHook") === null)))
-  if(1){
-    // If they are a Rioter, do their avatars a bit differently
-    if(typeof isRioter !== "undefined")
-      FormatAvatar(obj, true, tinyIcon, icon);
-    else
-      FormatAvatar(obj, false, tinyIcon, icon);
-  }
-
-  //if(op === true)
-  if(op === true && (document.getElementById("opHook") === null)){
-    obj.getElementsByTagName("a")[1].remove(); // We want to remove the second anchor (link to name of sub-board it's in)
-    $(authorInfo).contents().filter(function(){return this.nodeType == 3;}).remove();
-
-    opTitle.style.setProperty("position", "relative", "important");
-    opTitle.style.setProperty("left",     "-70px",    "important");
-
-    var titleCreated    = obj.getElementsByTagName("span")[5];
-    var submitted       = document.createElement("div");
-    submitted.id        = "opHook";
-    submitted.innerHTML = "Submitted ";
-    submitted.style.setProperty("position",  "relative", "important");
-    submitted.style.setProperty("left",      "-234px",   "important");
-    submitted.style.setProperty("font-size", "18px",     "important");
-
-    submitted.appendChild(titleCreated);
-    authorInfo.appendChild(submitted);
-  }
-
-  if(op === false)
-    obj.style.setProperty("padding-left", "100px");
-
-  // Body: Original Post
-  if(op === true){
-    body.style.setProperty("min-height",  avatarSize + 20 + "px", "important");
-    body.style.setProperty("padding-top", "20px",  "important");
-  }
-
-  // Body: Regular Post
-  if(op === false){
-    body.style.setProperty("position",     "relative", "important");
-    body.style.setProperty("top",          "-12px",    "important");
-    body.style.setProperty("padding-left", avatarSize - 60 + "px", "important");
-    body.style.setProperty("min-height",   avatarSize + 10 + "px", "important");
-    body.style.setProperty("margin-top",   "0px",      "important");
-  }
-
-  if(op === true){
-    content.style.setProperty("padding-left", "0px",   "important");
-    content.style.setProperty("margin-left",  avatarSize + 90 + "px", "important");
-  }
-
-  // Inline Profile: Original Post
-  if(op === true){
-    inlineProfile.style.setProperty("position", "relative", "important");
-    inlineProfile.style.setProperty("top",      "70px",     "important");
-    inlineProfile.style.setProperty("left",     "-42px",    "important");
-    inlineProfile.style.setProperty("width",    "160px",    "important");
-    inlineProfile.style.setProperty("height",   "20px",     "important");
-  }
-
-  // Inline Profile: Regular Post
-  if(op === false){
-    inlineProfile.style.setProperty("position", "relative", "important");
-    inlineProfile.style.setProperty("left",     "-120px",   "important");
-    inlineProfile.style.setProperty("width",    "160px",    "important");
-    inlineProfile.style.setProperty("height",   "20px",     "important");
-  }
-
-  // Profile Hover: All Posts
-  if(1){
-    profHover.style.setProperty("position",  "absolute", "important");
-    profHover.style.setProperty("height",    "20px",     "important");
-  }
-
-  // Riot members get a red title
-  if(op === false){
-    if(isRioter)
-      profHover.style.setProperty("color", "#AE250F", "important");
-    else
-      profHover.style.setProperty("color", "#94724D", "important");
-  }
-
-  // Username: All Posts
-  if(1){
-    username.style.setProperty("position",       "relative",     "important");
-    username.style.setProperty("width",          avatarSize + 60 + "px", "important");
-    username.style.setProperty("height",         "20px",         "important");
-    username.style.setProperty("font-size",      "14px",         "important");
-    username.style.setProperty("text-align",     "center",       "important");
-    username.style.setProperty("overflow",       "hidden",       "important");
-    username.style.setProperty("display",        "block",        "important");
-    username.style.setProperty("letter-spacing", "1px",          "important");
-    username.style.setProperty("font-variant",   "normal",       "important");
-    username.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
-
-    if(op === true)
-      username.style.setProperty("top", -avatarSize - 16 + "px", "important");
-    else
-      username.style.setProperty("top", -avatarSize - 12 + "px", "important");
-  }
-
-  // Background of username for regular posts
-  if(op === false){
-    if(usernameT == originalPoster)
-    {
-      if(OPStyle == "on")
-      {
-        username.style.setProperty("background", "none", "important");
-        username.style.setProperty("border",     "none", "important");
-      }
-      else
-      {
-        username.style.setProperty("color", "white", "important");
-      }
-    }
-  }
-
-  if(op === true){
-    region.style.setProperty("position",       "relative",             "important");
-    region.style.setProperty("top",            "-20px",                "important");
-    region.style.setProperty("left",           avatarSize + 55 + "px", "important");
-    region.style.setProperty("letter-spacing", "1px",                  "important");
-    region.style.setProperty("font-size",      "16px",                 "important");
-    region.style.setProperty("font-variant",   "normal",               "important");
-    region.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
-  }
-
-  if(op === false){
-    region.style.setProperty("position", "relative",             "important");
-    region.style.setProperty("top",      "-17px",                "important");
-    region.style.setProperty("left",     avatarSize + 65 + "px", "important");
-  }
-
-  // Voting: Original Post
-  if(op === true && typeof riotVoting != "undefined"){
-    riotVoting.style.setProperty("position", "absolute", "important");
-    riotVoting.style.setProperty("top",      "138px",    "important");
-    riotVoting.style.setProperty("left",     "10px",     "important");
-  }
-
-  // Voting: Regular Post
-  if(op === false && typeof riotVoting != "undefined"){
-    riotVoting.style.setProperty("position", "absolute", "important");
-    riotVoting.style.setProperty("top",      "50px",     "important");
-  }
-
-  // Miscellaneous: Regular Post
-  if(op === false){
-    timeago.style.setProperty("position", "relative", "important");
-    timeago.style.setProperty("top",      "-18px",    "important");
-    timeago.style.setProperty("left",     avatarSize - 160 + "px", "important");
-
-    footer.style.setProperty("padding-left", avatarSize - 65 + "px", "important");
-
-    if($(attachments).length)
-      attachments.style.setProperty("padding-left", avatarSize - 60 + "px", "important");
-  }
-
-  RollDice(obj);
-}
-
-/////////////////////////////////////////////////////////////////
-// FormatSinglePost2: Inserts FEK data into the formatted post //
-/////////////////////////////////////////////////////////////////
-function FormatSinglePost2(obj, op){
-  var usernameT     = obj.getElementsByClassName("username")[0].textContent;
-  var regionT       = obj.getElementsByClassName("realm")[0].textContent;
-  regionT           = regionT.substring(1, regionT.length - 1);
-
-  if(typeof results[usernameT] === "undefined")
-    return;
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // Define standard variables for this scope
-  var riotVoting    = $(obj).parent()[0].getElementsByClassName("riot-voting")[0];
-  var inlineProfile = obj.getElementsByClassName("inline-profile")[0];
-  var profHover     = obj.getElementsByClassName("profile-hover")[0];
-  var timeago       = obj.getElementsByClassName("timeago")[0];
-  var icon          = obj.getElementsByTagName("img")[0];
-  var body          = obj.getElementsByClassName("body")[0];
-  var isRioter      = obj.getElementsByClassName("isRioter")[0];
-  var username      = obj.getElementsByClassName("username")[0];
-  var region        = obj.getElementsByClassName("realm")[0];
-
-  // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-
-  // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
-  var tinyIcon; if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
-
-  // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
-  tinyIcon.style.setProperty("z-index", "1");
-
-  // Declare variables that will be used later
-  var opTitle;      // op
-  var authorInfo;   // op
-  var content;      // op
-  var controlLinks; // op
-  var attachments;  // not op
-  var footer;       // not op
-
-  // Define user data variables
-  var avatar = results[usernameT][regionT].avatar;
-  var staff  = results[usernameT][regionT].staff;
-  var title  = results[usernameT][regionT].title;
-  var badge  = results[usernameT][regionT].badge;
-
-  var innerDiv;
-  /*
-  $(tinyIcon).each(function()
-  {
-    if(this.id != "popupHook")
-    {
-      this.id = "popupHook";
-
-      $(this).hover(function()
-      {
-        // Now create and append to innerDiv
-        innerDiv = document.createElement("div");
-        innerDiv.className = "popup";
-        innerDiv.style.setProperty("position", "relative");
-        innerDiv.style.setProperty("border", "solid 1px black");
-        innerDiv.style.setProperty("width", avatarSize + "px");
-        innerDiv.style.setProperty("height", avatarSize + "px");
-        innerDiv.style.setProperty("left", "99%");
-        innerDiv.style.setProperty("display", "none");
-        innerDiv.style.setProperty("background-color", "white");
-        innerDiv.style.setProperty("z-index", "-1");
-        innerDiv.style.setProperty("padding-top", "0px");
-        innerDiv.style.setProperty("padding-left", "5%");
-
-        if(op) innerDiv.style.setProperty("top", -avatarSize - 8 + "px");
-        else   innerDiv.style.setProperty("top", -avatarSize - 5 + "px");
-
-        /*   font-size | line-height
-        100:    14     |     18
-        125:    18     |     23
-        150:    22     |     28
-        175:    26     |     33
-        200:    30     |     38
-        *
-        innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
-        innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
-
-        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
-                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
-                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
-                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
-                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
-
-        this.appendChild(innerDiv);
-
-        profHover.setAttribute("href", "#");
-
-        $(profHover).click(function(event)
-        {
-          event.preventDefault();
-          event.stopPropagation();
-        });
-
-        $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-
-        $("#prfle").click(function(event)
-        {
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://boards." + platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#avatr").click(function(event)
-        {
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open(avatar, "_blank");
-          win.focus();
-        });
-
-        $("#lolnx").click(function(event)
-        {
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#opgg").click(function(event)
-        {
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#black").click(function(event)
-        {
-          event.preventDefault();
-          event.stopPropagation();
-
-          var target = usernameT + " (" + regionT + ")";
-
-          // Add the person to our blacklist, or remove them from if they're already on there
-          if(GM_getValue(target, 0) === 0)
-          {
-            GM_setValue(target, 1);
-            alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
-          }
-          else
-          {
-            GM_deleteValue(target);
-            alert(target + " has been removed from your blacklist");
-          }
-        });
-
-        // Fade the FEK popup box in
-        $(innerDiv).fadeIn(200);
-      }, function()
-      {
-        innerDiv.remove();
-      });
-    }
-  });
-
-  */
-
-  // Assign avatars
-  if(typeof isRioter !== "undefined")
-    AssignAvatar(obj, true, avatar, tinyIcon);
-  else
-    AssignAvatar(obj, false, avatar, tinyIcon);
-
-  // Alter text colors for names and titles
-  if(op === false){
-    if(isRioter)
-      profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
-    else if(staff == "1")
-      profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
-    else
-      profHover.style.setProperty("color", "#94724D", "important"); // Regular users
-  }
-
-  // Username: All Posts
-  if(1){
-    if(staff == "1"){
-      // Gradient names have problems where if they are too long and have a space, they will
-      // go on a second line. So if a name is a certain length (>= 14) and has at least one
-      // space in it, decrease the font size to 12
-      if(usernameT.length >= 12 && (usernameT.indexOf(" ") >= 0))
-        username.style.setProperty("font-size", "12px", "important");
-
-      $(username).GradientText({
-        step:    10,
-        colors: ["#68BAFF", "#008AFF", "#68BAFF"],
-        dir:    "x"
-      });
-    }
-  }
-
-  GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
-}
-
-//////////////////////////////////
-// RollDice: Rolls virtual dice //
-//////////////////////////////////
-function RollDice(obj){
-  // PRNG
-  // Is this function below even needed?
-  // !function(a,b,c,d,e,f,g,h,i){function j(a){var b,c=a.length,e=this,f=0,g=e.i=e.j=0,h=e.S=[];for(c||(a=[c++]);d>f;)h[f]=f++;for(f=0;d>f;f++)h[f]=h[g=s&g+a[f%c]+(b=h[f])],h[g]=b;(e.g=function(a){for(var b,c=0,f=e.i,g=e.j,h=e.S;a--;)b=h[f=s&f+1],c=c*d+h[s&(h[f]=h[g=s&g+b])+(h[g]=b)];return e.i=f,e.j=g,c})(d)}function k(a,b){var c,d=[],e=typeof a;if(b&&"object"==e)for(c in a)try{d.push(k(a[c],b-1))}catch(f){}return d.length?d:"string"==e?a:a+"\0"}function l(a,b){for(var c,d=a+"",e=0;e<d.length;)b[s&e]=s&(c^=19*b[s&e])+d.charCodeAt(e++);return n(b)}function m(c){try{return o?n(o.randomBytes(d)):(a.crypto.getRandomValues(c=new Uint8Array(d)),n(c))}catch(e){return[+new Date,a,(c=a.navigator)&&c.plugins,a.screen,n(b)]}}function n(a){return String.fromCharCode.apply(0,a)}var o,p=c.pow(d,e),q=c.pow(2,f),r=2*q,s=d-1,t=c["seed"+i]=function(a,f,g){var h=[];f=1==f?{entropy:!0}:f||{};var o=l(k(f.entropy?[a,n(b)]:null==a?m():a,3),h),s=new j(h);return l(n(s.S),b),(f.pass||g||function(a,b,d){return d?(c[i]=a,b):a})(function(){for(var a=s.g(e),b=p,c=0;q>a;)a=(a+c)*d,b*=d,c=s.g(1);for(;a>=r;)a/=2,b/=2,c>>>=1;return(a+c)/b},o,"global"in f?f.global:this==c)};if(l(c[i](),b),g&&g.exports){g.exports=t;try{o=require("crypto")}catch(u){}}else h&&h.amd&&h(function(){return t})}(this,[],Math,256,6,52,"object"==typeof module&&module,"function"==typeof define&&define,"random");
-
-  var spanElements = obj.getElementsByTagName("span");
-  var seed;
-
-  for(var i = 0; i < spanElements.length; ++i){
-    if(spanElements[i].getAttribute("title") !== null){
-      seed = spanElements[i].getAttribute("title");
-      i = spanElements.length;
-    }
-  }
-
-  // DICE ROLLING RULES!
-  // Only one roll per post. This is to prevent too many rolls to crash the browser.
-  // Don't do rolls in <blockquote>
-
-  // [roll]     = Die Result: 500 (1d1000)
-  // [roll:6]   = Die Result: 4 (1d6)
-  // [roll:2d6] = Die Result: 7 (1d6)
-  // [roll:100] = Die Result: 50 (1d100)
-
-  // Extract text in between [roll: and ]
-
-  // Convert the DateTime seed to a random number
-  seed = parseInt(seed.substr(seed.length - 8, 3)) + 1;
-
-  var paragraphs = obj.getElementsByTagName("p");
-  var rolled = false;
-
-  for(var i = 0; i < paragraphs.length; ++i){
-    var regex   = /\[roll(.*?)\]/gi
-    var command = regex.exec(paragraphs[i].innerHTML);
-
-    // Example of the Array command
-    // command[0] : "[roll:2d100]"
-    // command[1] : "2d100"
-
-    if((rolled || rollDice == "off" || (paragraphs[i].parentElement.tagName == "BLOCKQUOTE")) && command !== null)
-      paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], "");
-    else if(rollDice == "on" && command !== null){
-      var rolls    = 0;
-      var die      = 0;
-      var regex    = /([0-9]*)d([0-9]*)/gi
-      var extended = regex.exec(command[1]);
-
-      // Example of the Array extended (assuming it exists)
-      // extended[0] : "2d100"
-      // extended[1] : "2"
-      // extended[2] : "100"
-
-      // Check if it's something like 2d100, instead of having a single number
-      if(extended !== null){
-        if(extended[1]) rolls = extended[1];
-        else            rolls = 1;
-
-        if(extended[2]) die = extended[2];
-        else            die = 1;
-      }else{
-        var regex  = /([0-9]*)/g
-        var simple = regex.exec(command[1]);
-
-        if(command[1] == simple[1]){
-          rolls = 1;
-
-          if(command[1]) die = command[1];
-          else           die = 1;
-        }
-      }
-
-      var result = 0;
-
-      // Limit the die rolls and sides to 100
-      if(rolls > 100) rolls = 100;
-      if(die   > 100) die   = 100;
-
-      // [roll] is a special die roll of 1d1000
-      if(command[0] == "[roll]"){
-        rolls = 1;
-        die   = 1000;
-      }
-
-      if(rolls != 0){
-        for(var j = 0; j < rolls; ++j){
-          Math.seedrandom(seed);
-          result += Math.ceil(Math.random() * die);
-          seed += 1;
-        }
-
-        // Replace the text
-        var dieRoll = `
-        <font color="#ff0000">Die Result: </font>
-        <font color="#00ff00">${result}</font>
-        <font color="#00ffff">(${rolls}d${die})</font>
-        `;
-        paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], dieRoll);
-
-        rolled = true;
-      }
-    }
-  }
-}
-
-/////////////////////////////////////
-// FormatAvatar: Formats an avatar //
-/////////////////////////////////////
-function FormatAvatar(obj, isRioter, tinyIcon, icon){
-  tinyIcon.style.setProperty("position",         "relative",        "important");
-  tinyIcon.style.setProperty("top",              "12px",            "important");
-  tinyIcon.style.setProperty("left",             "30px",            "important");
-  tinyIcon.style.setProperty("width",            avatarSize + "px", "important");
-  tinyIcon.style.setProperty("height",           avatarSize + "px", "important");
-  tinyIcon.style.setProperty("background-image", "none",            "important");
-
-  if(isRioter){
-    if(!tinyIcon.getElementsByTagName("img")[0] && !tinyIcon.getElementsByTagName("video")[0]){
-      var imgIcon = document.createElement("img");
-      imgIcon.setAttribute("src", "http://i.imgur.com/STcpwlY.png");
-      imgIcon.style.setProperty("width",     avatarSize + "px",    "important");
-      imgIcon.style.setProperty("height",    avatarSize + "px",    "important");
-      imgIcon.style.setProperty("border",    "thin solid #FF0000", "important");
-      tinyIcon.appendChild(imgIcon);
-    }
-  }else{
-    icon.style.setProperty("width",  avatarSize + "px",    "important");
-    icon.style.setProperty("height", avatarSize + "px",    "important");
-    icon.style.setProperty("border", "thin solid #FFFFFF", "important");
-
-    if(fallbackAvatar != "off"){
-      obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
-    }
-  }
-}
-
-/////////////////////////////////////
-// AssignAvatar: Assigns an avatar //
-/////////////////////////////////////
-function AssignAvatar(obj, isRioter, avatar, tinyIcon){
-  if(isRioter){
-     if(typeof avatar !== "undefined"){
-       if(avatar.slice(-5) == ".webm"){
-         FormatWebmAvatar(obj, avatar);
-       }else{
-         obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
-       }
-     }
-  }else{
-    if(typeof avatar !== "undefined"){
-      if(avatar.slice(-5) == ".webm")
-        FormatWebmAvatar(obj, avatar);
-      else
-        obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
-    }else if(fallbackAvatar != "off")
-      obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
-  }
-}
-
-////////////////////////////////////////////////////
-// FormatWebmAvatar: Gives the user a webm avatar //
-////////////////////////////////////////////////////
-function FormatWebmAvatar(obj, avatar){
-  // This check ensures no duplicate .webm avatars will be embedded into a user's post
-  if(!obj.getElementsByTagName("video")[0]){
-    var webm = obj.getElementsByTagName("img")[0];
-    webm.setAttribute("src",  avatar, "important");
-    webm.setAttribute("loop", "true");
-    webm.setAttribute("data-bind", "", "important");
-    $(webm).ChangeElementType("video");
-    obj.getElementsByTagName("video")[0].play();
-  }
-}
-
-/////////////////////////////////////////////
-// ========== FEK CONTROL PANEL ========== //
-/////////////////////////////////////////////
+      <div id="fekScrollRegion" class="fekScrollRegion"></div>
+    </div>
+  </div>
+  `;
+
+  var docbody = $("html").first().find("body:not(.wysiwyg)").first();
+  docbody.append(panelhtml);
+  docbody.append(tooltipshtml);
+
+  // Hide FEK Panel so the user doesn't see a whole bunch
+  // of random text for the second while the webpage loads
+  $("#fekpanel").hide();
+};
 
 ////////////////////////////////////////////////////////////
 // CreateFeatures: This is where all FEK features are set //
 ////////////////////////////////////////////////////////////
-function CreateFeatures(){
-  var tabgroup, tab, category, initvalue, label, options, tooltip;
+Fek.prototype.CreateFeatures = function(){
+  var self = this;
+  var tabgroup, tab, category, options, tooltip;
 
   // Core Mods -> LoL Boards -> User Identities
   tabgroup = "Core Mods";
@@ -1405,8 +262,8 @@ function CreateFeatures(){
              "175|175x175",
              "200|200x200"];
 
-  CreateFeature("FEK Avatars", "_fekAvatars", options, "100", tooltip, tabgroup, tab, category, function(option){
-    avatarSize = parseInt(option);
+  self.CreateFeature("FEK Avatars", "_fekAvatars", options, "100", tooltip, tabgroup, tab, category, function(option){
+    self.avatarSize = parseInt(option);
   });
 
   ///////////////////////////////
@@ -1424,16 +281,16 @@ function CreateFeatures(){
              "8|Happy Cloud (Light)",
              "9|Happy Cloud (Parchment)"];
 
-  CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category, function(option){
-    if     (option == "1") fallbackAvatar = FEKgfx + "no-avatar-trident-dark.gif";
-    else if(option == "2") fallbackAvatar = FEKgfx + "no-avatar-trident-light.gif";
-    else if(option == "3") fallbackAvatar = FEKgfx + "no-avatar-trident-parchment.gif";
-    else if(option == "4") fallbackAvatar = FEKgfx + "no-avatar-poro-dark.gif";
-    else if(option == "5") fallbackAvatar = FEKgfx + "no-avatar-poro-light.gif";
-    else if(option == "6") fallbackAvatar = FEKgfx + "no-avatar-poro-parchment.gif";
-    else if(option == "7") fallbackAvatar = FEKgfx + "no-avatar-dark.gif";
-    else if(option == "8") fallbackAvatar = FEKgfx + "no-avatar-light.gif";
-    else if(option == "9") fallbackAvatar = FEKgfx + "no-avatar-parchment.gif";
+  self.CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category, function(option){
+    if     (option == "1") self.fallbackAvatar = self.FEKgfx + "no-avatar-trident-dark.gif";
+    else if(option == "2") self.fallbackAvatar = self.FEKgfx + "no-avatar-trident-light.gif";
+    else if(option == "3") self.fallbackAvatar = self.FEKgfx + "no-avatar-trident-parchment.gif";
+    else if(option == "4") self.fallbackAvatar = self.FEKgfx + "no-avatar-poro-dark.gif";
+    else if(option == "5") self.fallbackAvatar = self.FEKgfx + "no-avatar-poro-light.gif";
+    else if(option == "6") self.fallbackAvatar = self.FEKgfx + "no-avatar-poro-parchment.gif";
+    else if(option == "7") self.fallbackAvatar = self.FEKgfx + "no-avatar-dark.gif";
+    else if(option == "8") self.fallbackAvatar = self.FEKgfx + "no-avatar-light.gif";
+    else if(option == "9") self.fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
   });
 
   //////////////////////////////
@@ -1445,32 +302,32 @@ function CreateFeatures(){
              "total|Total Votes",
              "hide|Hide Votes"];
 
-  CreateFeature("Enhanced Voting", "_enhancedVoting", options, "individual", tooltip, tabgroup, tab, category, function(option){
-    votingDisplay = option;
+  self.CreateFeature("Enhanced Voting", "_enhancedVoting", options, "individual", tooltip, tabgroup, tab, category, function(option){
+    self.votingDisplay = option;
   });
 
   ///////////////////////////
   // Feature: Blacklisting //
   ///////////////////////////
   tooltip = "Hides posts and threads made by users that you have on your blacklist. To blacklist somebody, hover your mouse over their avatar and click on blacklist";
-  CreateFeature("Blacklisting", "_blacklisting", "", "on", tooltip, tabgroup, tab, category, function(option){
-    blacklisting = option;
+  self.CreateFeature("Blacklisting", "_blacklisting", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.blacklisting = option;
   });
 
   //////////////////////////////
   // Feature: OP Style Change //
   //////////////////////////////
   tooltip = "Removes the colored background on an original poster's posts.";
-  CreateFeature("OP Style Change", "_opStyleChange", "", "on", tooltip, tabgroup, tab, category, function(option){
-    OPStyle = option;
+  self.CreateFeature("OP Style Change", "_opStyleChange", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.OPStyle = option;
   });
 
   /////////////////////////////////////////
   // Feature: Remove Profile Hover Popup //
   /////////////////////////////////////////
   tooltip = "Removes Riot's profile popup when you hover over a user.";
-  CreateFeature("Remove Profile Hover Popup", "_removeProfHovPop", "", "on", tooltip, tabgroup, tab, category, function(option){
-    removeProfHovPop = option;
+  self.CreateFeature("Remove Profile Hover Popup", "_removeProfHovPop", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.removeProfHovPop = option;
   });
 
   // Core Mods -> LoL Boards -> Navigation Enhancements
@@ -1483,8 +340,8 @@ function CreateFeatures(){
   //////////////////////////////////////
   category = "Navigation Enhancements";
   tooltip  = "Replaces the default thread preview tooltip with a more visible and enhanced one.";
-  CreateFeature("Enhanced Thread Preview", "_enhancedThreadPreview", "", "on", tooltip, tabgroup, tab, category, function(option){
-    enhancedThreadPreview = option;
+  self.CreateFeature("Enhanced Thread Preview", "_enhancedThreadPreview", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.enhancedThreadPreview = option;
   });
 
   //////////////////////////////////
@@ -1503,8 +360,8 @@ function CreateFeatures(){
              "#551A8B|Purple",
              "#9400D3|Violet"];
 
-  CreateFeature("Highlight My Threads", "_threadHighlight", options, "#000000", tooltip, tabgroup, tab, category, function(option){
-    highlightMyThreads = option;
+  self.CreateFeature("Highlight My Threads", "_threadHighlight", options, "#000000", tooltip, tabgroup, tab, category, function(option){
+    self.highlightMyThreads = option;
   });
 
   ///////////////////////////////////
@@ -1512,8 +369,8 @@ function CreateFeatures(){
   ///////////////////////////////////
   category = "Navigation Enhancements";
   tooltip  = "Adds a dropdown menu when you hover your mouse over the Boards button at the top of the page on the navigation bar.";
-  CreateFeature("Boards Dropdown Menu", "_boardsDropdownMenu", "", "on", tooltip, tabgroup, tab, category, function(option){
-    boardsDropdownMenu = option;
+  self.CreateFeature("Boards Dropdown Menu", "_boardsDropdownMenu", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.boardsDropdownMenu = option;
   });
 
   /////////////////////////////////
@@ -1524,8 +381,8 @@ function CreateFeatures(){
   options = ["off|Disable",
              "animate|Animate thumbnails",
              "hide|Hide thumbnails"];
-  CreateFeature("Thumbnails", "_thumbnails", options, "animate", tooltip, tabgroup, tab, category, function(option){
-    animateThumbnails = option;
+  self.CreateFeature("Thumbnails", "_thumbnails", options, "animate", tooltip, tabgroup, tab, category, function(option){
+    self.animateThumbnails = option;
   });
 
   ////////////////////////////
@@ -1533,7 +390,7 @@ function CreateFeatures(){
   ////////////////////////////
   category = "Navigation Enhancements";
   tooltip  = "Keeps the Navbar at the top of the browser window even when you scroll down.";
-  CreateFeature("Sticky Navbar", "_stickyNavbar", "", "off", tooltip, tabgroup, tab, category, function(option){
+  self.CreateFeature("Sticky Navbar", "_stickyNavbar", "", "off", tooltip, tabgroup, tab, category, function(option){
     document.getElementById("riotbar-bar").style.setProperty("position", "fixed");
     document.getElementById("riotbar-bar").style.setProperty("top",      "0px");
   });
@@ -1546,8 +403,8 @@ function CreateFeatures(){
   options = ["off|Disable",
              "banners|Green banners",
              "bannersavatars|Green banners and avatars"];
-  CreateFeature("Empty Vote Replacement", "_emptyvotereplacement", options, "off", tooltip, tabgroup, tab, category, function(option){
-    emptyVoteReplacement = option;
+  self.CreateFeature("Empty Vote Replacement", "_emptyvotereplacement", options, "off", tooltip, tabgroup, tab, category, function(option){
+    self.emptyVoteReplacement = option;
   });
 
   // Core Mods -> LoL Boards -> Multimedia
@@ -1559,8 +416,8 @@ function CreateFeatures(){
   // Feature: Media Embedding //
   //////////////////////////////
   tooltip = "Embeds .webm and YouTube movies into the posts themselves, rather than showing up as just links.";
-  CreateFeature("Media Embedding", "_mediaEmbedding", "", "on", tooltip, tabgroup, tab, category, function(option){
-    embedMedia = option;
+  self.CreateFeature("Media Embedding", "_mediaEmbedding", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.embedMedia = option;
   });
 
   // Core Mods -> LoL Boards -> Miscellaneous
@@ -1699,8 +556,8 @@ function CreateFeatures(){
              "ziggs|Ziggs",
              "zilean|Zilean",
              "zyra|Zyra"];
-  CreateFeature("Favorite Champion", "_favoritechampion", options, "fizz", tooltip, tabgroup, tab, category, function(option){
-    favoriteChampion = option;
+  self.CreateFeature("Favorite Champion", "_favoritechampion", options, "fizz", tooltip, tabgroup, tab, category, function(option){
+    self.favoriteChampion = option;
   });
 
   //////////////////////////////////////
@@ -1722,8 +579,8 @@ function CreateFeatures(){
              "smite|Smite",
              "teleport|Teleport",
              "totheking|To the King"];
-  CreateFeature("Favorite Summoner Spell", "_favoritesummonerspell", options, "ignite", tooltip, tabgroup, tab, category, function(option){
-    favoriteSpell = option;
+  self.CreateFeature("Favorite Summoner Spell", "_favoritesummonerspell", options, "ignite", tooltip, tabgroup, tab, category, function(option){
+    self.favoriteSpell = option;
   });
 
   ////////////////////////////
@@ -1766,8 +623,8 @@ function CreateFeatures(){
              "zeal|Zeal",
              "zhonyashourglass|Zhonya's Hourglass",
              "zzrotportal|Zz'Rot Portal"];
-  CreateFeature("Favorite Item", "_favoriteitem", options, "lichbane", tooltip, tabgroup, tab, category, function(option){
-    favoriteItem = option;
+  self.CreateFeature("Favorite Item", "_favoriteitem", options, "lichbane", tooltip, tabgroup, tab, category, function(option){
+    self.favoriteItem = option;
   });
 
   /////////////////////////////
@@ -1777,30 +634,30 @@ function CreateFeatures(){
   options = ["off|Disable",
              "on|Always On",
              "mouseover|Mouse Over"];
-  CreateFeature("Favorite Icons", "_favoriteicons", options, "mouseover", tooltip, tabgroup, tab, category, function(option){
-    favoriteIcons = option;
+  self.CreateFeature("Favorite Icons", "_favoriteicons", options, "mouseover", tooltip, tabgroup, tab, category, function(option){
+    self.favoriteIcons = option;
   });
 
   ////////////////////////
   // Feature: Roll Dice //
   ////////////////////////
   tooltip = "Shows dice rolls. Disable this feature to completely hide them.";
-  CreateFeature("Roll Dice", "_rollDice", "", "on", tooltip, tabgroup, tab, category, function(option){
-    rollDice = option;
+  self.CreateFeature("Roll Dice", "_rollDice", "", "on", tooltip, tabgroup, tab, category, function(option){
+    self.rollDice = option;
   });
 
   ///////////////////////////
   // Feature: Blacklisting //
   ///////////////////////////
-  if(blacklisting == "on"){
-    PanelCreateTab(tabgroup, "Blacklist", function(contentview){
+  if(self.blacklisting == "on"){
+    self.PanelCreateTab(tabgroup, "Blacklist", function(contentview){
       $(`#tab[tab="core-mods-blacklist"]`).click(function(){
         contentview.html("<h1>Blacklisted Users</h1><br>Click on a name to remove it from your blacklist<br><br>");
 
         var vals = GM_listValues();
         for(var i = 0; i < vals.length; i++){
           if(vals[i][0] != "_"){
-            myThing = document.createElement("div");
+            var myThing = document.createElement("div");
             myThing.innerHTML = `<a href="#">${vals[i]}</a><br>`;
 
             $(myThing).click(function(event){
@@ -1828,8 +685,8 @@ function CreateFeatures(){
   function HideSubboard(boardName, optionVar){
     tooltip  = "Hide threads from " + boardName;
 
-    CreateFeature(boardName, optionVar, "", "off", tooltip, tabgroup, tab, category, function(option){
-      hide[boardName] = option;
+    self.CreateFeature(boardName, optionVar, "", "off", tooltip, tabgroup, tab, category, function(option){
+      self.hide[boardName] = option;
     });
   }
 
@@ -1850,30 +707,30 @@ function CreateFeatures(){
   /////////////////////////
   // Feature: Fish Chips //
   /////////////////////////
-  PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
+  self.PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
     $(`#tab[tab="core-mods-fish-chips"]`).click(function(){
-      LoadWebPanel("fishchips", contentview);
+      self.LoadWebPanel("fishchips", contentview);
     });
   });
 
   // New Tabgroup: Social
   tabgroup = "Social";
 
-  PanelCreateTab(tabgroup, "Friends", function(contentview){
+  self.PanelCreateTab(tabgroup, "Friends", function(contentview){
     $(`#tab[tab="social-friends"]`).click(function(){
-      LoadWebPanel("friends", contentview);
+      self.LoadWebPanel("friends", contentview);
     });
   });
 
-  PanelCreateTab(tabgroup, "Messages", function(contentview){
+  self.PanelCreateTab(tabgroup, "Messages", function(contentview){
     $(`#tab[tab="social-messages"]`).click(function(){
-      LoadWebPanel("messages", contentview);
+      self.LoadWebPanel("messages", contentview);
     });
   });
 
-  PanelCreateTab(tabgroup, "Send PM", function(contentview){
+  self.PanelCreateTab(tabgroup, "Send PM", function(contentview){
     $(`#tab[tab="social-send-pm"]`).click(function(){
-      LoadWebPanel("sendpm", contentview);
+      self.LoadWebPanel("sendpm", contentview);
     });
   });
 
@@ -1883,7 +740,7 @@ function CreateFeatures(){
   ///////////////////////////
   // Twitter Announcements //
   ///////////////////////////
-  PanelCreateTab(tabgroup, "Announcements", function(contentview){
+  self.PanelCreateTab(tabgroup, "Announcements", function(contentview){
     contentview.html("Loading Announcements...");
 
     // Prepare the twitter popup html
@@ -1892,18 +749,18 @@ function CreateFeatures(){
 
     $(document).on("tweetsLoaded", function(){
       contentview.html("<h1>Announcements</h1>");
-      if(FEKtweets.length){
-        for(var i = 0; i < FEKtweets.length; i++){
+      if(self.FEKtweets.length){
+        for(var i = 0; i < self.FEKtweets.length; i++){
           contentview.append(`
           <div id="twitter_row">
             <div id="twitterlink">
-              <a href="http://twitter.com/${FEKtweets[i].user[0]}" target="_blank">
-                <img src="${FEKgfx}twittericon.png">
+              <a href="http://twitter.com/${self.FEKtweets[i].user[0]}" target="_blank">
+                <img src="${self.FEKgfx}twittericon.png">
               </a>
             </div>
-            <h2>${ParseTwitterDate(FEKtweets[i].created_at)}</h2>
-            <img id="twitter_img" src="${FEKtweets[i].user[2]}">
-            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets[i].text.replace("#FEK ", ""))}</span>
+            <h2>${self.ParseTwitterDate(self.FEKtweets[i].created_at)}</h2>
+            <img id="twitter_img" src="${self.FEKtweets[i].user[2]}">
+            <span id="twitter_text">${self.ReplaceUrlWithHtmlLink(self.FEKtweets[i].text.replace("#FEK ", ""))}</span>
             <span style="opacity:0; clear:both;">.</span>
             <div id="spike"></div>
           </div>
@@ -1911,28 +768,28 @@ function CreateFeatures(){
         }
 
         //Compare last read announcement to current one
-        if(GM_getValue("_lastReadTwitter", "") == FEKtweets[0].id){
+        if(GM_getValue("_lastReadTwitter", "") == self.FEKtweets[0].id){
           // The latest announcement has been read
         }else{
           // The latest announcement has NOT been read yet
           // Append alert icons for unread announcements
-          alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
+          self.alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
 
-          $(`a[href="#fekpanel"]`).eq(0).append(alertHTML);
-          $(`a[href="#fekpanel"]`).eq(1).append(alertHTML);
-          $(`#fekpanel #tab[tab="misc-announcements"]`).append(alertHTML);
+          $(`a[href="#fekpanel"]`).eq(0).append(self.alertHTML);
+          $(`a[href="#fekpanel"]`).eq(1).append(self.alertHTML);
+          $(`#fekpanel #tab[tab="misc-announcements"]`).append(self.alertHTML);
           $(`body #twitter_row.popup`).html(`
           <div id="twitterlink">
             <a href="http://twitter.com/Tundra_Fizz" target="_blank">
-              <img src="${FEKgfx}twittericon.png">
+              <img src="${self.FEKgfx}twittericon.png">
             </a>
           </div>
           <h2>
-            ${ParseTwitterDate(FEKtweets[0].created_at)}
+            ${self.ParseTwitterDate(self.FEKtweets[0].created_at)}
           </h2>
-          <img id="twitter_img" src="${FEKtweets[0].user[2]}">
+          <img id="twitter_img" src="${self.FEKtweets[0].user[2]}">
           <span id="twitter_text">
-            ${ReplaceUrlWithHtmlLink(FEKtweets[0].text.replace("#FEK ", ""))}
+            ${self.ReplaceUrlWithHtmlLink(self.FEKtweets[0].text.replace("#FEK ", ""))}
           </span>
           <div id="dismiss">
             Click here to dismiss the notification
@@ -1949,8 +806,8 @@ function CreateFeatures(){
 
       // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
       $("#dismiss").click(function(event){
-        if(FEKtweets[0])
-          GM_setValue("_lastReadTwitter", FEKtweets[0].id);
+        if(self.FEKtweets[0])
+          GM_setValue("_lastReadTwitter", self.FEKtweets[0].id);
         $("body #twitter_row.popup").fadeOut();
         $("body #fekalert").each(function(){
           $(this).fadeOut();
@@ -1962,32 +819,34 @@ function CreateFeatures(){
   ///////////////
   // Changelog //
   ///////////////
-  PanelCreateTab(tabgroup, "Changelog", function(contentview){
+  self.PanelCreateTab(tabgroup, "Changelog", function(contentview){
     $(`#tab[tab*="fek-changelog"]`).click(function(){
-      LoadWebPanel("changelog", contentview);
+      self.LoadWebPanel("changelog", contentview);
     });
   });
 
   ////////////
   // Donate //
   ////////////
-  PanelCreateTab(tabgroup, "Donate", function(contentview){
+  self.PanelCreateTab(tabgroup, "Donate", function(contentview){
     $(`#tab[tab*="fek-donate"]`).click(function(){
-      LoadWebPanel("donate", contentview);
+      self.LoadWebPanel("donate", contentview);
     });
   });
 
   // Register the hotkey ~ to toggle the FEK panel on and off
-  hotkeys["192"] = function(state, event){
+  self.hotkeys["192"] = function(state, event){
     if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
-      PanelToggle();
+      self.PanelToggle();
   };
-}
+};
 
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
 ////////////////////////////////////////////////////////////
-function CreateFeature(label, variablename, options, initvalue, tooltip, tabgroup, tab, category, callback){
+Fek.prototype.CreateFeature = function(label, variablename, options, initvalue, tooltip, tabgroup, tab, category, callback){
+  var self = this;
+
   // Registers a feature with the gui to handle variable reading/writing and then runs the callback function
   // Get the saved value if it exists, otherwise load the initvalue
   var useInitValue = GM_getValue(variablename, initvalue);
@@ -1995,9 +854,9 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
   // Check if the provided saved value is in the options group, if not reset it to the default option
   if(options){
     var validOption = false;
-    for(index = 0; index < options.length; ++index){
+    for(var index = 0; index < options.length; ++index){
       // Split the option and associated value apart
-      optionpair = options[index].split("|");
+      var optionpair = options[index].split("|");
 
       if(optionpair[0] === useInitValue)
         validOption = true;
@@ -2008,13 +867,13 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
   }
 
   // Create the tab for the feature
-  PanelCreateTab(tabgroup, tab, function(contentview){
+  self.PanelCreateTab(tabgroup, tab, function(contentview){
     // The tab has been created, and we can now create the button within the returned contentview
     var buttonhtml, tooltiphtml, optionpair, initclass, initstyle;
     var scategory = category.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
     // Create the category if it doesn't exist
-    if(contentview.find(`#optiongroup[optiongroup="${scategory}"]`).length == 0){
+    if(contentview.find(`#optiongroup[optiongroup="${scategory}"]`).length === 0){
       contentview.append(`
       <div id="optiongroup" optiongroup="${scategory}">
         <h1 class="breakhead">${category}</h1>
@@ -2039,7 +898,7 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
       optionpair = "";
 
       // Prepare the list html
-      for(index = 0; index < options.length; ++index){
+      for(var index = 0; index < options.length; ++index){
         // Split the option and associated value apart
         optionpair = options[index].split("|");
         listhtml = listhtml + `<li fekvalue="${optionpair[0]}">${optionpair[1]}</li>`;
@@ -2050,15 +909,15 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
       // Prepare the button html
       if(useInitValue === "off"){
         initclass = "inactive ";
-        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${self.FEKgfx}button-off.png");`;
         initlabel = "Disable";
       }else{
         initclass = "";
-        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${self.FEKgfx}button-on.png");`;
       }
 
       buttonhtml = `
-      <div id="button" class="${initclass}dropdown" fekvar="${variablename}" style="background-position:right 10px; background-repeat:no-repeat; background-image:url('${FEKgfx}drop-indicator.png');">
+      <div id="button" class="${initclass}dropdown" fekvar="${variablename}" style="background-position:right 10px; background-repeat:no-repeat; background-image:url('${self.FEKgfx}drop-indicator.png');">
         ${tooltiphtml}
         <div id="indicator" style="${initstyle}"></div>
         <span id="label">${label}</span>
@@ -2074,10 +933,10 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
       // No options provided, so this is a toggle
       if(useInitValue === "off"){
         initclass = "inactive";
-        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${self.FEKgfx}button-off.png");`;
       }else{
         initclass = "";
-        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
+        initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${self.FEKgfx}button-on.png");`;
       }
 
       buttonhtml = `
@@ -2095,43 +954,12 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
   // Run the feature by callback if it isn't disabled
   if(useInitValue !== "off")
     callback(useInitValue);
-}
-
-//////////////////////////////////////////////////
-// CreateGUI: Creates the GUI for the FEK panel //
-//////////////////////////////////////////////////
-function CreateGUI(){
-  var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
-
-  var panelhtml = `
-  <div id="fekpanel">
-    <div id="col1">
-      <div id="logo" style="background:url(${FEKgfx}logo.png) no-repeat"></div>
-      <div id="version">v${FEKversion}</div>
-      <div id="tabs"></div>
-    </div>
-    <div id="col2">
-      <div id="refreshNotice">
-        Changes Saved. Click Here To Refresh The Page.
-      </div>
-      <div id="fekScrollRegion" class="fekScrollRegion"></div>
-    </div>
-  </div>
-  `;
-
-  var docbody = $("html").first().find("body:not(.wysiwyg)").first();
-  docbody.append(panelhtml);
-  docbody.append(tooltipshtml);
-
-  // Hide FEK Panel so the user doesn't see a whole bunch
-  // of random text for the second while the webpage loads
-  $("#fekpanel").hide();
-}
+};
 
 /////////////////////////////////////////////////////////////////////////////////
 // SettleGUI: Sets the FEK panel to a default tab so that it doesn't look ugly //
 /////////////////////////////////////////////////////////////////////////////////
-function SettleGUI(){
+Fek.prototype.SettleGUI = function(){
   // This sets the GUI panel to the first tab
   $("#fekpanel #tab").each(function(){
     // Remove all contentviews and active tabs
@@ -2142,12 +970,12 @@ function SettleGUI(){
   // Now set our active tab and contentview to the first tab listed
   $("#fekpanel #tab:first").addClass("active");
   $(`#fekpanel #col2 #contentview[tablink="${$("#fekpanel #tab:first").attr("tab")}"]`).show();
-}
+};
 
 ////////////////////////////////////////////////////////////////
 // PanelCreateTab: Creates a new tab on the FEK control panel //
 ////////////////////////////////////////////////////////////////
-function PanelCreateTab(tabgroup, tab, callback){
+Fek.prototype.PanelCreateTab = function(tabgroup, tab, callback){
   // This will create a tab and content view with the supplied paramaters and send the contentview element back to the calling function
   // Prepare special compatible/safe tag names by replacing characters and casing
   var stabgroup = tabgroup.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
@@ -2164,7 +992,7 @@ function PanelCreateTab(tabgroup, tab, callback){
   }
 
   // Create the tab it if doesn't exist
-  if($(`#tab[tab="${stabgroup}-${stab}"]`).length == 0)
+  if($(`#tab[tab="${stabgroup}-${stab}"]`).length === 0)
     $(`#tabgroup[tabgroup="${stabgroup}"]`).append(`
     <div id="tab" tab="${stabgroup}-${stab}">
       ${tab}
@@ -2173,19 +1001,20 @@ function PanelCreateTab(tabgroup, tab, callback){
     `);
 
   // Create the contentview if it doesn't exist
-  if($(`#fekpanel #col2 .fekScrollRegion #contentview[tablink="${stabgroup}-${stab}"]`).length == 0)
+  if($(`#fekpanel #col2 .fekScrollRegion #contentview[tablink="${stabgroup}-${stab}"]`).length === 0)
     $("#fekpanel #col2 .fekScrollRegion").append(`
     <div id="contentview" tablink="${stabgroup}-${stab}"></div>
     `);
 
   // Now that we've setup the tab and contentview panel, lets send the contentview through the callback
   callback($(`#contentview[tablink="${stabgroup}-${stab}"]`));
-}
+};
 
 ////////////////////////////////////////////
 // PanelShow: Shows the FEK control panel //
 ////////////////////////////////////////////
-function PanelShow(){
+Fek.prototype.PanelShow = function(){
+  var self = this;
   if($("#fekpanel").is(":visible")){
     // If the panel is already visible when show is called, do nothing
   }else{
@@ -2212,16 +1041,16 @@ function PanelShow(){
       $( "#fekpanel #col2" ).stop().animate({left: col1width + "px"}, 150, function(){
         // Hide all content views to speed up the .show animation
         $("#fekScrollRegion").show();
-        InitScrollbar(".fekScrollRegion");
+        self.InitScrollbar(".fekScrollRegion");
       });
     });
   }
-}
+};
 
 ////////////////////////////////////////////
 // PanelHide: Hides the FEK control panel //
 ////////////////////////////////////////////
-function PanelHide(){
+Fek.prototype.PanelHide = function(){
   // Get current panel widths
   var col1width = $("#fekpanel #col1").outerWidth();
   var col2width = $("#fekpanel #col2").outerWidth();
@@ -2237,35 +1066,37 @@ function PanelHide(){
       $("#fekpanel").hide();
     });
   });
-}
+};
 
 ////////////////////////////////////////////////
 // PanelToggle: Toggles the FEK control panel //
 ////////////////////////////////////////////////
-function PanelToggle(){
+Fek.prototype.PanelToggle = function(){
+  var self = this;
   if($("#fekpanel").is(":visible"))
-    PanelHide();
+    self.PanelHide();
   else
-    PanelShow();
-}
+    self.PanelShow();
+};
 
 /////////////////////////////////////////////////////////////////////////////////
 // LoadWebPanel: Loads web panels such as Credits, Announcements, Events, etc. //
 /////////////////////////////////////////////////////////////////////////////////
-function LoadWebPanel(page, container){
+Fek.prototype.LoadWebPanel = function(page, container){
+  var self = this;
   var formData = new FormData();
   formData.append("page", page);
 
-  SendToServer(`${domain}/webpanel`, formData, function(data){
+  self.SendToServer(`${self.domain}/webpanel`, formData, function(data){
     container.html(data);
-    InitScrollbar(".fekScrollRegion");
+    self.InitScrollbar(".fekScrollRegion");
   });
-}
+};
 
 ///////////////////////////////////////////////
 // InitScrollbar: Initializes the scroll bar //
 ///////////////////////////////////////////////
-function InitScrollbar(element){
+Fek.prototype.InitScrollbar = function(element){
   var elm;
   var supressx = false;
   var supressy = false;
@@ -2300,76 +1131,37 @@ function InitScrollbar(element){
     elm.perfectScrollbar("destroy");
     elm.removeClass("ps-container");
   }
-}
-
-/////////////////////////////////////////
-// Extend jQuery for FEK control panel //
-/////////////////////////////////////////
-$.fn.hasOverflow = function(){
-  var leeway = 0;
-  var element = $(this)[0];
-  if(element.clientWidth < (element.scrollWidth - leeway) || element.clientHeight < (element.scrollHeight - leeway))
-    return true;
-
-  return false;
 };
-
-$.fn.hasOverflowX = function(){
-  var leeway = 0;
-  var element = $(this)[0];
-  if(element.offsetWidth < (element.scrollWidth - leeway)){
-    $(this).attr("overflowX", (element.scrollWidth - leeway) - element.offsetWidth);
-    return true;
-  }else{
-    $(this).attr("overflowX", "0");
-    return false;
-  }
-};
-
-$.fn.hasOverflowY = function(){
-  var leeway = 0;
-  var element = $(this)[0];
-  if(element.offsetHeight < (element.scrollHeight - leeway)){
-    $(this).attr("overflowY", (element.scrollHeight - leeway) - element.offsetHeight);
-    return true;
-  }else{
-    $(this).attr("overflowY", "0");
-    return false;
-  }
-};
-
-/////////////////////////////////////
-// ========== UTILITIES ========== //
-/////////////////////////////////////
 
 //////////////////////////////////////
 // KeyWatch: Watches for keypresses //
 //////////////////////////////////////
-function KeyWatch(){
+Fek.prototype.KeyWatch = function(){
+  var self = this;
   // Clear the active keys when the window is focused or when the text area is refocused
   $(window).focus(function(){
-    activeKeys = [];
+    self.activeKeys = [];
   });
 
   // Watch for key modifiers being held down
   $(document).keydown(function(event){
-    var i = activeKeys.indexOf(event.which);
+    var i = self.activeKeys.indexOf(event.which);
     if(i == -1)
-      activeKeys.push(event.which);
+      self.activeKeys.push(event.which);
 
-    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-      hotkeys[event.which]("keydown", event);
+    if(self.hotkeys[event.which] && typeof self.hotkeys[event.which] === "function")
+      self.hotkeys[event.which]("keydown", event);
   });
 
   // Watch for key modifiers being released
   $(document).keyup(function(event){
-    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-      hotkeys[event.which]("keyup", event);
+    if(self.hotkeys[event.which] && typeof self.hotkeys[event.which] === "function")
+      self.hotkeys[event.which]("keyup", event);
 
-    var i = activeKeys.indexOf(event.which);
+    var i = self.activeKeys.indexOf(event.which);
 
     if(i != -1)
-      activeKeys.splice(i, 1);
+      self.activeKeys.splice(i, 1);
   });
 
   // Setup the fek tooltip
@@ -2398,7 +1190,7 @@ function KeyWatch(){
 
   // Allow clicking away from the panel to close the panel
   $("body").click(function(){
-    PanelHide();
+    self.PanelHide();
   });
 
   $("#fekpanel").click(function(event){
@@ -2412,13 +1204,13 @@ function KeyWatch(){
     event.preventDefault();
     var tab = $(this).attr("href").replace("#fektab-","");
     $(`#tab[tab="${tab}"]`).trigger("click");
-    PanelShow();
+    self.PanelShow();
   });
 
   $(`a[href="#fekpanel"]`).click(function(event){
     event.stopPropagation();
     event.preventDefault();
-    PanelToggle();
+    self.PanelToggle();
   });
 
   $("#fekpanel #tab").click(function(){
@@ -2431,7 +1223,7 @@ function KeyWatch(){
     $(this).addClass("active");
     $("#fekpanel #col2 .fekScrollRegion").scrollTop(0);
     $("#fekpanel #col2 #contentview[tablink=" +$(this).attr("tab") + "]").show();
-    InitScrollbar(".fekScrollRegion");
+    self.InitScrollbar(".fekScrollRegion");
   });
 
   $("#fekpanel").on("mousewheel", function(event){
@@ -2454,7 +1246,7 @@ function KeyWatch(){
         $(this).find("ul").show();
         $(this).css("z-index", "9999");
         $(this).find("ul").scrollTop(0);
-        InitScrollbar($(this).find("ul"));
+        self.InitScrollbar($(this).find("ul"));
       }
     }else{
       $("#fekpanel #button").find("ul").hide();
@@ -2466,12 +1258,12 @@ function KeyWatch(){
         // Turn the variable on and save state
         GM_setValue(variablename, "on");
         $(this).removeClass("inactive");
-        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
+        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + self.FEKgfx + "button-on.png\");");
       }else{
         // Turn the variable and save state
         GM_setValue(variablename, "off");
         $(this).addClass("inactive");
-        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
+        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + self.FEKgfx + "button-off.png\");");
       }
     }
   });
@@ -2492,33 +1284,24 @@ function KeyWatch(){
         // Nothing
       }else{
         $(this).closest("#button").addClass("inactive");
-        $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
+        $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + self.FEKgfx + "button-off.png\");");
       }
     }else{
       $(this).closest("#button").removeClass("inactive");
-      $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
+      $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + self.FEKgfx + "button-on.png\");");
     }
   });
 
   $("#refreshNotice").click(function(){
     location.reload();
   });
-}
-
-///////////////////////////////////////////////////
-// ChangeElementType: Changes the element's type //
-///////////////////////////////////////////////////
-(function($) {$.fn.ChangeElementType = function(newType) {var attrs = {}; $.each(this[0].attributes, function(idx, attr) {attrs[attr.nodeName] = attr.nodeValue;}); this.replaceWith(function() {return $("<" + newType + "/>", attrs).append($(this).contents());});};})(jQuery);
-
-//////////////////////////////////////////////////
-// GradientText: Gives a color gradient to text //
-//////////////////////////////////////////////////
-(function(e){e("head").append('<style type="text/css">.sn-pxg .pxg-set{user-select:none;-moz-user-select:none;-webkit-user-select:none;}.sn-pxg span.pxg-source{position:relative;display:inline-block;z-index:2;}.sn-pxg U.pxg-set,.sn-pxg U.pxg-set S,.sn-pxg U.pxg-set S B{left:0;right:0;top:0;bottom:0;height:inherit;width:inherit;position:absolute;display:inline-block;text-decoration:none;font-weight:inherit;}.sn-pxg U.pxg-set S{overflow:hidden;}.sn-pxg U.pxg-set{text-decoration:none;z-index:1;display:inline-block;position:relative;}</style>');e.fn.GradientText=function(t){function r(e){if("#"==e.substr(0,1)){e=e.substr(1)}if(3==e.length){e=e.substr(0,1)+e.substr(0,1)+e.substr(1,1)+e.substr(1,1)+e.substr(2,1)+e.substr(2,1)}return[parseInt(e.substr(0,2),16),parseInt(e.substr(2,2),16),parseInt(e.substr(4,2),16)]}function i(e){var t="0123456789abcdef";return"#"+t.charAt(parseInt(e[0]/16))+t.charAt(e[0]%16)+t.charAt(parseInt(e[1]/16))+t.charAt(e[1]%16)+t.charAt(parseInt(e[2]/16))+t.charAt(e[2]%16)}function s(e,n){var r=e>0?e/n:0;for(var i=0;i<t.colors.length;i++){fStopPosition=i/(t.colors.length-1);fLastPosition=i>0?(i-1)/(t.colors.length-1):0;if(r==fStopPosition){return t.colors[i]}else if(r<fStopPosition){fCurrentStop=(r-fLastPosition)/(fStopPosition-fLastPosition);return o(t.RGBcolors[i-1],t.RGBcolors[i],fCurrentStop)}}return t.colors[t.colors.length-1]}function o(e,t,n){var r=[];for(var s=0;s<3;s++){r[s]=e[s]+Math.round((t[s]-e[s])*n)}return i(r)}var t=e.extend({step:10,colors:["#ffcc00","#cc0000","#000000"],dir:"y"},t);t.RGBcolors=[];for(var n=0;n<t.colors.length;n++){t.RGBcolors[n]=r(t.colors[n])}return this.each(function(n,r){var i=e(r);if(!i.hasClass("sn-pxg")){var o=i.html();i.html('<span class="pxg-source" style="visibility: hidden;">'+o+"</span>").append('<u class="pxg-set"></u>');var u=i.find(".pxg-set");var a=i.find(".pxg-source");var f=a.innerWidth();var l=a.innerHeight();a.hide();i.addClass("sn-pxg");if(t.dir=="x"){var c=f}else if(t.dir=="y"){var c=l}var h=Math.floor(c/t.step);var p=h;var d=c-h*t.step;if(d>0){p++}u.css({width:f,height:l});var v=0;var m="";if(t.dir=="x"){for(var n=0;n<p;n++){var g=s(v,c);m+='<s style="height:'+l+"px;width:"+t.step+"px;left:"+v+"px;color:"+g+'"><b style="left:-'+v+"px;width:"+f+"px;height:"+l+'px;">'+o+"</b></s>";v=v+t.step}}else if(t.dir=="y"){for(var n=0;n<p;n++){var g=s(v,c);m+='<s style="width:'+f+"px;height:"+t.step+"px;top:"+v+"px;color:"+g+'"><b style="top:-'+v+"px;height:"+f+"px;height:"+l+'px;">'+o+"</b></s>";v=v+t.step}}u.append(m)}})}})(jQuery);
+};
 
 ///////////////////////////////////////////////////////////////////
 // CreateAlertBox: Creates an alert box at the top of the window //
 ///////////////////////////////////////////////////////////////////
-function CreateAlertBox(top, background, border, color, innerHTML){
+Fek.prototype.CreateAlertBox = function(top, background, border, color, innerHTML){
+  var self = this;
   var apolloHeader = document.getElementsByClassName("apollo-header")[0];
   var alertBanner = document.createElement("div");
   apolloHeader.appendChild(alertBanner);
@@ -2541,14 +1324,13 @@ function CreateAlertBox(top, background, border, color, innerHTML){
   alertBanner.style.setProperty("text-shadow",           "1px 1px rgba(0,0,0,.8)");
 
   alertBanner.innerHTML = innerHTML;
-  alertPopUp = true;
-}
+  self.alertPopUp = true;
+};
 
 ///////////////////////////////////////////////
 // ParseTwitterDate: Parses the Twitter date //
 ///////////////////////////////////////////////
-function ParseTwitterDate(text){
-  var newtext = text.replace(/(\+\S+) (.*)/, "$2 $1");
+Fek.prototype.ParseTwitterDate = function(text){
   var date = new Date(Date.parse(text)).toLocaleDateString();
   var time = new Date(Date.parse(text)).toLocaleTimeString();
 
@@ -2557,55 +1339,22 @@ function ParseTwitterDate(text){
   time = time.slice(0, i) + time.slice(i+3, time.length);
 
   return date + " - " + time;
-}
+};
 
 ///////////////////////////////////////////////////////////////////////
 // ReplaceUrlWithHtmlLink: Replaces URLs with HTML links for twitter //
 ///////////////////////////////////////////////////////////////////////
-function ReplaceUrlWithHtmlLink(text){
+Fek.prototype.ReplaceUrlWithHtmlLink = function(text){
   var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/i;
   return text.replace(exp, `<a href="$1" target="_blank">$1</a>`);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-// WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
-////////////////////////////////////////////////////////////////////////////////////////////////
-function WaitAndRun(selector, callback){
-  var timeOut = 2000, currentTime = 0;
-
-  var interval = setInterval(function(){
-    currentTime = currentTime + 1;
-
-    if(currentTime >= timeOut)
-      clearInterval(interval);
-    else if($(selector).length > 0){
-      clearInterval(interval);
-      callback();
-    }
-  }, 1);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// WaitAndRunManual: Waits for a specified amount of time before executing the callback //
-//////////////////////////////////////////////////////////////////////////////////////////
-function WaitAndRunManual(time, callback){
-  var timeOut = time, currentTime = 0;
-
-  var interval = setInterval(function(){
-    currentTime = currentTime + 1;
-
-    if(currentTime >= timeOut){
-      clearInterval(interval);
-      callback();
-    }
-  }, 1);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
-function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
-  $.getJSON("http://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
+Fek.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge){
+  var self = this;
+  $.getJSON("http://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
       var data;
       var badges = [];
@@ -2649,7 +1398,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
         if(data.b_s06chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6challenger.png");}
       }
 
-        if(staff == "1")                                     {badges.push(FEKgfx + "fekbadge.png");}
+        if(staff == "1")                                     {badges.push(self.FEKgfx + "fekbadge.png");}
         if((badge !== "") && (typeof badge !== "undefined")){
           var collection = badge.split(",");
           for(var i = 0; i < collection.length; i++)
@@ -2676,7 +1425,7 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
           badgeContainer.className = "badge-container";
           badgeContainer.style.setProperty("position",   "relative", "important");
           badgeContainer.style.setProperty("top",        "-8px",     "important");
-          badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
+          badgeContainer.style.setProperty("width",      self.avatarSize + 60 + "px", "important");
           badgeContainer.style.setProperty("height",     "36px",     "important");
           badgeContainer.style.setProperty("text-align", "center",   "important");
           profHover.appendChild(badgeContainer);
@@ -2702,8 +1451,8 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
         divTitle.textContent = title;
         divTitle.style.setProperty("position",       "relative",     "important");
         divTitle.style.setProperty("top",            "-8px",         "important");
-        divTitle.style.setProperty("width",          avatarSize + 60 + "px", "important");
-        divTitle.style.setProperty("max-width",      avatarSize + 60 + "px", "important");
+        divTitle.style.setProperty("width",          self.avatarSize + 60 + "px", "important");
+        divTitle.style.setProperty("max-width",      self.avatarSize + 60 + "px", "important");
         divTitle.style.setProperty("max-height",     "52px",         "important");
         divTitle.style.setProperty("text-align",     "center",       "important");
         divTitle.style.setProperty("overflow",       "hidden",       "important");
@@ -2739,16 +1488,1153 @@ function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
       }
     }
   });
-}
+};
 
-////////////////////////////////////////
-// ========== FEK FEATURES ========== //
-////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
+//////////////////////////////////////////////////////////////////////////////
+Fek.prototype.EmptyVoteReplacement = function(){
+  var self = this;
+  if(self.emptyVoteReplacement == "banners"){
+    $(".inline-profile").each(function(){
+      var src           = "http://i.imgur.com/NcHbI1d.png";
+      var votingElement = $(this).parent().parent().parent().find(".no-voting");
+      $(votingElement).html(`
+      <div class="riot-apollo voting">
+        <ul class="riot-voting">
+          <li class="total-votes">
+            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}">
+          </li>
+        </ul>
+      </div>
+      `);
+    });
+  }else if(self.emptyVoteReplacement == "bannersavatars"){
+    self.users   = [];
+    self.regions = [];
+
+    $(".inline-profile").each(function(){
+      var username = this.getElementsByClassName("username")[0].textContent;
+      var region   = this.getElementsByClassName("realm")[0].textContent;
+          region   = region.substring(1, region.length - 1);
+
+      self.users.push(username);
+      self.regions.push(region);
+    });
+
+    var formData = new FormData();
+    formData.append("users",   self.users);
+    formData.append("regions", self.regions);
+
+    self.SendToServer(`${self.domain}/GetOnlyAvatars`, formData, function(data){
+      $(".inline-profile").each(function(){
+        var username = this.getElementsByClassName("username")[0].textContent;
+        var region   = this.getElementsByClassName("realm")[0].textContent;
+            region   = region.substring(1, region.length - 1);
+        var votingElement = $(this).parent().parent().parent().find(".no-voting");
+        var avatar = data["records"][username][region].avatar;
+        var src;
+
+        if(avatar !== undefined) src = avatar;
+        else                     src = "http://i.imgur.com/NcHbI1d.png";
+
+        $(votingElement).html(`
+        <div class="riot-apollo voting">
+          <ul class="riot-voting">
+            <li class="total-votes">
+            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}"></li>
+          </ul>
+        </div>
+        `);
+      });
+    });
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////
+// HideSubboards: Hides the sub-boards that the user doesn't want to see //
+///////////////////////////////////////////////////////////////////////////
+Fek.prototype.HideSubboards = function(){
+  var self = this;
+  $(".discussion-list-item").each(function(){
+
+    // Always show pinned threads
+    if(!$(this.getElementsByClassName("pin")[0]).length){
+      var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
+
+      // Only hide the thread if it's from a board that is recognized
+      if(typeof subboard !== "undefined"){
+        subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
+        if(self.hide[subboard] == "on")
+          $(this).remove();
+      }
+    }
+  });
+};
+
+//////////////////////////////////////////////////////////////////////////////
+// FavoriteIcons: Changes the champion/spell/item icons in the posting area //
+//////////////////////////////////////////////////////////////////////////////
+Fek.prototype.FavoriteIcons = function(){
+  var self = this;
+  $(".button.gamedata.champion").each(function(){
+    var url = self.FEKgfxLargeChamp + self.favoriteChampion;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
+    this.style.setProperty("background-position", "-3px -3px", "important");
+    this.style.setProperty("background-size", "120% auto", "important");
+
+    if(self.favoriteIcons == "mouseover")
+      self.SetGrayscaleProperties(this);
+  });
+
+  $(".button.gamedata.summoner").each(function(){
+    var url = self.FEKgfxLargeSpell + self.favoriteSpell;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
+    this.style.setProperty("background-position", "-3px -3px", "important");
+    this.style.setProperty("background-size", "120% auto", "important");
+
+    if(self.favoriteIcons == "mouseover")
+      self.SetGrayscaleProperties(this);
+  });
+
+  $(".button.gamedata.item").each(function()
+  {
+    var url = self.FEKgfxLargeItem + self.favoriteItem;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
+    this.style.setProperty("background-position", "-3px -3px", "important");
+    this.style.setProperty("background-size", "120% auto", "important");
+
+    if(self.favoriteIcons == "mouseover")
+      self.SetGrayscaleProperties(this);
+  });
+};
+
+///////////////////////////////////////////////////////
+// SetGrayscaleProperties: Sets grayscale properties //
+///////////////////////////////////////////////////////
+Fek.prototype.SetGrayscaleProperties = function(obj){
+  obj.style.setProperty("filter", "grayscale(1)", "important");
+
+  $(obj).hover(function(){
+    obj.style.setProperty("filter", "grayscale(0)", "important");
+  }, function(){
+    obj.style.setProperty("filter", "grayscale(1)", "important");
+  });
+};
+
+//////////////////////////////////////////////////////////////////////////
+// QueryFEKServer: Makes a connection to the FEK server for information //
+//////////////////////////////////////////////////////////////////////////
+Fek.prototype.QueryFEKServer = function(){
+  var self = this;
+  var formData = new FormData();
+  formData.append("name",    self.myName);
+  formData.append("region",  self.myRegion);
+  formData.append("users",   self.users);
+  formData.append("regions", self.regions);
+
+  self.SendToServer(`${self.domain}/database`, formData, function(data){
+    self.results   = data.records;
+    self.FEKtweets = data.announcements;
+    self.FEKevent  = data.event;
+
+    // THIS FEATURE TEMPORARILY DISABLED!
+    // var unixTime = Math.floor(Date.now() / 1000);
+    // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
+    // ===== START =====
+    // var NavBarEvent = document.createElement("li");
+    // var html = `
+    // <a href="#">Event</a>
+    // <div id="fek-event">
+    //   <div id="fek-event-top">${FEKevent.message}</div>
+    //   <div id="fek-event-bottom-left">
+    //     <a href="${FEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
+    //   </div>
+    //   <div id="fek-event-bottom-right">
+    //     <a href="${FEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
+    //   </div>
+    // </div>
+    // `;
+    // ====== END ======
+
+    // AddToNavBar(NavBarEvent, "touchpoint-event", html, RiotBar, 8);
+
+    // window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
+
+    // // Hides dropdown event information by default, and displays it with mouse hover
+    // $("#fek-event").hide();
+    // $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
+
+    if(self.FEKversion != self.results.version && window.location.href != self.FEKpage){
+      var html = `
+      There has been an update to FEK!<br><br>
+      <a href="${self.results.details}" style="color:#00C0FF;">Click here</a>
+      for the post detailing new changes and to download version ${self.results.version}
+      `;
+
+      self.CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
+    }else{
+      if(typeof self.results.apiStatusCode !== "undefined" && self.alertPopUp === false){
+        self.CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
+                       "Error " + self.results.apiStatusCode + ": " + self.results.apiMessage);
+      }
+
+      if(typeof self.results.alert !== "undefined" && self.alertPopUp === false){
+        self.CreateAlertBox(self.results.top, self.results.color1, self.results.color2, self.results.font,
+                       self.results.alert);
+      }
+    }
+
+    if(self.page == "Thread")
+      self.FormatAllPosts(true);
+
+    $.event.trigger({type: "tweetsLoaded"});
+  });
+};
+
+////////////////////////////////////////////////////
+// LoadIndex: Loads everything for the Index page //
+////////////////////////////////////////////////////
+Fek.prototype.LoadIndex = function(){
+  var self = this;
+  if(self.blacklisting)
+    self.IndexBlacklist();
+
+  self.RemoveThumbnailBackground();
+  self.ColorVotes();
+  self.HoverVotes();
+
+  if(self.enhancedThreadPreview == "on")
+    self.EnhancedThreadPreview();
+
+  if(self.highlightMyThreads != "off")
+    self.HighlightMyThreads();
+
+  self.QueryFEKServer();
+};
+
+/////////////////////////////////////////////////////////////////////
+// IndexBlacklist: Hides threads by blacklisted users on the index //
+/////////////////////////////////////////////////////////////////////
+Fek.prototype.IndexBlacklist = function(){
+  $(".discussion-list-item.row").each(function(){
+    // Skip threads that have no username (such as Announcements)
+    if($(this).find(".username")[0]){
+      var usernameT = this.getElementsByClassName("username")[0].textContent;
+      var regionT   = this.getElementsByClassName("realm")[0].textContent;
+
+      // If it's a person you blacklisted, hide the thread
+      if(GM_getValue(usernameT + " " + regionT, 0) == 1)
+        $(this).remove();
+    }
+  });
+};
+
+//////////////////////////////////////////////////////
+// LoadThread: Loads everything for the Thread page //
+//////////////////////////////////////////////////////
+Fek.prototype.LoadThread = function(){
+  var self = this;
+  // Remove all "Posting as X" fields
+  $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
+
+  // Make sure that the users/regions arrays are empty, since they will have
+  // left-over data from when people switch pages in chronological view
+  self.users   = [];
+  self.regions = [];
+
+  // Get information on every person within the thread
+  $(".inline-profile").each(function(){
+    var username = this.getElementsByClassName("username")[0].textContent;
+    var region   = this.getElementsByClassName("realm")[0].textContent;
+        region   = region.substring(1, region.length - 1);
+
+    // FEK staff have special gradient names, so I need to extract them using this method
+    if(this.getElementsByClassName("pxg-set").length > 0)
+      username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+
+    self.users.push(username);
+    self.regions.push(region);
+  });
+
+  // Bring .toggle-minimized to the front so people can click on it
+  $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
+
+  self.WaitAndRun(".profile-hover", self.FormatAllPosts);
+
+  self.ColorVotes();
+  self.HoverVotes();
+  self.QueryFEKServer();
+
+  if(self.embedMedia == "on")
+    self.EmbedMedia();
+};
+
+////////////////////////////////////////////////////////////////
+// FormatSomePosts: Calls FormatSinglePost on only some posts //
+////////////////////////////////////////////////////////////////
+Fek.prototype.FormatSomePosts = function(FEKData = false){
+  var self = this;
+  if(!FEKData){
+    $(".body-container").each(function(){
+      self.FormatSinglePost1(this, false);
+    });
+  }else{
+    $(".body-container").each(function(){
+      // Only execute the function if the post is not deleted
+      if(!$($(this).find(".deleted")[0]).is(":visible"))
+        self.FormatSinglePost2(this, false);
+    });
+  }
+};
+
+//////////////////////////////////////////////////////////////////////
+// FormatAllPosts: Calls FormatSinglePost on every post that exists //
+//////////////////////////////////////////////////////////////////////
+Fek.prototype.FormatAllPosts = function(FEKData = false){
+  var self = this;
+
+  $(document).find(".toggle-minimized").remove();
+
+  if(!FEKData){
+    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
+      $(".op-container").each(function(){
+        self.FormatSinglePost1(this, true);
+      });
+    }
+
+    $(".body-container").each(function(){
+      self.FormatSinglePost1(this, false);
+    });
+  }else{
+    if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
+      $(".op-container").each(function(){
+        self.FormatSinglePost2(this, true);
+      });
+    }
+
+    $(".body-container").each(function(){
+      // Only execute the function if the post is not deleted
+      if(!$($(this).find(".deleted")[0]).is(":visible"))
+        self.FormatSinglePost2(this, false);
+    });
+  }
+
+  // isMinimized
+  $(".toggle-minimized").click(function(){
+    // Put everything in a container and then hide it
+
+    var post = $(this).parent()[0];
+
+    if($(this).parent().hasClass("isMinimized")){
+      // Minimizing the post
+
+      if($(post).find(".hide-post").length === 0){
+        // If the container doesn't exist, make it
+        // Classes:
+        // 0. masthead
+        // 1. toggle-minimized
+        // 2. newline
+        // 3. small
+        // 4. body-container
+        // 5. list
+        // 6. paging
+        //
+        // Put 2-5 in their own span and keep it between 1 and 7
+
+        var testing = document.createElement("span");
+        $(testing).attr("class", "hide-post");
+
+        $(testing).append($(post).find(".new-line")[0]);
+        $(testing).append($(post).find(".small")[0]);
+        $(testing).append($(post).find(".body-container")[0]);
+        $(testing).append($(post).find(".list")[0]);
+
+        // Finally append it to the post
+        $(testing).insertAfter($(post).find(".toggle-minimized")[0]);
+        $(testing).css("display", "none");
+      }else{
+        // If the container already exists
+        $($(post).find(".hide-post")[0]).css("display", "none");
+      }
+    }else{
+      // Maximizing the post
+      $($(post).find(".hide-post")[0]).css("display", "");
+
+      // Load FEK stuff for posts
+      var list = $(post).find(".list")[0];
+
+      $(list).each(function(){
+        $(".body-container").each(function(){
+          self.FormatSinglePost1(this, false);
+          self.FormatSinglePost2(this, false);
+          self.ColorVotes();
+          self.HoverVotes();
+          $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
+        });
+      });
+    }
+  });
+};
+
+////////////////////////////////////////////////////////////////////////
+// FormatSinglePost1: Formats a single post before inserting FEK data //
+////////////////////////////////////////////////////////////////////////
+Fek.prototype.FormatSinglePost1 = function(obj, op){
+  var self = this;
+  if(op === false){
+    // Show downvoted posts
+    $(obj).parent().removeClass("isLowQuality");
+
+    // See if the post is deleted
+    var isThisDeleted = obj.children[0].children[1].getAttribute("style");
+
+    if(isThisDeleted === null)
+      return;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  var usernameT = obj.getElementsByClassName("username")[0].textContent;
+  var regionT   = obj.getElementsByClassName("realm")[0].textContent;
+  regionT       = regionT.substring(1, regionT.length - 1);
+
+  // If it's a person you blacklisted, hide the post if it's not the op
+  if(self.blacklisting === "on"){
+    if(GM_getValue(usernameT + " (" + regionT + ")", 0) == 1 && op === false)
+      $(obj).parent().remove();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Define standard variables for this scope
+  var riotVoting    = $(obj).parent()[0].getElementsByClassName("riot-voting")[0];
+  var inlineProfile = obj.getElementsByClassName("inline-profile")[0];
+  var profHover     = obj.getElementsByClassName("profile-hover")[0];
+  var timeago       = obj.getElementsByClassName("timeago")[0];
+  var icon          = obj.getElementsByTagName("img")[0];
+  var body          = obj.getElementsByClassName("body")[0];
+  var isRioter      = obj.getElementsByClassName("isRioter")[0];
+  var username      = obj.getElementsByClassName("username")[0];
+  var region        = obj.getElementsByClassName("realm")[0];
+
+  // FEK staff have special gradient names, so I need to extract them using this method
+  if(obj.getElementsByClassName("pxg-set").length > 0)
+    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+
+  // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
+  var tinyIcon; if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
+
+  // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
+  tinyIcon.style.setProperty("z-index", "1");
+
+  // Declare variables that will be used later
+  var opTitle;      // op
+  var authorInfo;   // op
+  var content;      // op
+  var controlLinks; // op
+  var attachments;  // not op
+  var footer;       // not op
+
+  var innerDiv;
+
+  $(tinyIcon).each(function(){
+    if(this.id != "popupHook"){
+      this.id = "popupHook";
+
+      $(this).hover(function(){
+        var avatar = $($(this).find("img")[0]).attr("src");
+
+        // Now create and append to innerDiv
+        innerDiv = document.createElement("div");
+        innerDiv.className = "popup";
+        innerDiv.style.setProperty("position", "relative");
+        innerDiv.style.setProperty("border", "solid 1px black");
+        innerDiv.style.setProperty("width",  self.avatarSize + "px");
+        innerDiv.style.setProperty("height", self.avatarSize + "px");
+        innerDiv.style.setProperty("left", "99%");
+        innerDiv.style.setProperty("display", "none");
+        innerDiv.style.setProperty("background-color", "white");
+        innerDiv.style.setProperty("z-index", "-1");
+        innerDiv.style.setProperty("padding-top", "0px");
+        innerDiv.style.setProperty("padding-left", "5%");
+
+        if(op) innerDiv.style.setProperty("top", -self.avatarSize - 8 + "px");
+        else   innerDiv.style.setProperty("top", -self.avatarSize - 5 + "px");
+
+        /*   font-size | line-height
+        100:    14     |     18
+        125:    18     |     23
+        150:    22     |     28
+        175:    26     |     33
+        200:    30     |     38
+        */
+        innerDiv.style.setProperty("font-size",   (self.avatarSize - 100) / 25 * 4 + 14 + "px");
+        innerDiv.style.setProperty("line-height", (self.avatarSize - 100) / 25 * 5 + 18 + "px");
+
+        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
+                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
+                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
+                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
+                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
+
+        this.appendChild(innerDiv);
+
+        profHover.setAttribute("href", "#");
+
+        $(profHover).click(function(event){
+          event.preventDefault();
+          event.stopPropagation();
+        });
+
+        $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+
+        $("#prfle").click(function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open("http://boards." + self.platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
+          win.focus();
+        });
+
+        $("#avatr").click(function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open(avatar, "_blank");
+          win.focus();
+        });
+
+        $("#lolnx").click(function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
+          win.focus();
+        });
+
+        $("#opgg").click(function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
+          win.focus();
+        });
+
+        $("#black").click(function(event){
+          event.preventDefault();
+          event.stopPropagation();
+
+          var target = usernameT + " (" + regionT + ")";
+
+          // Add the person to our blacklist, or remove them from if they're already on there
+          if(GM_getValue(target, 0) === 0){
+            GM_setValue(target, 1);
+            alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
+          }else{
+            GM_deleteValue(target);
+            alert(target + " has been removed from your blacklist");
+          }
+        });
+
+        // Fade the FEK popup box in
+        $(innerDiv).fadeIn(200);
+      }, function(){
+        innerDiv.remove();
+      });
+    }
+  });
+
+  if(self.removeProfHovPop == "on"){
+    // Removes Riot's profile hover popup
+    $(profHover).hover(function(){
+      self.WaitAndRunManual(1000, function(){
+        $(document.getElementsByClassName("information-container")).parent().parent().parent().remove();
+      });
+    });
+  }
+
+  // Modifying variables
+  if(typeof riotVoting == "undefined"){
+    var discussionTitle = obj.getElementsByClassName("discussion-title")[0];
+    discussionTitle.style.setProperty("position",    "relative", "important");
+    discussionTitle.style.setProperty("margin-left", "75px",     "important");
+  }
+
+  if(op === true){
+    self.originalPoster = usernameT;
+    opTitle        = obj.getElementsByClassName("title")[0];
+    authorInfo     = obj.getElementsByClassName("author-info")[0];
+    content        = document.getElementById("content");
+  }
+
+  if(op === true){
+    controlLinks = obj.getElementsByClassName("control-links")[0];
+    controlLinks.style.setProperty("padding-left", self.avatarSize + 85 + "px", "important");
+  }
+
+  if(op === false){
+    footer      = obj.getElementsByClassName("footer")[0];
+    attachments = obj.getElementsByClassName("attachments")[0];
+  }
+
+  //if(op === false || (op === true && (document.getElementById("opHook") === null)))
+  if(1){
+    // If they are a Rioter, do their avatars a bit differently
+    if(typeof isRioter !== "undefined")
+      self.FormatAvatar(obj, true, tinyIcon, icon);
+    else
+      self.FormatAvatar(obj, false, tinyIcon, icon);
+  }
+
+  //if(op === true)
+  if(op === true && (document.getElementById("opHook") === null)){
+    obj.getElementsByTagName("a")[1].remove(); // We want to remove the second anchor (link to name of sub-board it's in)
+    $(authorInfo).contents().filter(function(){return this.nodeType == 3;}).remove();
+
+    opTitle.style.setProperty("position", "relative", "important");
+    opTitle.style.setProperty("left",     "-70px",    "important");
+
+    var titleCreated    = obj.getElementsByTagName("span")[5];
+    var submitted       = document.createElement("div");
+    submitted.id        = "opHook";
+    submitted.innerHTML = "Submitted ";
+    submitted.style.setProperty("position",  "relative", "important");
+    submitted.style.setProperty("left",      "-234px",   "important");
+    submitted.style.setProperty("font-size", "18px",     "important");
+
+    submitted.appendChild(titleCreated);
+    authorInfo.appendChild(submitted);
+  }
+
+  if(op === false)
+    obj.style.setProperty("padding-left", "100px");
+
+  // Body: Original Post
+  if(op === true){
+    body.style.setProperty("min-height",  self.avatarSize + 20 + "px", "important");
+    body.style.setProperty("padding-top", "20px",  "important");
+  }
+
+  // Body: Regular Post
+  if(op === false){
+    body.style.setProperty("position",     "relative", "important");
+    body.style.setProperty("top",          "-12px",    "important");
+    body.style.setProperty("padding-left", self.avatarSize - 60 + "px", "important");
+    body.style.setProperty("min-height",   self.avatarSize + 10 + "px", "important");
+    body.style.setProperty("margin-top",   "0px",      "important");
+  }
+
+  if(op === true){
+    content.style.setProperty("padding-left", "0px",   "important");
+    content.style.setProperty("margin-left",  self.avatarSize + 90 + "px", "important");
+  }
+
+  // Inline Profile: Original Post
+  if(op === true){
+    inlineProfile.style.setProperty("position", "relative", "important");
+    inlineProfile.style.setProperty("top",      "70px",     "important");
+    inlineProfile.style.setProperty("left",     "-42px",    "important");
+    inlineProfile.style.setProperty("width",    "160px",    "important");
+    inlineProfile.style.setProperty("height",   "20px",     "important");
+  }
+
+  // Inline Profile: Regular Post
+  if(op === false){
+    inlineProfile.style.setProperty("position", "relative", "important");
+    inlineProfile.style.setProperty("left",     "-120px",   "important");
+    inlineProfile.style.setProperty("width",    "160px",    "important");
+    inlineProfile.style.setProperty("height",   "20px",     "important");
+  }
+
+  // Profile Hover: All Posts
+  if(1){
+    profHover.style.setProperty("position",  "absolute", "important");
+    profHover.style.setProperty("height",    "20px",     "important");
+  }
+
+  // Riot members get a red title
+  if(op === false){
+    if(isRioter)
+      profHover.style.setProperty("color", "#AE250F", "important");
+    else
+      profHover.style.setProperty("color", "#94724D", "important");
+  }
+
+  // Username: All Posts
+  if(1){
+    username.style.setProperty("position",       "relative",     "important");
+    username.style.setProperty("width",          self.avatarSize + 60 + "px", "important");
+    username.style.setProperty("height",         "20px",         "important");
+    username.style.setProperty("font-size",      "14px",         "important");
+    username.style.setProperty("text-align",     "center",       "important");
+    username.style.setProperty("overflow",       "hidden",       "important");
+    username.style.setProperty("display",        "block",        "important");
+    username.style.setProperty("letter-spacing", "1px",          "important");
+    username.style.setProperty("font-variant",   "normal",       "important");
+    username.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
+
+    if(op === true)
+      username.style.setProperty("top", -self.avatarSize - 16 + "px", "important");
+    else
+      username.style.setProperty("top", -self.avatarSize - 12 + "px", "important");
+  }
+
+  // Background of username for regular posts
+  if(op === false){
+    if(usernameT == self.originalPoster)
+    {
+      if(self.OPStyle == "on")
+      {
+        username.style.setProperty("background", "none", "important");
+        username.style.setProperty("border",     "none", "important");
+      }
+      else
+      {
+        username.style.setProperty("color", "white", "important");
+      }
+    }
+  }
+
+  if(op === true){
+    region.style.setProperty("position",       "relative",             "important");
+    region.style.setProperty("top",            "-20px",                "important");
+    region.style.setProperty("left",           self.avatarSize + 55 + "px", "important");
+    region.style.setProperty("letter-spacing", "1px",                  "important");
+    region.style.setProperty("font-size",      "16px",                 "important");
+    region.style.setProperty("font-variant",   "normal",               "important");
+    region.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
+  }
+
+  if(op === false){
+    region.style.setProperty("position", "relative",             "important");
+    region.style.setProperty("top",      "-17px",                "important");
+    region.style.setProperty("left",     self.avatarSize + 65 + "px", "important");
+  }
+
+  // Voting: Original Post
+  if(op === true && typeof riotVoting != "undefined"){
+    riotVoting.style.setProperty("position", "absolute", "important");
+    riotVoting.style.setProperty("top",      "138px",    "important");
+    riotVoting.style.setProperty("left",     "10px",     "important");
+  }
+
+  // Voting: Regular Post
+  if(op === false && typeof riotVoting != "undefined"){
+    riotVoting.style.setProperty("position", "absolute", "important");
+    riotVoting.style.setProperty("top",      "50px",     "important");
+  }
+
+  // Miscellaneous: Regular Post
+  if(op === false){
+    timeago.style.setProperty("position", "relative", "important");
+    timeago.style.setProperty("top",      "-18px",    "important");
+    timeago.style.setProperty("left",     self.avatarSize - 160 + "px", "important");
+
+    footer.style.setProperty("padding-left", self.avatarSize - 65 + "px", "important");
+
+    if($(attachments).length)
+      attachments.style.setProperty("padding-left", self.avatarSize - 60 + "px", "important");
+  }
+
+  self.RollDice(obj);
+};
+
+/////////////////////////////////////////////////////////////////
+// FormatSinglePost2: Inserts FEK data into the formatted post //
+/////////////////////////////////////////////////////////////////
+Fek.prototype.FormatSinglePost2 = function(obj, op){
+  var self = this;
+
+  var usernameT     = obj.getElementsByClassName("username")[0].textContent;
+  var regionT       = obj.getElementsByClassName("realm")[0].textContent;
+  regionT           = regionT.substring(1, regionT.length - 1);
+
+  if(typeof self.results[usernameT] === "undefined")
+    return;
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // Define standard variables for this scope
+  // var riotVoting    = $(obj).parent()[0].getElementsByClassName("riot-voting")[0];
+  var inlineProfile = obj.getElementsByClassName("inline-profile")[0];
+  var profHover     = obj.getElementsByClassName("profile-hover")[0];
+  var isRioter      = obj.getElementsByClassName("isRioter")[0];
+  var username      = obj.getElementsByClassName("username")[0];
+  // var timeago       = obj.getElementsByClassName("timeago")[0];
+  // var icon          = obj.getElementsByTagName("img")[0];
+  // var body          = obj.getElementsByClassName("body")[0];
+  // var region        = obj.getElementsByClassName("realm")[0];
+
+  // FEK staff have special gradient names, so I need to extract them using this method
+  if(obj.getElementsByClassName("pxg-set").length > 0)
+    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+
+  // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
+  var tinyIcon; if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
+
+  // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
+  tinyIcon.style.setProperty("z-index", "1");
+
+  // Declare variables that will be used later
+  // APARENTLY NONE OF THESE ARE USED ANYMORE
+  // var opTitle;      // op
+  // var authorInfo;   // op
+  // var content;      // op
+  // var controlLinks; // op
+  // var attachments;  // not op
+  // var footer;       // not op
+
+  // Define user data variables
+  var avatar = self.results[usernameT][regionT].avatar;
+  var staff  = self.results[usernameT][regionT].staff;
+  var title  = self.results[usernameT][regionT].title;
+  var badge  = self.results[usernameT][regionT].badge;
+
+  /*
+  var innerDiv;
+
+  $(tinyIcon).each(function()
+  {
+    if(this.id != "popupHook")
+    {
+      this.id = "popupHook";
+
+      $(this).hover(function()
+      {
+        // Now create and append to innerDiv
+        innerDiv = document.createElement("div");
+        innerDiv.className = "popup";
+        innerDiv.style.setProperty("position", "relative");
+        innerDiv.style.setProperty("border", "solid 1px black");
+        innerDiv.style.setProperty("width", avatarSize + "px");
+        innerDiv.style.setProperty("height", avatarSize + "px");
+        innerDiv.style.setProperty("left", "99%");
+        innerDiv.style.setProperty("display", "none");
+        innerDiv.style.setProperty("background-color", "white");
+        innerDiv.style.setProperty("z-index", "-1");
+        innerDiv.style.setProperty("padding-top", "0px");
+        innerDiv.style.setProperty("padding-left", "5%");
+
+        if(op) innerDiv.style.setProperty("top", -avatarSize - 8 + "px");
+        else   innerDiv.style.setProperty("top", -avatarSize - 5 + "px");
+
+        /*   font-size | line-height
+        100:    14     |     18
+        125:    18     |     23
+        150:    22     |     28
+        175:    26     |     33
+        200:    30     |     38
+        *
+        innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
+        innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
+
+        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
+                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
+                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
+                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
+                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
+
+        this.appendChild(innerDiv);
+
+        profHover.setAttribute("href", "#");
+
+        $(profHover).click(function(event)
+        {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+
+        $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+        $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+
+        $("#prfle").click(function(event)
+        {
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open("http://boards." + platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
+          win.focus();
+        });
+
+        $("#avatr").click(function(event)
+        {
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open(avatar, "_blank");
+          win.focus();
+        });
+
+        $("#lolnx").click(function(event)
+        {
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
+          win.focus();
+        });
+
+        $("#opgg").click(function(event)
+        {
+          event.preventDefault();
+          event.stopPropagation();
+          var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
+          win.focus();
+        });
+
+        $("#black").click(function(event)
+        {
+          event.preventDefault();
+          event.stopPropagation();
+
+          var target = usernameT + " (" + regionT + ")";
+
+          // Add the person to our blacklist, or remove them from if they're already on there
+          if(GM_getValue(target, 0) === 0)
+          {
+            GM_setValue(target, 1);
+            alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
+          }
+          else
+          {
+            GM_deleteValue(target);
+            alert(target + " has been removed from your blacklist");
+          }
+        });
+
+        // Fade the FEK popup box in
+        $(innerDiv).fadeIn(200);
+      }, function()
+      {
+        innerDiv.remove();
+      });
+    }
+  });
+
+  */
+
+  // Assign avatars
+  if(typeof isRioter !== "undefined")
+    self.AssignAvatar(obj, true, avatar, tinyIcon);
+  else
+    self.AssignAvatar(obj, false, avatar, tinyIcon);
+
+  // Alter text colors for names and titles
+  if(op === false){
+    if(isRioter)
+      profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
+    else if(staff == "1")
+      profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
+    else
+      profHover.style.setProperty("color", "#94724D", "important"); // Regular users
+  }
+
+  // Username: All Posts
+  if(1){
+    if(staff == "1"){
+      // Gradient names have problems where if they are too long and have a space, they will
+      // go on a second line. So if a name is a certain length (>= 14) and has at least one
+      // space in it, decrease the font size to 12
+      if(usernameT.length >= 12 && (usernameT.indexOf(" ") >= 0))
+        username.style.setProperty("font-size", "12px", "important");
+
+      $(username).GradientText({
+        step:    10,
+        colors: ["#68BAFF", "#008AFF", "#68BAFF"],
+        dir:    "x"
+      });
+    }
+  }
+
+  self.GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
+};
+
+//////////////////////////////////
+// RollDice: Rolls virtual dice //
+//////////////////////////////////
+Fek.prototype.RollDice = function(obj){
+  var self = this;
+  // PRNG
+  // Is this function below even needed?
+  // !function(a,b,c,d,e,f,g,h,i){function j(a){var b,c=a.length,e=this,f=0,g=e.i=e.j=0,h=e.S=[];for(c||(a=[c++]);d>f;)h[f]=f++;for(f=0;d>f;f++)h[f]=h[g=s&g+a[f%c]+(b=h[f])],h[g]=b;(e.g=function(a){for(var b,c=0,f=e.i,g=e.j,h=e.S;a--;)b=h[f=s&f+1],c=c*d+h[s&(h[f]=h[g=s&g+b])+(h[g]=b)];return e.i=f,e.j=g,c})(d)}function k(a,b){var c,d=[],e=typeof a;if(b&&"object"==e)for(c in a)try{d.push(k(a[c],b-1))}catch(f){}return d.length?d:"string"==e?a:a+"\0"}function l(a,b){for(var c,d=a+"",e=0;e<d.length;)b[s&e]=s&(c^=19*b[s&e])+d.charCodeAt(e++);return n(b)}function m(c){try{return o?n(o.randomBytes(d)):(a.crypto.getRandomValues(c=new Uint8Array(d)),n(c))}catch(e){return[+new Date,a,(c=a.navigator)&&c.plugins,a.screen,n(b)]}}function n(a){return String.fromCharCode.apply(0,a)}var o,p=c.pow(d,e),q=c.pow(2,f),r=2*q,s=d-1,t=c["seed"+i]=function(a,f,g){var h=[];f=1==f?{entropy:!0}:f||{};var o=l(k(f.entropy?[a,n(b)]:null==a?m():a,3),h),s=new j(h);return l(n(s.S),b),(f.pass||g||function(a,b,d){return d?(c[i]=a,b):a})(function(){for(var a=s.g(e),b=p,c=0;q>a;)a=(a+c)*d,b*=d,c=s.g(1);for(;a>=r;)a/=2,b/=2,c>>>=1;return(a+c)/b},o,"global"in f?f.global:this==c)};if(l(c[i](),b),g&&g.exports){g.exports=t;try{o=require("crypto")}catch(u){}}else h&&h.amd&&h(function(){return t})}(this,[],Math,256,6,52,"object"==typeof module&&module,"function"==typeof define&&define,"random");
+
+  var spanElements = obj.getElementsByTagName("span");
+  var seed;
+
+  for(var i = 0; i < spanElements.length; ++i){
+    if(spanElements[i].getAttribute("title") !== null){
+      seed = spanElements[i].getAttribute("title");
+      i = spanElements.length;
+    }
+  }
+
+  // DICE ROLLING RULES!
+  // Only one roll per post. This is to prevent too many rolls to crash the browser.
+  // Don't do rolls in <blockquote>
+
+  // [roll]     = Die Result: 500 (1d1000)
+  // [roll:6]   = Die Result: 4 (1d6)
+  // [roll:2d6] = Die Result: 7 (1d6)
+  // [roll:100] = Die Result: 50 (1d100)
+
+  // Extract text in between [roll: and ]
+
+  // Convert the DateTime seed to a random number
+  seed = parseInt(seed.substr(seed.length - 8, 3)) + 1;
+
+  var paragraphs = obj.getElementsByTagName("p");
+  var rolled = false;
+
+  for(i = 0; i < paragraphs.length; ++i){
+    var regex   = /\[roll(.*?)\]/gi;
+    var command = regex.exec(paragraphs[i].innerHTML);
+
+    // Example of the Array command
+    // command[0] : "[roll:2d100]"
+    // command[1] : "2d100"
+
+    if((rolled || self.rollDice == "off" || (paragraphs[i].parentElement.tagName == "BLOCKQUOTE")) && command !== null)
+      paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], "");
+    else if(self.rollDice == "on" && command !== null){
+      var rolls    = 0;
+      var die      = 0;
+      regex        = /([0-9]*)d([0-9]*)/gi;
+      var extended = regex.exec(command[1]);
+
+      // Example of the Array extended (assuming it exists)
+      // extended[0] : "2d100"
+      // extended[1] : "2"
+      // extended[2] : "100"
+
+      // Check if it's something like 2d100, instead of having a single number
+      if(extended !== null){
+        if(extended[1]) rolls = extended[1];
+        else            rolls = 1;
+
+        if(extended[2]) die = extended[2];
+        else            die = 1;
+      }else{
+        regex      = /([0-9]*)/g;
+        var simple = regex.exec(command[1]);
+
+        if(command[1] == simple[1]){
+          rolls = 1;
+
+          if(command[1]) die = command[1];
+          else           die = 1;
+        }
+      }
+
+      var result = 0;
+
+      // Limit the die rolls and sides to 100
+      if(rolls > 100) rolls = 100;
+      if(die   > 100) die   = 100;
+
+      // [roll] is a special die roll of 1d1000
+      if(command[0] == "[roll]"){
+        rolls = 1;
+        die   = 1000;
+      }
+
+      if(rolls !== 0){
+        for(var j = 0; j < rolls; ++j){
+          Math.seedrandom(seed);
+          result += Math.ceil(Math.random() * die);
+          seed += 1;
+        }
+
+        // Replace the text
+        var dieRoll = `
+        <font color="#ff0000">Die Result: </font>
+        <font color="#00ff00">${result}</font>
+        <font color="#00ffff">(${rolls}d${die})</font>
+        `;
+        paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], dieRoll);
+
+        rolled = true;
+      }
+    }
+  }
+};
+
+/////////////////////////////////////
+// FormatAvatar: Formats an avatar //
+/////////////////////////////////////
+Fek.prototype.FormatAvatar = function(obj, isRioter, tinyIcon, icon){
+  var self = this;
+  tinyIcon.style.setProperty("position",         "relative",        "important");
+  tinyIcon.style.setProperty("top",              "12px",            "important");
+  tinyIcon.style.setProperty("left",             "30px",            "important");
+  tinyIcon.style.setProperty("width",            self.avatarSize + "px", "important");
+  tinyIcon.style.setProperty("height",           self.avatarSize + "px", "important");
+  tinyIcon.style.setProperty("background-image", "none",            "important");
+
+  if(isRioter){
+    if(!tinyIcon.getElementsByTagName("img")[0] && !tinyIcon.getElementsByTagName("video")[0]){
+      var imgIcon = document.createElement("img");
+      imgIcon.setAttribute("src", "http://i.imgur.com/STcpwlY.png");
+      imgIcon.style.setProperty("width",     self.avatarSize + "px",    "important");
+      imgIcon.style.setProperty("height",    self.avatarSize + "px",    "important");
+      imgIcon.style.setProperty("border",    "thin solid #FF0000", "important");
+      tinyIcon.appendChild(imgIcon);
+    }
+  }else{
+    icon.style.setProperty("width",  self.avatarSize + "px",    "important");
+    icon.style.setProperty("height", self.avatarSize + "px",    "important");
+    icon.style.setProperty("border", "thin solid #FFFFFF", "important");
+
+    if(self.fallbackAvatar != "off"){
+      obj.getElementsByTagName("img")[0].setAttribute("src", self.fallbackAvatar);
+    }
+  }
+};
+
+/////////////////////////////////////
+// AssignAvatar: Assigns an avatar //
+/////////////////////////////////////
+Fek.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
+  var self = this;
+  if(isRioter){
+     if(typeof avatar !== "undefined"){
+       if(avatar.slice(-5) == ".webm"){
+         self.FormatWebmAvatar(obj, avatar);
+       }else{
+         obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
+       }
+     }
+  }else{
+    if(typeof avatar !== "undefined"){
+      if(avatar.slice(-5) == ".webm")
+        self.FormatWebmAvatar(obj, avatar);
+      else
+        obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
+    }else if(self.fallbackAvatar != "off")
+      obj.getElementsByTagName("img")[0].setAttribute("src", self.fallbackAvatar);
+  }
+};
+
+////////////////////////////////////////////////////
+// FormatWebmAvatar: Gives the user a webm avatar //
+////////////////////////////////////////////////////
+Fek.prototype.FormatWebmAvatar = function(obj, avatar){
+  // This check ensures no duplicate .webm avatars will be embedded into a user's post
+  if(!obj.getElementsByTagName("video")[0]){
+    var webm = obj.getElementsByTagName("img")[0];
+    webm.setAttribute("src",  avatar, "important");
+    webm.setAttribute("loop", "true");
+    webm.setAttribute("data-bind", "", "important");
+    $(webm).ChangeElementType("video");
+    obj.getElementsByTagName("video")[0].play();
+  }
+};
 
 ///////////////////////////////////////////////////////////
 // EmbedMedia: Replaces all webm links with actual webms //
 ///////////////////////////////////////////////////////////
-function EmbedMedia(){
+Fek.prototype.EmbedMedia = function(){
+  var self = this;
   var links = document.links;
   for(var i = 0; i < links.length; ++i){
     if(links[i].href.slice(-5) == ".webm"){
@@ -2777,15 +2663,18 @@ function EmbedMedia(){
   }
 
   // YouTube videos do not load immediately, so I have to wait a little bit
-  WaitAndRunManual(500, EmbedYouTube);
-}
+  self.WaitAndRunManual(500, self.EmbedYouTube);
+};
 
-function EmbedYouTube(){
+////////////////////////////////////////////////////////////////////////
+// EmbedYouTube: Replaces YouTube previews into actual YouTube videos //
+////////////////////////////////////////////////////////////////////////
+Fek.prototype.EmbedYouTube = function(){
   // Get all of the YouTube objects
   var youtubeObj = document.getElementsByClassName("video-thumb-link");
   var youtubeObjLength = youtubeObj.length;
 
-  for(i = 0; i < youtubeObjLength; i++){
+  for(var i = 0; i < youtubeObjLength; i++){
     var regex = /ytimg.com%2Fvi%2F(.*?)%2F/g;
 
     // Extract the Youtube's video Id
@@ -2799,12 +2688,12 @@ function EmbedYouTube(){
     // Remove the old object since it's useless
     $(youtubeObj[0]).remove();
   }
-}
+};
 
 /////////////////////////////////////////////////////////////
 // ColorVotes: Colors upvotes green and downvotes negative //
 /////////////////////////////////////////////////////////////
-function ColorVotes(){
+Fek.prototype.ColorVotes = function(){
   var totalVotes = $(document).find(".total-votes");
 
   $(totalVotes).each(function(){
@@ -2815,22 +2704,23 @@ function ColorVotes(){
     else if($(this).html() != "0" && $(this).html() != "1")
       this.style.setProperty( "color", "#05E100", "important"); // Make green for upvotes
   });
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
 //////////////////////////////////////////////////////////////////////////////////////////////
-function HoverVotes(){
-  if(votingDisplay != "off"){
+Fek.prototype.HoverVotes = function(){
+  var self = this;
+  if(self.votingDisplay != "off"){
     var voteBox = ".riot-voting";
 
     $(voteBox).each(function(){
-      if(votingDisplay == "hide")
+      if(self.votingDisplay == "hide")
         this.style.setProperty("visibility", "hidden", "important");
       else if(this.hasAttribute("hover-event") === false){
         this.setAttribute("hover-event", "true");
         $(this).hover(function(){
-          ShowIndividualVotes(this, page);
+          self.ShowIndividualVotes(this, self.page);
         }, function(){
           $("#up-down-display").remove();
           $(".total-votes").show();
@@ -2838,12 +2728,13 @@ function HoverVotes(){
       }
     });
   }
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // ShowIndividualVotes: Shows how many upvotes and downvotes a specific thread/post has //
 //////////////////////////////////////////////////////////////////////////////////////////
-function ShowIndividualVotes(obj, page){
+Fek.prototype.ShowIndividualVotes = function(obj, page){
+  var self = this;
   var voteFinder    = obj.parentElement;
   var uVotes        = voteFinder.getAttribute("data-apollo-up-votes");
   var dVotes        = voteFinder.getAttribute("data-apollo-down-votes");
@@ -2860,73 +2751,76 @@ function ShowIndividualVotes(obj, page){
 
   obj.insertBefore(upDownDisplay, obj.children[1]);
 
-  if(votingDisplay == "individual")
+  if(self.votingDisplay == "individual")
     upDownDisplay.innerHTML = `
     <font color="#05E100">${uVotes}</font>
     <font color="white">|</font>
     <font color="#FF5C5C">${dVotes}</font>
     `;
-  else if(votingDisplay == "total")
+  else if(self.votingDisplay == "total")
     upDownDisplay.innerHTML = `
     <font color="#FFA500">${(+uVotes + (+dVotes))}</font>
     `;
 
   $(voteScore).hide();
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////
 // RemoveThumbnailBackground: Removes the background from thumbnails on the index //
 ////////////////////////////////////////////////////////////////////////////////////
-function RemoveThumbnailBackground(){
+Fek.prototype.RemoveThumbnailBackground = function(){
+  var self = this;
   // Remove the background image from every thumbnail
   $(".thumbnail-fallback").each(function(){
     this.style.setProperty("background-image", "none", "important");
   });
 
   // animateThumbnails option
-  if(animateThumbnails == "animate"){
+  if(self.animateThumbnails == "animate"){
     $(document.getElementsByTagName("img")).each(function(){
       var thumbnail = this.getAttribute("src");
 
       if(thumbnail.slice(-14) == "&animate=false")
         this.setAttribute("src", thumbnail.slice(0, thumbnail.length - 14) + "&animate=true");
     });
-  }else if(animateThumbnails == "hide"){
+  }else if(self.animateThumbnails == "hide"){
     $(".discussion-list-item td.thumbnail").css("max-width", "0px");
     $(document.getElementsByClassName("thumbnail-fallback")).each(function(){
       $(this).remove();
     });
   }
-}
+};
 
 ///////////////////////////////////////////////////////////////////////
 // HighlightMyThreads: Highlights your threads as black on the index //
 ///////////////////////////////////////////////////////////////////////
-function HighlightMyThreads(){
-  if(page == "Index"){
+Fek.prototype.HighlightMyThreads = function(){
+  var self = this;
+  if(self.page == "Index"){
     $(".discussion-list-item").each(function(){
       // We need to avoid any threads that don't have a name to them
       if(this.getElementsByClassName("username")[0]){
         var name = this.getElementsByClassName("username")[0].textContent;
 
-        if(name == myName)
-          this.style.setProperty("background-color", highlightMyThreads, "important");
+        if(name == self.myName)
+          this.style.setProperty("background-color", self.highlightMyThreads, "important");
       }
     });
   }
-}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EnhancedThreadPreview: Displays a fancier preview when you hover the mouse over a thread on the index //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-function EnhancedThreadPreview(){
-  if(page == "Index"){
+Fek.prototype.EnhancedThreadPreview = function(){
+  var self = this;
+  if(self.page == "Index"){
     $(".title-span").each(function(){
       if($(this).attr("title")){
         $(this).attr("ttdata", $(this).attr("title"));
 
         $(this).parent().parent().parent().mouseenter(function(){
-          var replaceThing = $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons);
+          var replaceThing = $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, self.MiniChampionIcons).replace(/{{item:??:.*?}}/g, self.MiniItemIcons).replace(/{{summoner:??:.*?}}/g, self.MiniSummonerIcons);
 
           $("#fektooltip").html(`
             <div id="ttlabel"> ${$(this).find(".username").text()}  </div>
@@ -2942,32 +2836,33 @@ function EnhancedThreadPreview(){
       }
     });
   }
-}
+};
 
 //////////////////////////////////////////////////////////////////////
 // MiniChampionIcons: Displays champion icons in the thread preview //
 //////////////////////////////////////////////////////////////////////
-function MiniChampionIcons(x){
+Fek.prototype.MiniChampionIcons = function(x){
+  var self = this;
   var start = x.indexOf(":") + 1;
   var end   = x.indexOf("}", start);
   var icon  = "c" + x.substring(start, end);
-  return `<img src="${cIcons}${icon}.jpg">`;
-}
+  return `<img src="${self.cIcons}${icon}.jpg">`;
+};
 
 //////////////////////////////////////////////////////////////
 // MiniItemIcons: Displays item icons in the thread preview //
 //////////////////////////////////////////////////////////////
-function MiniItemIcons(x){
+Fek.prototype.MiniItemIcons = function(x){
   var start = x.indexOf(":") + 1;
   var end   = x.indexOf("}", start);
   var icon  = x.substring(start, end);
   return `<img src="http://ddragon.leagueoflegends.com/cdn/5.21.1/img/item/${icon}.png" width="16px" height="16px">`;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////
 // MiniSummonerIcons: Displays summoner spell icons in the thread preview //
 ////////////////////////////////////////////////////////////////////////////
-function MiniSummonerIcons(x){
+Fek.prototype.MiniSummonerIcons = function(x){
   var start = x.indexOf(":") + 1;
   var end   = x.indexOf("}", start);
   var icon  = x.substring(start, end);
@@ -2993,22 +2888,21 @@ function MiniSummonerIcons(x){
   }
 
   return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell0.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
-}
+};
 
 //////////////////////////////////////////////////////////////////////
 // AddToNavBar: Adds a completely new element to the navigation bar //
 //////////////////////////////////////////////////////////////////////
-function AddToNavBar(obj, cName, html, navBar, index)
-{
+Fek.prototype.AddToNavBar = function(obj, cName, html, navBar, index){
   obj.className = cName;
   obj.innerHTML = html;
   navBar.insertBefore(obj, navBar.children[index]);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // CreateNavBarGroup: Makes a container in the navigation bar to hold buttons for dropdown list //
 //////////////////////////////////////////////////////////////////////////////////////////////////
-function CreateNavBarGroup(obj, idName, navBar, index, width, height, lineHeight, backgroundSize){
+Fek.prototype.CreateNavBarGroup = function(obj, idName, navBar, index, width, height, lineHeight, backgroundSize){
   navBar.children[index].appendChild(obj);
   obj.id = idName;
   obj.style.setProperty("position",        "absolute");
@@ -3017,12 +2911,12 @@ function CreateNavBarGroup(obj, idName, navBar, index, width, height, lineHeight
   obj.style.setProperty("line-height",     lineHeight);
   obj.style.setProperty("background-size", backgroundSize);
   obj.style.setProperty("background-image", `url("https://cdn.leagueoflegends.com/riotbar/prod/1.5.2/images/bar/bg-bar.jpg?1435084967")`);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////////
 // CreateNavBarButton: Creates buttons within a container for the dropdown list //
 //////////////////////////////////////////////////////////////////////////////////
-function CreateNavBarButton(navGroup, obj, text, url){
+Fek.prototype.CreateNavBarButton = function(navGroup, obj, text, url){
   navGroup.appendChild(obj);
   obj.textContent = text;
   obj.href        = url;
@@ -3030,12 +2924,12 @@ function CreateNavBarButton(navGroup, obj, text, url){
   obj.onmousedown = function ClickOnLink(){this.style.setProperty("color", "#FFFFFF");};
   obj.style.setProperty("color", "#CFBA6B");
   obj.style.setProperty("height", "30px");
-}
+};
 
 //////////////////////////////////////////////////////////////
 // CreateNavListLink: Creates a link in the navigation list //
 //////////////////////////////////////////////////////////////
-function CreateNavListLink(text, url){
+Fek.prototype.CreateNavListLink = function(text, url){
   var navList   = document.getElementById("markdown-nav").getElementsByTagName("p")[1];
   var lineBreak = document.createElement("br");
   var anchor    = document.createElement("a");
@@ -3045,14 +2939,18 @@ function CreateNavListLink(text, url){
 
   navList.insertBefore(lineBreak, navList.children[navList.childElementCount]);
   navList.insertBefore(anchor, navList.children[navList.childElementCount]);
-}
+};
 
-function RemoveNavListLinks(){
+////////////////////////////////////////////////////////
+// RemoveNavListLinks: ?????????????????????????????? //
+////////////////////////////////////////////////////////
+Fek.prototype.RemoveNavListLinks = function(){
+  var self = this;
   var navList = document.getElementById("markdown-nav").getElementsByTagName("p")[1];
 
-  for(var text in hide){
+  for(var text in self.hide){
     for(var i = 0; i < navList.children.length; ++i){
-      if(navList.children[i].textContent == text && hide[text] == "on"){
+      if(navList.children[i].textContent == text && self.hide[text] == "on"){
         // Remove the <br> after the navLink, if it exists
         if(navList.children[i].nextSibling)
           navList.children[i].nextSibling.remove();
@@ -3062,13 +2960,14 @@ function RemoveNavListLinks(){
       }
     }
   }
-}
+};
 
 /////////////////////////////////////////////////////////////
 // AddFEKNavBar: Adds a FEK dropdown to the navigation bar //
 /////////////////////////////////////////////////////////////
-function AddFEKNavBar(){
-  WaitAndRun("#riotbar-navbar", function(){
+Fek.prototype.AddFEKNavBar = function(){
+  var self = this;
+  self.WaitAndRun("#riotbar-navbar", function(){
     $("#riotbar-navbar").append(`
     <span class="riotbar-navbar-separator"></span>
     <a class="touchpoint-fek" href="#">F.E.K.</a>
@@ -3077,7 +2976,7 @@ function AddFEKNavBar(){
     $(".touchpoint-fek").click(function(event){
       event.preventDefault();
       event.stopPropagation();
-      PanelToggle();
+      self.PanelToggle();
     });
   });
 
@@ -3087,110 +2986,116 @@ function AddFEKNavBar(){
   // var FEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(FEKNavBarGroup, "FEKNavBarGroup", RiotBar, 7, "120px", "60px", "27px", "100% 30px");
   // var FEKPanel       = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKPanel,  "F.E.K. Panel",  "#"); FEKPanel.id = "FEKPanel";
   // var FEKThread      = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKThread, "F.E.K. Thread", FEKpage);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarNA: Adds a Boards dropdown to the navigation bar for NA //
 ////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarNA(){
-  var BoardsNavBarGroup        = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "250px", "480px", "27px", "100% 30px");
+Fek.prototype.AddBoardsNavBarNA = function(){
+  var self = this;
+  var BoardsNavBarGroup        = document.createElement("li"); self.CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.RiotBar, 3, "250px", "480px", "27px", "100% 30px");
 
-  var Gameplay                 = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Gameplay,                 "Gameplay",                     "http://boards.na.leagueoflegends.com/en/c/gameplay-balance");
-  var StoryArtSound            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, StoryArtSound,            "Story, Art, & Sound",          "http://boards.na.leagueoflegends.com/en/c/story-art");
-  var Esports                  = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Esports,                  "Esports",                      "http://boards.na.leagueoflegends.com/en/c/esports");
-  var TeamRecruitment          = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,          "Team Recruitment",             "http://boards.na.leagueoflegends.com/en/c/team-recruitment");
-  var ConceptsCreations        = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ConceptsCreations,        "Concepts & Creations",         "http://boards.na.leagueoflegends.com/en/c/skin-champion-concepts");
-  var PlayerBehaviorModeration = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, PlayerBehaviorModeration, "Player Behavior & Moderation", "http://boards.na.leagueoflegends.com/en/c/player-behavior-moderation");
-  var Miscellaneous            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Miscellaneous,            "Miscellaneous",                "http://boards.na.leagueoflegends.com/en/c/miscellaneous");
-  var MemesGames               = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, MemesGames,               "Memes & Games",                "http://boards.na.leagueoflegends.com/en/c/memes");
-  var Roleplay                 = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Roleplay,                 "Roleplay",                     "http://boards.na.leagueoflegends.com/en/c/roleplaying");
-  var GeneralDiscussion        = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, GeneralDiscussion,        "General Discussion",           "http://boards.na.leagueoflegends.com/en/f/mNBeEEkI");
-  var DevCorner                = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, DevCorner,                "Dev Corner",                   "http://boards.na.leagueoflegends.com/en/c/developer-corner");
-  var RedTracker               = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,               "Red Tracker",                  "http://boards.na.leagueoflegends.com/en/redtracker");
-  var HelpSupport              = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, HelpSupport,              "Help & Support",               "http://boards.na.leagueoflegends.com/en/f/osqw6G4M");
-  var ReportBug                = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ReportBug,                "Report a Bug",                 "http://boards.na.leagueoflegends.com/en/c/bug-report");
-  var BoardsFeedback           = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, BoardsFeedback,           "Boards Feedback",              "http://boards.na.leagueoflegends.com/en/c/site-feedback");
-  var ServiceStatus            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,            "Service Status",               "http://status.leagueoflegends.com/?en_US#na");
-}
+  var Gameplay                 = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Gameplay,                 "Gameplay",                     "http://boards.na.leagueoflegends.com/en/c/gameplay-balance");
+  var StoryArtSound            = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, StoryArtSound,            "Story, Art, & Sound",          "http://boards.na.leagueoflegends.com/en/c/story-art");
+  var Esports                  = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Esports,                  "Esports",                      "http://boards.na.leagueoflegends.com/en/c/esports");
+  var TeamRecruitment          = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,          "Team Recruitment",             "http://boards.na.leagueoflegends.com/en/c/team-recruitment");
+  var ConceptsCreations        = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ConceptsCreations,        "Concepts & Creations",         "http://boards.na.leagueoflegends.com/en/c/skin-champion-concepts");
+  var PlayerBehaviorModeration = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, PlayerBehaviorModeration, "Player Behavior & Moderation", "http://boards.na.leagueoflegends.com/en/c/player-behavior-moderation");
+  var Miscellaneous            = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Miscellaneous,            "Miscellaneous",                "http://boards.na.leagueoflegends.com/en/c/miscellaneous");
+  var MemesGames               = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, MemesGames,               "Memes & Games",                "http://boards.na.leagueoflegends.com/en/c/memes");
+  var Roleplay                 = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Roleplay,                 "Roleplay",                     "http://boards.na.leagueoflegends.com/en/c/roleplaying");
+  var GeneralDiscussion        = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, GeneralDiscussion,        "General Discussion",           "http://boards.na.leagueoflegends.com/en/f/mNBeEEkI");
+  var DevCorner                = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, DevCorner,                "Dev Corner",                   "http://boards.na.leagueoflegends.com/en/c/developer-corner");
+  var RedTracker               = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, RedTracker,               "Red Tracker",                  "http://boards.na.leagueoflegends.com/en/redtracker");
+  var HelpSupport              = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, HelpSupport,              "Help & Support",               "http://boards.na.leagueoflegends.com/en/f/osqw6G4M");
+  var ReportBug                = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ReportBug,                "Report a Bug",                 "http://boards.na.leagueoflegends.com/en/c/bug-report");
+  var BoardsFeedback           = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, BoardsFeedback,           "Boards Feedback",              "http://boards.na.leagueoflegends.com/en/c/site-feedback");
+  var ServiceStatus            = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,            "Service Status",               "http://status.leagueoflegends.com/?en_US#na");
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarNA: Adds a Boards dropdown to the navigation bar for OCE //
 /////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarOCE(){
-  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "300px", "27px", "100% 30px");
-  var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.oce.leagueoflegends.com/en/redtracker");
-  var Miscellaneous         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Miscellaneous,         "Miscellaneous",             "http://boards.oce.leagueoflegends.com/en/c/miscellaneous");
-  var PlayerCreations       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, PlayerCreations,       "Player Creations",          "http://boards.oce.leagueoflegends.com/en/c/player-creations");
-  var GameplayStrategy      = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, GameplayStrategy,      "Gameplay & Strategy",       "http://boards.oce.leagueoflegends.com/en/c/gameplay-strategy");
-  var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.oce.leagueoflegends.com/en/c/announcements");
-  var TheNewsHour           = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, TheNewsHour,           "The News Hour",             "http://boards.oce.leagueoflegends.com/en/c/the-news-hour");
-  var TeamRecruitment       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,       "Team Recruitment",          "http://boards.oce.leagueoflegends.com/en/c/team-recruitment");
-  var Esports               = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Esports,               "Esports",                   "http://boards.oce.leagueoflegends.com/en/c/esports");
-  var HelpSupport           = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, HelpSupport,           "Help & Support",            "http://boards.oce.leagueoflegends.com/en/f/ElA0rvVL");
-  var ServiceStatus         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,         "Service Status",            "http://status.leagueoflegends.com/?en_US#na");
-}
+Fek.prototype.AddBoardsNavBarOCE = function(){
+  var self = this;
+  var BoardsNavBarGroup     = document.createElement("li"); self.CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.RiotBar, 3, "225px", "300px", "27px", "100% 30px");
+  var RedTracker            = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.oce.leagueoflegends.com/en/redtracker");
+  var Miscellaneous         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Miscellaneous,         "Miscellaneous",             "http://boards.oce.leagueoflegends.com/en/c/miscellaneous");
+  var PlayerCreations       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, PlayerCreations,       "Player Creations",          "http://boards.oce.leagueoflegends.com/en/c/player-creations");
+  var GameplayStrategy      = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, GameplayStrategy,      "Gameplay & Strategy",       "http://boards.oce.leagueoflegends.com/en/c/gameplay-strategy");
+  var Announcements         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.oce.leagueoflegends.com/en/c/announcements");
+  var TheNewsHour           = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, TheNewsHour,           "The News Hour",             "http://boards.oce.leagueoflegends.com/en/c/the-news-hour");
+  var TeamRecruitment       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,       "Team Recruitment",          "http://boards.oce.leagueoflegends.com/en/c/team-recruitment");
+  var Esports               = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Esports,               "Esports",                   "http://boards.oce.leagueoflegends.com/en/c/esports");
+  var HelpSupport           = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, HelpSupport,           "Help & Support",            "http://boards.oce.leagueoflegends.com/en/f/ElA0rvVL");
+  var ServiceStatus         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,         "Service Status",            "http://status.leagueoflegends.com/?en_US#na");
+};
 
 //////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarEUW: Adds a Boards dropdown to the navigation bar for EUW //
 //////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarEUW(){
-  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "480px", "27px", "100% 30px");
-  var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.eune.leagueoflegends.com/en/redtracker");
-  var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.euw.leagueoflegends.com/en/c/announcements-en");
-  var CommunityCreations    = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, CommunityCreations,    "Community Creations",       "http://boards.euw.leagueoflegends.com/en/c/community-creations-en");
-  var CommunityEvents       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, CommunityEvents,       "Community Events",          "http://events.euw.leagueoflegends.com/");
-  var StreamsVideos         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, StreamsVideos,         "Streams & Videos",          "http://boards.euw.leagueoflegends.com/en/c/streams-videos-en");
-  var EventsTournaments     = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, EventsTournaments,     "Events & Tournaments",      "http://boards.euw.leagueoflegends.com/en/c/events-tournaments-en");
-  var Esports               = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Esports,               "Esports",                   "http://boards.euw.leagueoflegends.com/en/c/esports-en");
-  var ChampionsGameplay     = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ChampionsGameplay,     "Champions & Gameplay",      "http://boards.euw.leagueoflegends.com/en/c/champions-gameplay-en");
-  var MapsModes             = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, MapsModes,             "Maps & Modes",              "http://boards.euw.leagueoflegends.com/en/c/maps-modes-en");
-  var TeamRecruitment       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,       "Team Recruitment",          "http://boards.euw.leagueoflegends.com/en/c/team-recruitment-en");
-  var PlayerBehaviour       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, PlayerBehaviour,       "Player Behaviour",          "http://boards.euw.leagueoflegends.com/en/c/player-behaviour-en");
-  var ForumGamesContests    = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ForumGamesContests,    "Forum Games & Contests",    "http://boards.euw.leagueoflegends.com/en/c/forum-games-contests-en");
-  var SuggestionsBugReports = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, SuggestionsBugReports, "Suggestions & Bug Reports", "http://boards.euw.leagueoflegends.com/en/c/suggestions-bug-reports-en");
-  var OffTopic              = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, OffTopic,              "Off Topic",                 "http://boards.euw.leagueoflegends.com/en/c/off-topic-en");
-  var HelpSupport           = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, HelpSupport,           "Help & Support",            "http://boards.euw.leagueoflegends.com/en/c/help-support-en");
-  var ServiceStatus         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,         "Service Status",            "http://status.leagueoflegends.com/?en_GB#euw");
-}
+Fek.prototype.AddBoardsNavBarEUW = function(){
+  var self = this;
+  var BoardsNavBarGroup     = document.createElement("li"); self.CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.RiotBar, 3, "225px", "480px", "27px", "100% 30px");
+  var RedTracker            = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.eune.leagueoflegends.com/en/redtracker");
+  var Announcements         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.euw.leagueoflegends.com/en/c/announcements-en");
+  var CommunityCreations    = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, CommunityCreations,    "Community Creations",       "http://boards.euw.leagueoflegends.com/en/c/community-creations-en");
+  var CommunityEvents       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, CommunityEvents,       "Community Events",          "http://events.euw.leagueoflegends.com/");
+  var StreamsVideos         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, StreamsVideos,         "Streams & Videos",          "http://boards.euw.leagueoflegends.com/en/c/streams-videos-en");
+  var EventsTournaments     = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, EventsTournaments,     "Events & Tournaments",      "http://boards.euw.leagueoflegends.com/en/c/events-tournaments-en");
+  var Esports               = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Esports,               "Esports",                   "http://boards.euw.leagueoflegends.com/en/c/esports-en");
+  var ChampionsGameplay     = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ChampionsGameplay,     "Champions & Gameplay",      "http://boards.euw.leagueoflegends.com/en/c/champions-gameplay-en");
+  var MapsModes             = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, MapsModes,             "Maps & Modes",              "http://boards.euw.leagueoflegends.com/en/c/maps-modes-en");
+  var TeamRecruitment       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,       "Team Recruitment",          "http://boards.euw.leagueoflegends.com/en/c/team-recruitment-en");
+  var PlayerBehaviour       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, PlayerBehaviour,       "Player Behaviour",          "http://boards.euw.leagueoflegends.com/en/c/player-behaviour-en");
+  var ForumGamesContests    = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ForumGamesContests,    "Forum Games & Contests",    "http://boards.euw.leagueoflegends.com/en/c/forum-games-contests-en");
+  var SuggestionsBugReports = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, SuggestionsBugReports, "Suggestions & Bug Reports", "http://boards.euw.leagueoflegends.com/en/c/suggestions-bug-reports-en");
+  var OffTopic              = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, OffTopic,              "Off Topic",                 "http://boards.euw.leagueoflegends.com/en/c/off-topic-en");
+  var HelpSupport           = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, HelpSupport,           "Help & Support",            "http://boards.euw.leagueoflegends.com/en/c/help-support-en");
+  var ServiceStatus         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,         "Service Status",            "http://status.leagueoflegends.com/?en_GB#euw");
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarEUNE: Adds a Boards dropdown to the navigation bar for EUNE //
 ////////////////////////////////////////////////////////////////////////////////
-function AddBoardsNavBarEUNE(){
-  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "480px", "27px", "100% 30px");
-  var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.eune.leagueoflegends.com/en/redtracker");
-  var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.eune.leagueoflegends.com/en/c/announcements-en");
-  var CommunityCreations    = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, CommunityCreations,    "Community Creations",       "http://boards.eune.leagueoflegends.com/en/c/community-creations-en");
-  var CommunityEvents       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, CommunityEvents,       "Community Events",          "http://events.eune.leagueoflegends.com/");
-  var StreamsVideos         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, StreamsVideos,         "Streams & Videos",          "http://boards.eune.leagueoflegends.com/en/c/streams-videos-en");
-  var EventsTournaments     = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, EventsTournaments,     "Events & Tournaments",      "http://boards.eune.leagueoflegends.com/en/c/events-tournaments-en");
-  var Esports               = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Esports,               "Esports",                   "http://boards.eune.leagueoflegends.com/en/c/esports-en");
-  var ChampionsGameplay     = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ChampionsGameplay,     "Champions & Gameplay",      "http://boards.eune.leagueoflegends.com/en/c/champions-gameplay-en");
-  var MapsModes             = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, MapsModes,             "Maps & Modes",              "http://boards.eune.leagueoflegends.com/en/c/maps-modes-en");
-  var TeamRecruitment       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,       "Team Recruitment",          "http://boards.eune.leagueoflegends.com/en/c/team-recruitment-en");
-  var PlayerBehaviour       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, PlayerBehaviour,       "Player Behaviour",          "http://boards.eune.leagueoflegends.com/en/c/player-behaviour-en");
-  var ForumGamesContests    = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ForumGamesContests,    "Forum Games & Contests",    "http://boards.eune.leagueoflegends.com/en/c/forum-games-contests-en");
-  var SuggestionsBugReports = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, SuggestionsBugReports, "Suggestions & Bug Reports", "http://boards.eune.leagueoflegends.com/en/c/suggestions-bug-reports-en");
-  var OffTopic              = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, OffTopic,              "Off Topic",                 "http://boards.eune.leagueoflegends.com/en/c/off-topic-en");
-  var HelpSupport           = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, HelpSupport,           "Help & Support",            "http://boards.eune.leagueoflegends.com/en/c/help-support-en");
-  var ServiceStatus         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,         "Service Status",            "http://status.leagueoflegends.com/?en_GB#eune");
-}
+Fek.prototype.AddBoardsNavBarEUNE = function(){
+  var self = this;
+  var BoardsNavBarGroup     = document.createElement("li"); self.CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.RiotBar, 3, "225px", "480px", "27px", "100% 30px");
+  var RedTracker            = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "http://boards.eune.leagueoflegends.com/en/redtracker");
+  var Announcements         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "http://boards.eune.leagueoflegends.com/en/c/announcements-en");
+  var CommunityCreations    = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, CommunityCreations,    "Community Creations",       "http://boards.eune.leagueoflegends.com/en/c/community-creations-en");
+  var CommunityEvents       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, CommunityEvents,       "Community Events",          "http://events.eune.leagueoflegends.com/");
+  var StreamsVideos         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, StreamsVideos,         "Streams & Videos",          "http://boards.eune.leagueoflegends.com/en/c/streams-videos-en");
+  var EventsTournaments     = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, EventsTournaments,     "Events & Tournaments",      "http://boards.eune.leagueoflegends.com/en/c/events-tournaments-en");
+  var Esports               = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, Esports,               "Esports",                   "http://boards.eune.leagueoflegends.com/en/c/esports-en");
+  var ChampionsGameplay     = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ChampionsGameplay,     "Champions & Gameplay",      "http://boards.eune.leagueoflegends.com/en/c/champions-gameplay-en");
+  var MapsModes             = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, MapsModes,             "Maps & Modes",              "http://boards.eune.leagueoflegends.com/en/c/maps-modes-en");
+  var TeamRecruitment       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, TeamRecruitment,       "Team Recruitment",          "http://boards.eune.leagueoflegends.com/en/c/team-recruitment-en");
+  var PlayerBehaviour       = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, PlayerBehaviour,       "Player Behaviour",          "http://boards.eune.leagueoflegends.com/en/c/player-behaviour-en");
+  var ForumGamesContests    = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ForumGamesContests,    "Forum Games & Contests",    "http://boards.eune.leagueoflegends.com/en/c/forum-games-contests-en");
+  var SuggestionsBugReports = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, SuggestionsBugReports, "Suggestions & Bug Reports", "http://boards.eune.leagueoflegends.com/en/c/suggestions-bug-reports-en");
+  var OffTopic              = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, OffTopic,              "Off Topic",                 "http://boards.eune.leagueoflegends.com/en/c/off-topic-en");
+  var HelpSupport           = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, HelpSupport,           "Help & Support",            "http://boards.eune.leagueoflegends.com/en/c/help-support-en");
+  var ServiceStatus         = document.createElement("a");  self.CreateNavBarButton(BoardsNavBarGroup, ServiceStatus,         "Service Status",            "http://status.leagueoflegends.com/?en_GB#eune");
+};
 
 ///////////////////////////////////////////////////////////////////
 // AddBoardsNavBar: Adds a Boards dropdown to the navigation bar //
 ///////////////////////////////////////////////////////////////////
-function AddBoardsNavBar(){
-  if     (platformRegion == "na")   AddBoardsNavBarNA();
-  else if(platformRegion == "oce")  AddBoardsNavBarOCE();
-  else if(platformRegion == "euw")  AddBoardsNavBarEUW();
-  else if(platformRegion == "eune") AddBoardsNavBarEUNE();
-}
+Fek.prototype.AddBoardsNavBar = function(){
+  var self = this;
+  if     (self.platformRegion == "na")   self.AddBoardsNavBarNA();
+  else if(self.platformRegion == "oce")  self.AddBoardsNavBarOCE();
+  else if(self.platformRegion == "euw")  self.AddBoardsNavBarEUW();
+  else if(self.platformRegion == "eune") self.AddBoardsNavBarEUNE();
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // RoleplayingAlert: Creates a banner in the Roleplaying boards to notify newcomers. //
 ///////////////////////////////////////////////////////////////////////////////////////
-function RoleplayingAlert(){
-  CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
+Fek.prototype.RoleplayingAlert = function(){
+  var self = this;
+  self.CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
                  `Hello and welcome to the Roleplaying Boards! Before diving in, we ask that you familiarize yourself with the
                  <a href="http://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette" style="color:#00C0FF;">Community Rules</a>,
                  and afterwards the <a href="http://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers" style="color:#00C0FF;">Guide for Newcomers</a>.
@@ -3201,39 +3106,299 @@ function RoleplayingAlert(){
 
   var url = window.location.href;
   if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette"){
-    if(RPint === 0 || RPint == 2 || RPint == 4 || RPint == 6 || RPint == 8 || RPint == 10 || RPint == 12 || RPint == 14){
-      RPint = RPint + 1;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
-        alertBanner.remove();
+    if(self.RPint === 0 || self.RPint == 2 || self.RPint == 4 || self.RPint == 6 || self.RPint == 8 || self.RPint == 10 || self.RPint == 12 || self.RPint == 14){
+      self.RPint += 1;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
+        self.alertBanner.remove();
     }
   }else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers"){
-    if(RPint === 0 || RPint == 1 || RPint == 4 || RPint == 5 || RPint == 8 || RPint == 9 || RPint == 12 || RPint == 13){
-      RPint = RPint + 2;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
-        alertBanner.remove();
+    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 4 || self.RPint == 5 || self.RPint == 8 || self.RPint == 9 || self.RPint == 12 || self.RPint == 13){
+      self.RPint += 2;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
+        self.alertBanner.remove();
     }
   }else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at"){
-    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 8 || RPint == 9 || RPint == 10 || RPint == 11){
-      RPint = RPint + 4;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
-        alertBanner.remove();
+    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 8 || self.RPint == 9 || self.RPint == 10 || self.RPint == 11){
+      self.RPint += 4;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
+        self.alertBanner.remove();
     }
   }else if(url == "http://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium"){
-    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 4 || RPint == 5 || RPint == 6 || RPint == 7){
-      RPint = RPint + 8;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
-        alertBanner.remove();
+    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 4 || self.RPint == 5 || self.RPint == 6 || self.RPint == 7){
+      self.RPint += 8;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
+        self.alertBanner.remove();
     }
   }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
+////////////////////////////////////////////////////////////////////////////////////////////////
+Fek.prototype.WaitAndRun = function(selector, callback){
+  var timeOut = 2000, currentTime = 0;
+
+  var interval = setInterval(function(){
+    currentTime = currentTime + 1;
+
+    if(currentTime >= timeOut)
+      clearInterval(interval);
+    else if($(selector).length > 0){
+      clearInterval(interval);
+      callback();
+    }
+  }, 1);
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// WaitAndRunManual: Waits for a specified amount of time before executing the callback //
+//////////////////////////////////////////////////////////////////////////////////////////
+Fek.prototype.WaitAndRunManual = function(time, callback){
+  var timeOut = time, currentTime = 0;
+
+  var interval = setInterval(function(){
+    currentTime = currentTime + 1;
+
+    if(currentTime >= timeOut){
+      clearInterval(interval);
+      callback();
+    }
+  }, 1);
+};
+
+/////////////////////////////////////////////
+// ========== MUTATION OBSERVER ========== //
+/////////////////////////////////////////////
+Fek.prototype.Observer = function(){
+  var self = this;
+  if(self.page == "Index" || self.page == "Thread"){
+    var target; if     (self.page == "Index")                             target = document.querySelector("#discussion-list");
+                else if(self.page == "Thread" && self.threadMode == "Chrono")  target = document.querySelector("#comments");
+                else if(self.page == "Thread" && self.threadMode == "Discuss") target = document.querySelector("#comments");
+
+    var observer = new MutationObserver(function(mutations){
+      if(self.page == "Index")
+        self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex);
+      else if(self.page == "Thread")
+        self.WaitAndRun(".riot-voting", self.LoadThread);
+    });
+
+    var config = {attributes: true, childList: true, characterData: true};
+
+    observer.observe(target, config);
+  }
+};
+
+///////////////////////////////////////////////////////
+// This function is a mess, I need to make it better //
+///////////////////////////////////////////////////////
+Fek.prototype.ReportError = function(msg){
+  //   if(errorMessage != "")
+  //     errorMessage += "<br><br>";
+
+  //   errorMessage += msg;
+
+  //   // If an errorIcon doesn't currently exist
+  //   if(document.getElementById("errorFek") == null)
+  //   {
+  //     var errorFek = document.createElement("div");
+  //     errorFek.setAttribute("id", "errorFek");
+  //     $("#riotbar-service-status").append(errorFek);
+
+  //     var errorFekIcon = document.createElement("img");
+  //     errorFekIcon.setAttribute("id", "errorFekIcon");
+  //     errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");
+  //     errorFekIcon.style.setProperty("position", "relative");
+  //     errorFekIcon.style.setProperty("top", "5px");
+
+  //     $(errorFek).append(errorFekIcon);
+
+  //     $(errorFekIcon).hover(function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/Y32t3E5.png");}, function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");});
+
+  //     $(errorFekIcon).on("click", function(event)
+  //     {
+  //       event.stopPropagation();
+  //       event.preventDefault();
+
+  //       if(document.getElementById("errorFekInfo") == null)
+  //       {
+  //         var errorFekInfo = document.createElement("div");
+  //         errorFekInfo.setAttribute("id", "errorFekInfo");
+  //         errorFekInfo.style.setProperty("position", "absolute");
+  //         errorFekInfo.style.setProperty("top", "48px");
+  //         errorFekInfo.style.setProperty("right", "-80px");
+  //         errorFekInfo.style.setProperty("width", "350px");
+  //       //errorFekInfo.style.setProperty("padding", "14px 20px 10px 40px");
+  //         errorFekInfo.style.setProperty("padding", "10px 20px 10px 20px");
+  //         errorFekInfo.style.setProperty("border-radius", "5px");
+  //         errorFekInfo.style.setProperty("border-width", "1px");
+  //         errorFekInfo.style.setProperty("border-style", "solid");
+  //         errorFekInfo.style.setProperty("border-color", "#7E744E #B6A671 #55513A");
+  //         errorFekInfo.style.setProperty("box-shadow", "0px 0px 3px 1px rgba(0, 0, 0, 0.3) inset, -1px 1px 10px 0px rgba(0, 0, 0, 0.8)");
+  //         errorFekInfo.style.setProperty("background", "transparent linear-gradient(#1F3948, #0D1417) repeat scroll 0% 0%");
+  //         errorFekInfo.style.setProperty("-webkit-touch-callout", "text");
+  //         errorFekInfo.style.setProperty("-webkit-user-select", "text");
+  //         errorFekInfo.style.setProperty("-khtml-user-select", "text");
+  //         errorFekInfo.style.setProperty("-moz-user-select", "text");
+  //         errorFekInfo.style.setProperty("-ms-user-select", "text");
+  //         errorFekInfo.style.setProperty("-ms-user-select", "text");
+
+  //         errorFekInfo.style.setProperty("font-family", "Tahoma");
+  //         errorFekInfo.style.setProperty("color", "#9B9480");
+  //         errorFekInfo.style.setProperty("font-size", "12px");
+  //         errorFekInfo.style.setProperty("line-height", "1.4em");
+  //         errorFekInfo.style.setProperty("z-index", "10");
+
+  //         errorFekInfo.innerHTML = errorMessage;
+  //         $(errorFek).append(errorFekInfo);
+
+  //         var errorFekArrowContainer = document.createElement("div");
+  //         errorFekArrowContainer.setAttribute("id", "errorFekArrowContainer");
+  //         errorFekArrowContainer.style.setProperty("height", "15px");
+  //         errorFekArrowContainer.style.setProperty("overflow", "hidden");
+  //         $(errorFek).append(errorFekArrowContainer);
+
+  //         var errorFekArrow = document.createElement("div");
+  //         errorFekArrow.setAttribute("id", "errorFekArrow");
+  //         errorFekArrow.style.setProperty("position", "relative");
+  //         errorFekArrow.style.setProperty("content", "");
+  //         errorFekArrow.style.setProperty("top", "10px");
+  //         errorFekArrow.style.setProperty("right", "-10px");
+  //         errorFekArrow.style.setProperty("width", "10px");
+  //         errorFekArrow.style.setProperty("height", "10px");
+  //         errorFekArrow.style.setProperty("background", "repeating-linear-gradient(135deg, #044247 0px, #232930 6.5px)");
+  //         errorFekArrow.style.setProperty("border-top", "1px solid #7E744E");
+  //         errorFekArrow.style.setProperty("border-left", "1px solid #7E744E");
+  //         errorFekArrow.style.setProperty("-webkit-transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("-moz-transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("-ms-transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("z-index", "10");
+  //         $(errorFekArrowContainer).append(errorFekArrow);
+
+  //         // Allow clicking away from the panel to close the message box
+  //         $("body").click(function()
+  //         {
+  //           document.getElementById("errorFekArrow").remove();
+  //           document.getElementById("errorFekArrowContainer").remove();
+  //           document.getElementById("errorFekInfo").remove();
+  //         });
+  //       }
+  //       else
+  //       {
+  //         document.getElementById("errorFekArrow").remove();
+  //         document.getElementById("errorFekArrowContainer").remove();
+  //         document.getElementById("errorFekInfo").remove();
+  //       }
+  //     });
+  //   }
+};
+
+//////////////////////////////////////////////////////
+// Easy way to send FormData to the server via POST //
+//////////////////////////////////////////////////////
+Fek.prototype.SendToServer = function(u,f,c){var s=this;$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(){s.CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);});};
+
+
+
+
+
+Fek.prototype.FUNCTIONNAMEGOESHERE = function(){
+
 }
 
-////////////////////////////////////////
-// ========== CLICK EVENTS ========== //
-////////////////////////////////////////
+
+Fek.prototype.FUNCTIONNAMEGOESHERE = function(){
+
+}
+
+
+Fek.prototype.FUNCTIONNAMEGOESHERE = function(){
+
+}
+
+
+
+///////////////////////////////////////
+// ========== ENTRY POINT ========== //
+///////////////////////////////////////
+$(document).ready(function(){
+  if(window.top != window.self ||       // Prevent FEK from loading twice
+     typeof disableFEK !== "undefined") // Custom Wrenchmen script
+    return;
+
+  var fek = new Fek();
+
+  fek.CreateGUI();
+  fek.CreateFeatures();
+  fek.SettleGUI(); // $("#fekpanel").style.setProperty("visibility", "hidden", "important");
+  fek.KeyWatch();
+
+  if(document.title == "Boards")
+    HideSubboards();
+
+  try{
+    AddFEKNavBar();
+  }catch(err){
+    ReportError("Error Code: 2");
+  }
+
+  // try{
+  //   if(boardsDropdownMenu == "on")
+  //     AddBoardsNavBar();
+  // }catch(err){
+  //   ReportError("Error Code: 3");
+  // }
+
+  try{
+    if((self.page == "Thread" || self.page == "Index") && platformRegion == "na"){
+      var markdownNav = document.getElementById("markdown-nav");
+      var timeOut     = 2000, currentTime = 0;
+
+      var interval = setInterval(function(){
+        currentTime = currentTime + 1;
+
+        if(currentTime >= timeOut){
+          clearInterval(interval);
+        }else{
+          if(markdownNav.children.length){
+            clearInterval(interval);
+            RemoveNavListLinks();
+          }
+        }
+      }, 1);
+    }
+  }
+  catch(err){
+    ReportError("Error Code: 4");
+  }
+
+  if(self.page == "Index"){
+    if(emptyVoteReplacement != "off")
+      EmptyVoteReplacement(); // For boards without voting
+
+    if($(".no-voting").length)
+      WaitAndRun(".no-voting", LoadIndex);
+    else{
+      WaitAndRun(".total-votes", LoadIndex);
+    }
+  }else if(self.page == "Thread"){
+    WaitAndRun(".profile-hover", LoadThread);
+  }
+
+  if(self.page == "Thread" && favoriteIcons != "off")
+    WaitAndRun(".button.gamedata.champion", FavoriteIcons);
+
+  document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
+
+  if(RPint < 15 && self.title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
+
+  Observer();
+});
 
 /////////////////////////////////////////////
 // When "Show More" is clicked on an index //
@@ -3252,7 +3417,7 @@ $(".box.show-more").click(function(event){
       if(oldLength != $("#discussion-list")[0].children.length){
         clearInterval(interval);
         HideSubboards();
-        if(page == "Index" && emptyVoteReplacement != "off") EmptyVoteReplacement();
+        if(self.page == "Index" && emptyVoteReplacement != "off") EmptyVoteReplacement();
       }
     }
   }, 1);
@@ -3361,129 +3526,3 @@ $(".link").hover(function(){
   this.style.setProperty("color", "#CFBA6B");
 });
 
-/////////////////////////////////////////////
-// ========== MUTATION OBSERVER ========== //
-/////////////////////////////////////////////
-function Observer(){
-  if(page == "Index" || page == "Thread"){
-    var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
-                else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
-                else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
-
-    var observer = new MutationObserver(function(mutations){
-      if(page == "Index")
-        WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
-      else if(page == "Thread")
-        WaitAndRun(".riot-voting", LoadThread);
-    });
-
-    var config = {attributes: true, childList: true, characterData: true};
-
-    observer.observe(target, config);
-  }
-}
-
-///////////////////////////////////////////////////////
-// This function is a mess, I need to make it better //
-///////////////////////////////////////////////////////
-function ReportError(msg){
-  //   if(errorMessage != "")
-  //     errorMessage += "<br><br>";
-
-  //   errorMessage += msg;
-
-  //   // If an errorIcon doesn't currently exist
-  //   if(document.getElementById("errorFek") == null)
-  //   {
-  //     var errorFek = document.createElement("div");
-  //     errorFek.setAttribute("id", "errorFek");
-  //     $("#riotbar-service-status").append(errorFek);
-
-  //     var errorFekIcon = document.createElement("img");
-  //     errorFekIcon.setAttribute("id", "errorFekIcon");
-  //     errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");
-  //     errorFekIcon.style.setProperty("position", "relative");
-  //     errorFekIcon.style.setProperty("top", "5px");
-
-  //     $(errorFek).append(errorFekIcon);
-
-  //     $(errorFekIcon).hover(function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/Y32t3E5.png");}, function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");});
-
-  //     $(errorFekIcon).on("click", function(event)
-  //     {
-  //       event.stopPropagation();
-  //       event.preventDefault();
-
-  //       if(document.getElementById("errorFekInfo") == null)
-  //       {
-  //         var errorFekInfo = document.createElement("div");
-  //         errorFekInfo.setAttribute("id", "errorFekInfo");
-  //         errorFekInfo.style.setProperty("position", "absolute");
-  //         errorFekInfo.style.setProperty("top", "48px");
-  //         errorFekInfo.style.setProperty("right", "-80px");
-  //         errorFekInfo.style.setProperty("width", "350px");
-  //       //errorFekInfo.style.setProperty("padding", "14px 20px 10px 40px");
-  //         errorFekInfo.style.setProperty("padding", "10px 20px 10px 20px");
-  //         errorFekInfo.style.setProperty("border-radius", "5px");
-  //         errorFekInfo.style.setProperty("border-width", "1px");
-  //         errorFekInfo.style.setProperty("border-style", "solid");
-  //         errorFekInfo.style.setProperty("border-color", "#7E744E #B6A671 #55513A");
-  //         errorFekInfo.style.setProperty("box-shadow", "0px 0px 3px 1px rgba(0, 0, 0, 0.3) inset, -1px 1px 10px 0px rgba(0, 0, 0, 0.8)");
-  //         errorFekInfo.style.setProperty("background", "transparent linear-gradient(#1F3948, #0D1417) repeat scroll 0% 0%");
-  //         errorFekInfo.style.setProperty("-webkit-touch-callout", "text");
-  //         errorFekInfo.style.setProperty("-webkit-user-select", "text");
-  //         errorFekInfo.style.setProperty("-khtml-user-select", "text");
-  //         errorFekInfo.style.setProperty("-moz-user-select", "text");
-  //         errorFekInfo.style.setProperty("-ms-user-select", "text");
-  //         errorFekInfo.style.setProperty("-ms-user-select", "text");
-
-  //         errorFekInfo.style.setProperty("font-family", "Tahoma");
-  //         errorFekInfo.style.setProperty("color", "#9B9480");
-  //         errorFekInfo.style.setProperty("font-size", "12px");
-  //         errorFekInfo.style.setProperty("line-height", "1.4em");
-  //         errorFekInfo.style.setProperty("z-index", "10");
-
-  //         errorFekInfo.innerHTML = errorMessage;
-  //         $(errorFek).append(errorFekInfo);
-
-  //         var errorFekArrowContainer = document.createElement("div");
-  //         errorFekArrowContainer.setAttribute("id", "errorFekArrowContainer");
-  //         errorFekArrowContainer.style.setProperty("height", "15px");
-  //         errorFekArrowContainer.style.setProperty("overflow", "hidden");
-  //         $(errorFek).append(errorFekArrowContainer);
-
-  //         var errorFekArrow = document.createElement("div");
-  //         errorFekArrow.setAttribute("id", "errorFekArrow");
-  //         errorFekArrow.style.setProperty("position", "relative");
-  //         errorFekArrow.style.setProperty("content", "");
-  //         errorFekArrow.style.setProperty("top", "10px");
-  //         errorFekArrow.style.setProperty("right", "-10px");
-  //         errorFekArrow.style.setProperty("width", "10px");
-  //         errorFekArrow.style.setProperty("height", "10px");
-  //         errorFekArrow.style.setProperty("background", "repeating-linear-gradient(135deg, #044247 0px, #232930 6.5px)");
-  //         errorFekArrow.style.setProperty("border-top", "1px solid #7E744E");
-  //         errorFekArrow.style.setProperty("border-left", "1px solid #7E744E");
-  //         errorFekArrow.style.setProperty("-webkit-transform", "rotate(45deg)");
-  //         errorFekArrow.style.setProperty("-moz-transform", "rotate(45deg)");
-  //         errorFekArrow.style.setProperty("-ms-transform", "rotate(45deg)");
-  //         errorFekArrow.style.setProperty("transform", "rotate(45deg)");
-  //         errorFekArrow.style.setProperty("z-index", "10");
-  //         $(errorFekArrowContainer).append(errorFekArrow);
-
-  //         // Allow clicking away from the panel to close the message box
-  //         $("body").click(function()
-  //         {
-  //           document.getElementById("errorFekArrow").remove();
-  //           document.getElementById("errorFekArrowContainer").remove();
-  //           document.getElementById("errorFekInfo").remove();
-  //         });
-  //       }
-  //       else
-  //       {
-  //         document.getElementById("errorFekArrow").remove();
-  //         document.getElementById("errorFekArrowContainer").remove();
-  //         document.getElementById("errorFekInfo").remove();
-  //       }
-  //     });
-  //   }
-}
