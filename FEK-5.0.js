@@ -1828,8 +1828,7 @@ Fek.prototype.IndexBlacklist = function(){
 //////////////////////////////////////////////////////
 // LoadThread: Loads everything for the Thread page //
 //////////////////////////////////////////////////////
-Fek.prototype.LoadThread = function(){
-  var self = this;
+Fek.prototype.LoadThread = function(self){
   // Remove all "Posting as X" fields
   $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
 
@@ -3400,7 +3399,7 @@ Fek.prototype.AddPagingRight = function(){
 
       if(currentPostCount != newPostCount){
         clearInterval(interval);
-        self.LoadThread();
+        self.LoadThread(self);
         self.AddPagingRight();
       }
     }
@@ -3461,7 +3460,7 @@ Fek.prototype.Xyz = function(){
 
       if(currentPostCount != newPostCount){
         clearInterval(interval);
-        self.LoadThread();
+        self.LoadThread(self);
         self.AddPagingRight();
       }
     }
