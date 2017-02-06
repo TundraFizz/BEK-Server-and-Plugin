@@ -101,7 +101,7 @@ function Fek(){
   //////////////////////////////////////////////////////
 
   // Resizes the minimum width for the page (CAN I DO THIS WITH CSS)
-  $(document).style("min-width", "1050px");
+  $(document).css("min-width", "1050px");
   // document.body.style.setProperty("min-width", "1050px"); <-- OLD
 
   self.RiotBar = $("#riotbar-bar");
@@ -252,9 +252,8 @@ Fek.prototype.Main = function(url){
 
     if($(".no-voting").length)
       self.WaitAndRun(".no-voting", self.LoadIndex);
-    else{
+    else
       self.WaitAndRun(".total-votes", self.LoadIndex);
-    }
   }else if(self.page == "Thread"){
     self.WaitAndRun(".profile-hover", self.LoadThread);
   }
@@ -1763,11 +1762,36 @@ Fek.prototype.QueryFEKServer = function(){
   });
 };
 
+////////////////////////////////////////////////////////////////////////////////////
+// RemoveThumbnailBackground: Removes the background from thumbnails on the index //
+////////////////////////////////////////////////////////////////////////////////////
+Fek.prototype.RemoveThumbnailBackground = function(){
+  var self = this;
+  // Remove the background image from every thumbnail
+  $(".thumbnail-fallback").each(function(){
+    this.style.setProperty("background-image", "none", "important");
+  });
+
+  // animateThumbnails option
+  if(self.animateThumbnails == "animate"){
+    $(document.getElementsByTagName("img")).each(function(){
+      var thumbnail = this.getAttribute("src");
+
+      if(thumbnail.slice(-14) == "&animate=false")
+        this.setAttribute("src", thumbnail.slice(0, thumbnail.length - 14) + "&animate=true");
+    });
+  }else if(self.animateThumbnails == "hide"){
+    $(".discussion-list-item td.thumbnail").css("max-width", "0px");
+    $(document.getElementsByClassName("thumbnail-fallback")).each(function(){
+      $(this).remove();
+    });
+  }
+};
+
 ////////////////////////////////////////////////////
 // LoadIndex: Loads everything for the Index page //
 ////////////////////////////////////////////////////
-Fek.prototype.LoadIndex = function(){
-  var self = this;
+Fek.prototype.LoadIndex = function(self){
   if(self.blacklisting)
     self.IndexBlacklist();
 
@@ -2836,32 +2860,6 @@ Fek.prototype.ShowIndividualVotes = function(obj, page){
   $(voteScore).hide();
 };
 
-////////////////////////////////////////////////////////////////////////////////////
-// RemoveThumbnailBackground: Removes the background from thumbnails on the index //
-////////////////////////////////////////////////////////////////////////////////////
-Fek.prototype.RemoveThumbnailBackground = function(){
-  var self = this;
-  // Remove the background image from every thumbnail
-  $(".thumbnail-fallback").each(function(){
-    this.style.setProperty("background-image", "none", "important");
-  });
-
-  // animateThumbnails option
-  if(self.animateThumbnails == "animate"){
-    $(document.getElementsByTagName("img")).each(function(){
-      var thumbnail = this.getAttribute("src");
-
-      if(thumbnail.slice(-14) == "&animate=false")
-        this.setAttribute("src", thumbnail.slice(0, thumbnail.length - 14) + "&animate=true");
-    });
-  }else if(self.animateThumbnails == "hide"){
-    $(".discussion-list-item td.thumbnail").css("max-width", "0px");
-    $(document.getElementsByClassName("thumbnail-fallback")).each(function(){
-      $(this).remove();
-    });
-  }
-};
-
 ///////////////////////////////////////////////////////////////////////
 // HighlightMyThreads: Highlights your threads as black on the index //
 ///////////////////////////////////////////////////////////////////////
@@ -3211,6 +3209,7 @@ Fek.prototype.RoleplayingAlert = function(){
 // WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 Fek.prototype.WaitAndRun = function(selector, callback){
+  var self = this;
   var timeOut = 2000, currentTime = 0;
 
   var interval = setInterval(function(){
@@ -3220,7 +3219,7 @@ Fek.prototype.WaitAndRun = function(selector, callback){
       clearInterval(interval);
     else if($(selector).length > 0){
       clearInterval(interval);
-      callback();
+      callback(self);
     }
   }, 1);
 };
