@@ -199,6 +199,77 @@ function Fek(){
                                                // 5: Roleplaying Alert
 }
 
+Fek.prototype.Main = function(url){
+  var self = this;
+
+  self.CreateGUI();
+  self.CreateFeatures();
+  self.SettleGUI(); // $("#fekpanel").style.setProperty("visibility", "hidden", "important");
+  self.KeyWatch();
+
+  if(document.title == "Boards")
+    self.HideSubboards();
+
+  try{
+    self.AddFEKNavBar();
+  }catch(err){
+    self.ReportError("Error Code: 2");
+  }
+
+  // try{
+  //   if(boardsDropdownMenu == "on")
+  //     AddBoardsNavBar();
+  // }catch(err){
+  //   ReportError("Error Code: 3");
+  // }
+
+  try{
+    if((self.page == "Thread" || self.page == "Index") && self.platformRegion == "na"){
+      var markdownNav = document.getElementById("markdown-nav");
+      var timeOut     = 2000, currentTime = 0;
+
+      var interval = setInterval(function(){
+        currentTime = currentTime + 1;
+
+        if(currentTime >= timeOut){
+          clearInterval(interval);
+        }else{
+          if(markdownNav.children.length){
+            clearInterval(interval);
+            self.RemoveNavListLinks();
+          }
+        }
+      }, 1);
+    }
+  }
+  catch(err){
+    self.ReportError("Error Code: 4");
+  }
+
+  if(self.page == "Index"){
+    if(self.emptyVoteReplacement != "off")
+      self.EmptyVoteReplacement(); // For boards without voting
+
+    if($(".no-voting").length)
+      self.WaitAndRun(".no-voting", self.LoadIndex);
+    else{
+      self.WaitAndRun(".total-votes", self.LoadIndex);
+    }
+  }else if(self.page == "Thread"){
+    self.WaitAndRun(".profile-hover", self.LoadThread);
+  }
+
+  if(self.page == "Thread" && self.favoriteIcons != "off")
+    self.WaitAndRun(".button.gamedata.champion", self.FavoriteIcons);
+
+  document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
+
+  if(self.RPint < 15 && self.title == "Roleplaying" && self.alertPopUp === false) self.RoleplayingAlert();
+
+  self.Observer();
+  self.Xyz();
+};
+
 ///////////////////////////////
 // LoadCSS: Loads a CSS file //
 ///////////////////////////////
@@ -3445,72 +3516,5 @@ $(document).ready(function(){
     return;
 
   var fek = new Fek();
-
-  fek.CreateGUI();
-  fek.CreateFeatures();
-  fek.SettleGUI(); // $("#fekpanel").style.setProperty("visibility", "hidden", "important");
-  fek.KeyWatch();
-
-  if(document.title == "Boards")
-    fek.HideSubboards();
-
-  try{
-    fek.AddFEKNavBar();
-  }catch(err){
-    fek.ReportError("Error Code: 2");
-  }
-
-  // try{
-  //   if(boardsDropdownMenu == "on")
-  //     AddBoardsNavBar();
-  // }catch(err){
-  //   ReportError("Error Code: 3");
-  // }
-
-  try{
-    if((fek.page == "Thread" || fek.page == "Index") && fek.platformRegion == "na"){
-      var markdownNav = document.getElementById("markdown-nav");
-      var timeOut     = 2000, currentTime = 0;
-
-      var interval = setInterval(function(){
-        currentTime = currentTime + 1;
-
-        if(currentTime >= timeOut){
-          clearInterval(interval);
-        }else{
-          if(markdownNav.children.length){
-            clearInterval(interval);
-            fek.RemoveNavListLinks();
-          }
-        }
-      }, 1);
-    }
-  }
-  catch(err){
-    fek.ReportError("Error Code: 4");
-  }
-
-  if(fek.page == "Index"){
-    if(fek.emptyVoteReplacement != "off")
-      fek.EmptyVoteReplacement(); // For boards without voting
-
-    if($(".no-voting").length)
-      fek.WaitAndRun(".no-voting", fek.LoadIndex);
-    else{
-      fek.WaitAndRun(".total-votes", fek.LoadIndex);
-    }
-  }else if(fek.page == "Thread"){
-    fek.WaitAndRun(".profile-hover", fek.LoadThread);
-  }
-
-  if(fek.page == "Thread" && fek.favoriteIcons != "off")
-    fek.WaitAndRun(".button.gamedata.champion", fek.FavoriteIcons);
-
-  document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
-
-  if(fek.RPint < 15 && fek.title == "Roleplaying" && fek.alertPopUp === false) fek.RoleplayingAlert();
-
-  fek.Observer();
-
-  fek.Xyz();
+  fek.Main();
 });
