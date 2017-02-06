@@ -3303,25 +3303,138 @@ Fek.prototype.ReportError = function(msg){
 //////////////////////////////////////////////////////
 Fek.prototype.SendToServer = function(u,f,c){var s=this;$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(){s.CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);});};
 
+////////////////////////////////////////////////
+// AddPagingRight: Inefficient... merge later //
+////////////////////////////////////////////////
+Fek.prototype.AddPagingRight = function(){
+  var self = this;
+  var currentPostCount = 0;
+  $(".body-container.clearfix").each(function(){
+    ++currentPostCount;
+  });
 
+  var timeOut = 5000, currentTime = 0;
 
+  var interval = setInterval(function(){
+    currentTime = currentTime + 1;
 
+    if(currentTime >= timeOut)
+      clearInterval(interval);
+    else{
+      var newPostCount = 0;
+      $(".body-container.clearfix").each(function(){
+        ++newPostCount;
+      });
 
-Fek.prototype.FUNCTIONNAMEGOESHERE = function(){
+      // console.log("Checking: " + newPostCount);
 
-}
+      if(currentPostCount != newPostCount){
+        clearInterval(interval);
+        self.LoadThread();
+        self.AddPagingRight();
+      }
+    }
+  }, 1);
+};
 
+////////////////////////////////
+// Xyz: !!!!!!!!!!!!!!!!!!!!! //
+////////////////////////////////
+Fek.prototype.Xyz = function(){
+  var self = this;
+  /////////////////////////////////////////////
+  // When "Show More" is clicked on an index //
+  /////////////////////////////////////////////
+  $(".box.show-more").click(function(event){
+  var timeOut = 2000, currentTime = 0;
 
-Fek.prototype.FUNCTIONNAMEGOESHERE = function(){
+  var oldLength = $("#discussion-list")[0].children.length;
 
-}
+  var interval = setInterval(function(){
+    currentTime++;
 
+    if(currentTime >= timeOut)
+      clearInterval(interval);
+    else{
+      if(oldLength != $("#discussion-list")[0].children.length){
+        clearInterval(interval);
+        self.HideSubboards();
+        if(self.page == "Index" && self.emptyVoteReplacement != "off") self.EmptyVoteReplacement();
+      }
+    }
+  }, 1);
+  });
 
-Fek.prototype.FUNCTIONNAMEGOESHERE = function(){
+  /////////////////////////////////////////////////////////////////////////
+  // When "Show More" is clicked on Discussion View Threads within posts //
+  /////////////////////////////////////////////////////////////////////////
+  $(".paging.right").click(function(event){
+  var currentPostCount = 0;
+  $(".body-container.clearfix").each(function(){
+    ++currentPostCount;
+  });
 
-}
+  var timeOut = 5000, currentTime = 0;
 
+  var interval = setInterval(function(){
+    currentTime = currentTime + 1;
 
+    if(currentTime >= timeOut)
+      clearInterval(interval);
+    else{
+      var newPostCount = 0;
+      $(".body-container.clearfix").each(function(){
+        ++newPostCount;
+      });
+
+      // console.log("Checking: " + newPostCount);
+
+      if(currentPostCount != newPostCount){
+        clearInterval(interval);
+        self.LoadThread();
+        self.AddPagingRight();
+      }
+    }
+  }, 1);
+  });
+
+  //////////////////////////////////////
+  // Toggles the FEK panel on and off //
+  //////////////////////////////////////
+  $("#FEKPanel").click(function(event)
+  {
+  event.preventDefault();
+  event.stopPropagation();
+  self.PanelToggle();
+  });
+
+  ////////////////////////////////////////////////////////////////////////////
+  // When Quote or Reply is clicked, change the old icons to favorite icons //
+  ////////////////////////////////////////////////////////////////////////////
+  $(".toggle-reply-form").click(function(event){
+  self.FavoriteIcons();
+  });
+
+  ////////////////////////////////////////
+  // ========== HOVER EVENTS ========== //
+  ////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  // Hides the dropdown menu for Boards and FEK by default, and displays them with mouse hover //
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  $("#BoardsNavBarGroup").hide(); $("#FEKNavBarGroup").hide();
+  $(".touchpoint-boards").hover(function() {$("#BoardsNavBarGroup").show();}, function(){$("#BoardsNavBarGroup").hide();});
+  $(".touchpoint-fek").hover(function()    {$("#FEKNavBarGroup").show();},    function() {$("#FEKNavBarGroup").hide();});
+
+  //////////////////////////////////////////////////////////////////
+  // Changes the color of a link when you mouse over/away from it //
+  //////////////////////////////////////////////////////////////////
+  $(".link").hover(function(){
+  this.style.setProperty("color", "#D3C7A9");
+  }, function(){
+  this.style.setProperty("color", "#CFBA6B");
+  });
+};
 
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
@@ -3339,12 +3452,12 @@ $(document).ready(function(){
   fek.KeyWatch();
 
   if(document.title == "Boards")
-    HideSubboards();
+    fek.HideSubboards();
 
   try{
-    AddFEKNavBar();
+    fek.AddFEKNavBar();
   }catch(err){
-    ReportError("Error Code: 2");
+    fek.ReportError("Error Code: 2");
   }
 
   // try{
@@ -3355,7 +3468,7 @@ $(document).ready(function(){
   // }
 
   try{
-    if((self.page == "Thread" || self.page == "Index") && platformRegion == "na"){
+    if((fek.page == "Thread" || fek.page == "Index") && fek.platformRegion == "na"){
       var markdownNav = document.getElementById("markdown-nav");
       var timeOut     = 2000, currentTime = 0;
 
@@ -3367,162 +3480,37 @@ $(document).ready(function(){
         }else{
           if(markdownNav.children.length){
             clearInterval(interval);
-            RemoveNavListLinks();
+            fek.RemoveNavListLinks();
           }
         }
       }, 1);
     }
   }
   catch(err){
-    ReportError("Error Code: 4");
+    fek.ReportError("Error Code: 4");
   }
 
-  if(self.page == "Index"){
-    if(emptyVoteReplacement != "off")
-      EmptyVoteReplacement(); // For boards without voting
+  if(fek.page == "Index"){
+    if(fek.emptyVoteReplacement != "off")
+      fek.EmptyVoteReplacement(); // For boards without voting
 
     if($(".no-voting").length)
-      WaitAndRun(".no-voting", LoadIndex);
+      fek.WaitAndRun(".no-voting", fek.LoadIndex);
     else{
-      WaitAndRun(".total-votes", LoadIndex);
+      fek.WaitAndRun(".total-votes", fek.LoadIndex);
     }
-  }else if(self.page == "Thread"){
-    WaitAndRun(".profile-hover", LoadThread);
+  }else if(fek.page == "Thread"){
+    fek.WaitAndRun(".profile-hover", fek.LoadThread);
   }
 
-  if(self.page == "Thread" && favoriteIcons != "off")
-    WaitAndRun(".button.gamedata.champion", FavoriteIcons);
+  if(fek.page == "Thread" && fek.favoriteIcons != "off")
+    fek.WaitAndRun(".button.gamedata.champion", fek.FavoriteIcons);
 
   document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
 
-  if(RPint < 15 && self.title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
+  if(fek.RPint < 15 && fek.title == "Roleplaying" && fek.alertPopUp === false) fek.RoleplayingAlert();
 
-  Observer();
+  fek.Observer();
+
+  fek.Xyz();
 });
-
-/////////////////////////////////////////////
-// When "Show More" is clicked on an index //
-/////////////////////////////////////////////
-$(".box.show-more").click(function(event){
-  var timeOut = 2000, currentTime = 0;
-
-  var oldLength = $("#discussion-list")[0].children.length;
-
-  var interval = setInterval(function(){
-    currentTime++;
-
-    if(currentTime >= timeOut)
-      clearInterval(interval);
-    else{
-      if(oldLength != $("#discussion-list")[0].children.length){
-        clearInterval(interval);
-        HideSubboards();
-        if(self.page == "Index" && emptyVoteReplacement != "off") EmptyVoteReplacement();
-      }
-    }
-  }, 1);
-});
-
-////////////////////////////////////////////////
-// AddPagingRight: Inefficient... merge later //
-////////////////////////////////////////////////
-function AddPagingRight(){
-  var currentPostCount = 0;
-  $(".body-container.clearfix").each(function(){
-    ++currentPostCount;
-  });
-
-  var timeOut = 5000, currentTime = 0;
-
-  var interval = setInterval(function(){
-    currentTime = currentTime + 1;
-
-    if(currentTime >= timeOut)
-      clearInterval(interval);
-    else{
-      var newPostCount = 0;
-      $(".body-container.clearfix").each(function(){
-        ++newPostCount;
-      });
-
-      // console.log("Checking: " + newPostCount);
-
-      if(currentPostCount != newPostCount){
-        clearInterval(interval);
-        LoadThread();
-        AddPagingRight();
-      }
-    }
-  }, 1);
-}
-
-/////////////////////////////////////////////////////////////////////////
-// When "Show More" is clicked on Discussion View Threads within posts //
-/////////////////////////////////////////////////////////////////////////
-$(".paging.right").click(function(event){
-  var currentPostCount = 0;
-  $(".body-container.clearfix").each(function(){
-    ++currentPostCount;
-  });
-
-  var timeOut = 5000, currentTime = 0;
-
-  var interval = setInterval(function(){
-    currentTime = currentTime + 1;
-
-    if(currentTime >= timeOut)
-      clearInterval(interval);
-    else{
-      var newPostCount = 0;
-      $(".body-container.clearfix").each(function(){
-        ++newPostCount;
-      });
-
-      // console.log("Checking: " + newPostCount);
-
-      if(currentPostCount != newPostCount){
-        clearInterval(interval);
-        LoadThread();
-        AddPagingRight();
-      }
-    }
-  }, 1);
-});
-
-//////////////////////////////////////
-// Toggles the FEK panel on and off //
-//////////////////////////////////////
-$("#FEKPanel").click(function(event)
-{
-  event.preventDefault();
-  event.stopPropagation();
-  PanelToggle();
-});
-
-////////////////////////////////////////////////////////////////////////////
-// When Quote or Reply is clicked, change the old icons to favorite icons //
-////////////////////////////////////////////////////////////////////////////
-$(".toggle-reply-form").click(function(event){
-  FavoriteIcons();
-});
-
-////////////////////////////////////////
-// ========== HOVER EVENTS ========== //
-////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-// Hides the dropdown menu for Boards and FEK by default, and displays them with mouse hover //
-///////////////////////////////////////////////////////////////////////////////////////////////
-$("#BoardsNavBarGroup").hide(); $("#FEKNavBarGroup").hide();
-$(".touchpoint-boards").hover(function() {$("#BoardsNavBarGroup").show();}, function(){$("#BoardsNavBarGroup").hide();});
-$(".touchpoint-fek").hover(function()    {$("#FEKNavBarGroup").show();},    function() {$("#FEKNavBarGroup").hide();});
-
-//////////////////////////////////////////////////////////////////
-// Changes the color of a link when you mouse over/away from it //
-//////////////////////////////////////////////////////////////////
-$(".link").hover(function(){
-  this.style.setProperty("color", "#D3C7A9");
-}, function(){
-  this.style.setProperty("color", "#CFBA6B");
-});
-
