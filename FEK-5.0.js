@@ -1756,7 +1756,7 @@ Fek.prototype.QueryFEKServer = function(){
     }
 
     if(self.page == "Thread")
-      self.FormatAllPosts(true);
+      self.FormatAllPosts(self, true);
 
     $.event.trigger({type: "tweetsLoaded"});
   });
@@ -1885,9 +1885,7 @@ Fek.prototype.FormatSomePosts = function(FEKData = false){
 //////////////////////////////////////////////////////////////////////
 // FormatAllPosts: Calls FormatSinglePost on every post that exists //
 //////////////////////////////////////////////////////////////////////
-Fek.prototype.FormatAllPosts = function(FEKData = false){
-  var self = this;
-
+Fek.prototype.FormatAllPosts = function(self, FEKData = false){
   $(document).find(".toggle-minimized").remove();
 
   if(!FEKData){
