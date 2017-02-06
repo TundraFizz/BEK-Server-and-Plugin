@@ -18,277 +18,166 @@
 // Written by Leif Coleman (Tundra Fizz - NA) <mageleif@yahoo.com>
 // http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK
 
-var disableFEK = false;         // <-- Test variable, remove this laster
-if(window.top != window.self || // Prevent FEK from running more than once per page load
-   disableFEK)                  // Custom Wrenchmen JS stuff
-  return;
-
-//var domain = "http://35.161.242.105";
-//var domain = "http://35.167.193.168:9001";
-var domain = "http://localhost:9001";
-
-// This function is used in the minimized function below
-function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);}
-
-// Minimized function I made which helps sending form POST data easily
-function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(){cab();});}
-
-// var formData = new FormData();
-// formData.append("key1", "data1");
-// formData.append("key3", "data2");
-// SendToServer("post-url-here", formData, function(data){});
-
-var FEKversion       = "5.0.0";
-var FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
-var FEKgfx           = `${domain}/fek/gfx/misc/`;
-var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
-var FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
-var FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
-var FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
-var FEKtweets        = [];
-var activeKeys       = [];
-var hotkeys          = [];
-var users            = [];
-var regions          = [];
-var results          = [];
-var errorMessage     = "";
-
-LoadCSS(`${domain}/fek/css/fekv4panel.css`);
-LoadCSS(`${domain}/fek/css/fekevent.css`);
-LoadCSS(`${domain}/fek/css/thread.css`);
-
-//////////////////////////////////////////////////////
-// Modify the navigation bar at the top of the page //
-//////////////////////////////////////////////////////
-
-document.body.style.setProperty("min-width", "1050px"); // Resizes the minimum width for the page
-var RiotBar = $("#riotbar-bar");
-if(RiotBar)
-  $(RiotBar).attr("z-index", "-5000 !important");
-
-/////////////////////////////////
-// Get Board's Platform Region //
-/////////////////////////////////
-var windowURL      = window.location.href;
-var start          = windowURL.indexOf(".") + 1;
-var end            = windowURL.indexOf(".", start);
-var platformRegion = windowURL.substring(start, end);
-
-//////////////////////////
-// Variables: Page Data //
-//////////////////////////
-var page;       if     ($("#discussions").length)                            page       = "Index";                    // Board Index
-                else if($("#comments").length)                               page       = "Thread";                   // Inside a thread
-                else                                                         page       = "NULL";                     // Not on the index or in a thread
-
-var title = $("h2 a")[0].text;
-if(typeof title === "undefined") console.log("Undefined Title");
-if(title == "My Updates")        page = "My Updates";
-
-// var title;      if     (typeof ($("h2 a")[0]) === "undefined")               title      = $("h2 a")[0].html();          // Gets the title of the page
-//                 else                                                         title      = $("h2")[0].("a")[0].html(); // Gets the title of the page
-//                 if     (title == "My Updates")                               page       = "My Updates";               // My Updates is special and must match the title
-var threadMode; if     (page == "Thread" && $(".flat-comments").length)      threadMode = "Chrono";                   // Chronological Mode
-                else if(page == "Thread" && $(".flat-comments").length == 0) threadMode = "Discuss";                  // Discussion Mode
-                else                                                         threadMode = "NULL";                     // We're not in a thread
-
-if(page == "Thread"){
-  var head  = $("head")[0];
-  var link  = document.createElement("link");
-  link.id   = "fek-thread-css";
-  link.rel  = "stylesheet";
-  link.type = "text/css";
-  link.href = `${domain}/fek/css/thread.css`;
-  link.media = "all";
-  head.appendChild(link);
-}
-
-////////////////////////////
-// Variables: FEK Options //
-////////////////////////////
-var hide                      = {};
-var avatarSize                = "off";
-var fallbackAvatar            = "off";
-var votingDisplay             = "off";
-var blacklisting              = "off";
-var OPStyle                   = "off";
-var removeProfHovPop          = "off";
-var enhancedThreadPreview     = "off";
-var highlightMyThreads        = "off";
-var boardsDropdownMenu        = "off";
-var animateThumbnails         = "off";
-var emptyVoteReplacement      = "off";
-var embedMedia                = "off";
-var favoriteChampion          = "off";
-var favoriteSpell             = "off";
-var favoriteItem              = "off";
-var favoriteIcons             = "off";
-var rollDice                  = "off";
-var recordOverhead            = GM_getValue("_recordOverhead", "off");
-
-hide["Gameplay"]                     = "off";
-hide["Story, Art, & Sound"]          = "off";
-hide["Esports"]                      = "off";
-hide["Team Recruitment"]             = "off";
-hide["Concepts & Creations"]         = "off";
-hide["Player Behavior & Moderation"] = "off";
-hide["Miscellaneous"]                = "off";
-hide["Memes & Games"]                = "off";
-hide["General Discussion"]           = "off";
-hide["Roleplay"]                     = "off";
-hide["Help & Support"]               = "off";
-hide["Report a Bug"]                 = "off";
-hide["Boards Feedback"]              = "off";
-
-/////////////////////
-// Variables: Misc //
-/////////////////////
-var originalPoster    = "";                    // The name of the original poster in a thread
-var currentDate       = new Date();            // Gets today's date
-var RPint             = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
-var alertPopUp        = false;                 // Only one alert can display at a time
-                                               // 1: Can't connect to FEK server
-                                               // 2: FEK needs to be updated
-                                               // 3: API Error
-                                               // 4: Account Management
-                                               // 5: Roleplaying Alert
-//////////////////////////
-// Variables: User Data //
-//////////////////////////
-var myName;
-var myRegion;
-
-if($(".riotbar-summoner-info").length){
-  myName   = $(".riotbar-summoner-name").first().text()
-  myRegion = $(".riotbar-summoner-region").first().text()
-
-  if     (myRegion == "North America")    myRegion = "NA";
-  else if(myRegion == "Oceania")          myRegion = "OCE";
-  else if(myRegion == "EU West")          myRegion = "EUW";
-  else if(myRegion == "EU Nordic & East") myRegion = "EUNE";
-}
-
-///////////////////////////////
-// LoadCSS: Loads a CSS file //
-///////////////////////////////
-function LoadCSS(url){
-  var head     = document.getElementsByTagName("head")[0];
-  var cssFile  = document.createElement("link");
-  cssFile.type = "text/css";
-  cssFile.rel  = "stylesheet";
-  cssFile.href = encodeURI(url);
-  head.appendChild(cssFile);
-}
-
-///////////////////////////////////////////////////////
-// This function is a mess, I need to make it better //
-///////////////////////////////////////////////////////
-function ReportError(msg){
-//   if(errorMessage != "")
-//     errorMessage += "<br><br>";
-
-//   errorMessage += msg;
-
-//   // If an errorIcon doesn't currently exist
-//   if(document.getElementById("errorFek") == null)
-//   {
-//     var errorFek = document.createElement("div");
-//     errorFek.setAttribute("id", "errorFek");
-//     $("#riotbar-service-status").append(errorFek);
-
-//     var errorFekIcon = document.createElement("img");
-//     errorFekIcon.setAttribute("id", "errorFekIcon");
-//     errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");
-//     errorFekIcon.style.setProperty("position", "relative");
-//     errorFekIcon.style.setProperty("top", "5px");
-
-//     $(errorFek).append(errorFekIcon);
-
-//     $(errorFekIcon).hover(function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/Y32t3E5.png");}, function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");});
-
-//     $(errorFekIcon).on("click", function(event)
-//     {
-//       event.stopPropagation();
-//       event.preventDefault();
-
-//       if(document.getElementById("errorFekInfo") == null)
-//       {
-//         var errorFekInfo = document.createElement("div");
-//         errorFekInfo.setAttribute("id", "errorFekInfo");
-//         errorFekInfo.style.setProperty("position", "absolute");
-//         errorFekInfo.style.setProperty("top", "48px");
-//         errorFekInfo.style.setProperty("right", "-80px");
-//         errorFekInfo.style.setProperty("width", "350px");
-//       //errorFekInfo.style.setProperty("padding", "14px 20px 10px 40px");
-//         errorFekInfo.style.setProperty("padding", "10px 20px 10px 20px");
-//         errorFekInfo.style.setProperty("border-radius", "5px");
-//         errorFekInfo.style.setProperty("border-width", "1px");
-//         errorFekInfo.style.setProperty("border-style", "solid");
-//         errorFekInfo.style.setProperty("border-color", "#7E744E #B6A671 #55513A");
-//         errorFekInfo.style.setProperty("box-shadow", "0px 0px 3px 1px rgba(0, 0, 0, 0.3) inset, -1px 1px 10px 0px rgba(0, 0, 0, 0.8)");
-//         errorFekInfo.style.setProperty("background", "transparent linear-gradient(#1F3948, #0D1417) repeat scroll 0% 0%");
-//         errorFekInfo.style.setProperty("-webkit-touch-callout", "text");
-//         errorFekInfo.style.setProperty("-webkit-user-select", "text");
-//         errorFekInfo.style.setProperty("-khtml-user-select", "text");
-//         errorFekInfo.style.setProperty("-moz-user-select", "text");
-//         errorFekInfo.style.setProperty("-ms-user-select", "text");
-//         errorFekInfo.style.setProperty("-ms-user-select", "text");
-
-//         errorFekInfo.style.setProperty("font-family", "Tahoma");
-//         errorFekInfo.style.setProperty("color", "#9B9480");
-//         errorFekInfo.style.setProperty("font-size", "12px");
-//         errorFekInfo.style.setProperty("line-height", "1.4em");
-//         errorFekInfo.style.setProperty("z-index", "10");
-
-//         errorFekInfo.innerHTML = errorMessage;
-//         $(errorFek).append(errorFekInfo);
-
-//         var errorFekArrowContainer = document.createElement("div");
-//         errorFekArrowContainer.setAttribute("id", "errorFekArrowContainer");
-//         errorFekArrowContainer.style.setProperty("height", "15px");
-//         errorFekArrowContainer.style.setProperty("overflow", "hidden");
-//         $(errorFek).append(errorFekArrowContainer);
-
-//         var errorFekArrow = document.createElement("div");
-//         errorFekArrow.setAttribute("id", "errorFekArrow");
-//         errorFekArrow.style.setProperty("position", "relative");
-//         errorFekArrow.style.setProperty("content", "");
-//         errorFekArrow.style.setProperty("top", "10px");
-//         errorFekArrow.style.setProperty("right", "-10px");
-//         errorFekArrow.style.setProperty("width", "10px");
-//         errorFekArrow.style.setProperty("height", "10px");
-//         errorFekArrow.style.setProperty("background", "repeating-linear-gradient(135deg, #044247 0px, #232930 6.5px)");
-//         errorFekArrow.style.setProperty("border-top", "1px solid #7E744E");
-//         errorFekArrow.style.setProperty("border-left", "1px solid #7E744E");
-//         errorFekArrow.style.setProperty("-webkit-transform", "rotate(45deg)");
-//         errorFekArrow.style.setProperty("-moz-transform", "rotate(45deg)");
-//         errorFekArrow.style.setProperty("-ms-transform", "rotate(45deg)");
-//         errorFekArrow.style.setProperty("transform", "rotate(45deg)");
-//         errorFekArrow.style.setProperty("z-index", "10");
-//         $(errorFekArrowContainer).append(errorFekArrow);
-
-//         // Allow clicking away from the panel to close the message box
-//         $("body").click(function()
-//         {
-//           document.getElementById("errorFekArrow").remove();
-//           document.getElementById("errorFekArrowContainer").remove();
-//           document.getElementById("errorFekInfo").remove();
-//         });
-//       }
-//       else
-//       {
-//         document.getElementById("errorFekArrow").remove();
-//         document.getElementById("errorFekArrowContainer").remove();
-//         document.getElementById("errorFekInfo").remove();
-//       }
-//     });
-//   }
-}
-
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
 ///////////////////////////////////////
-(function(){
+$(document).ready(function(){
+  if(window.top != window.self ||       // Prevent FEK from loading twice
+     typeof disableFEK !== "undefined") // Custom Wrenchmen script
+    return;
+
+  //var domain = "http://35.161.242.105";
+  //var domain = "http://35.167.193.168:9001";
+  var domain = "http://localhost:9001";
+
+  // var formData = new FormData();
+  // formData.append("key1", "data1");
+  // formData.append("key3", "data2");
+  // SendToServer("post-url-here", formData, function(data){});
+
+  var FEKversion       = "5.0.0";
+  var FEKpage          = "http://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
+  var FEKgfx           = `${domain}/fek/gfx/misc/`;
+  var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
+  var FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
+  var FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
+  var FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
+  var FEKtweets        = [];
+  var activeKeys       = [];
+  var hotkeys          = [];
+  var users            = [];
+  var regions          = [];
+  var results          = [];
+  var errorMessage     = "";
+
+  LoadCSS(`${domain}/fek/css/fekv4panel.css`);
+  LoadCSS(`${domain}/fek/css/fekevent.css`);
+  LoadCSS(`${domain}/fek/css/thread.css`);
+
+  //////////////////////////////////////////////////////
+  // Modify the navigation bar at the top of the page //
+  //////////////////////////////////////////////////////
+
+  document.body.style.setProperty("min-width", "1050px"); // Resizes the minimum width for the page
+  var RiotBar = $("#riotbar-bar");
+  if(RiotBar)
+    $(RiotBar).attr("z-index", "-5000 !important");
+
+  /////////////////////////////////
+  // Get Board's Platform Region //
+  /////////////////////////////////
+  var windowURL      = window.location.href;
+  var start          = windowURL.indexOf(".") + 1;
+  var end            = windowURL.indexOf(".", start);
+  var platformRegion = windowURL.substring(start, end);
+
+  //////////////////////////
+  // Variables: Page Data //
+  //////////////////////////
+  var page;
+  if($("#discussions").length)   page = "Index";  // Board Index
+  else if($("#comments").length) page = "Thread"; // Inside a thread
+  else                           page = "NULL";   // Not on the index or in a thread
+
+  var title = $("h2 a")[0].text;
+  if(typeof title === "undefined") console.log("Undefined Title");
+  if(title == "My Updates")        page = "My Updates";
+
+  // var title;      if     (typeof ($("h2 a")[0]) === "undefined")               title      = $("h2 a")[0].html();          // Gets the title of the page
+  //                 else                                                         title      = $("h2")[0].("a")[0].html(); // Gets the title of the page
+  //                 if     (title == "My Updates")                               page       = "My Updates";               // My Updates is special and must match the title
+  var threadMode; if     (page == "Thread" && $(".flat-comments").length)      threadMode = "Chrono";                   // Chronological Mode
+                  else if(page == "Thread" && $(".flat-comments").length == 0) threadMode = "Discuss";                  // Discussion Mode
+                  else                                                         threadMode = "NULL";                     // We're not in a thread
+
+  if(page == "Thread"){
+    var head  = $("head")[0];
+    var link  = document.createElement("link");
+    link.id   = "fek-thread-css";
+    link.rel  = "stylesheet";
+    link.type = "text/css";
+    link.href = `${domain}/fek/css/thread.css`;
+    link.media = "all";
+    head.appendChild(link);
+  }
+
+  ////////////////////////////
+  // Variables: FEK Options //
+  ////////////////////////////
+  var hide                      = {};
+  var avatarSize                = "off";
+  var fallbackAvatar            = "off";
+  var votingDisplay             = "off";
+  var blacklisting              = "off";
+  var OPStyle                   = "off";
+  var removeProfHovPop          = "off";
+  var enhancedThreadPreview     = "off";
+  var highlightMyThreads        = "off";
+  var boardsDropdownMenu        = "off";
+  var animateThumbnails         = "off";
+  var emptyVoteReplacement      = "off";
+  var embedMedia                = "off";
+  var favoriteChampion          = "off";
+  var favoriteSpell             = "off";
+  var favoriteItem              = "off";
+  var favoriteIcons             = "off";
+  var rollDice                  = "off";
+  var recordOverhead            = GM_getValue("_recordOverhead", "off");
+
+  hide["Gameplay"]                     = "off";
+  hide["Story, Art, & Sound"]          = "off";
+  hide["Esports"]                      = "off";
+  hide["Team Recruitment"]             = "off";
+  hide["Concepts & Creations"]         = "off";
+  hide["Player Behavior & Moderation"] = "off";
+  hide["Miscellaneous"]                = "off";
+  hide["Memes & Games"]                = "off";
+  hide["General Discussion"]           = "off";
+  hide["Roleplay"]                     = "off";
+  hide["Help & Support"]               = "off";
+  hide["Report a Bug"]                 = "off";
+  hide["Boards Feedback"]              = "off";
+
+  /////////////////////
+  // Variables: Misc //
+  /////////////////////
+  var originalPoster    = "";                    // The name of the original poster in a thread
+  var currentDate       = new Date();            // Gets today's date
+  var RPint             = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
+  var alertPopUp        = false;                 // Only one alert can display at a time
+                                                 // 1: Can't connect to FEK server
+                                                 // 2: FEK needs to be updated
+                                                 // 3: API Error
+                                                 // 4: Account Management
+                                                 // 5: Roleplaying Alert
+  //////////////////////////
+  // Variables: User Data //
+  //////////////////////////
+  var myName;
+  var myRegion;
+
+  if($(".riotbar-summoner-info").length){
+    myName   = $(".riotbar-summoner-name").first().text()
+    myRegion = $(".riotbar-summoner-region").first().text()
+
+    if     (myRegion == "North America")    myRegion = "NA";
+    else if(myRegion == "Oceania")          myRegion = "OCE";
+    else if(myRegion == "EU West")          myRegion = "EUW";
+    else if(myRegion == "EU Nordic & East") myRegion = "EUNE";
+  }
+
+  ///////////////////////////////
+  // LoadCSS: Loads a CSS file //
+  ///////////////////////////////
+  function LoadCSS(url){
+    var head     = document.getElementsByTagName("head")[0];
+    var cssFile  = document.createElement("link");
+    cssFile.type = "text/css";
+    cssFile.rel  = "stylesheet";
+    cssFile.href = encodeURI(url);
+    head.appendChild(cssFile);
+  }
+
   CreateGUI();
   CreateFeatures();
   SettleGUI();
@@ -354,7 +243,15 @@ function ReportError(msg){
   document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
 
   if(RPint < 15 && title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
-})();
+
+  Observer();
+});
+
+// This function is used in the minimized function below
+function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);}
+
+// Minimized function I made which helps sending form POST data easily
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(){cab();});}
 
 //////////////////////////////////////////////////////////////////////////////
 // EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
@@ -3466,19 +3363,126 @@ $(".link").hover(function(){
 /////////////////////////////////////////////
 // ========== MUTATION OBSERVER ========== //
 /////////////////////////////////////////////
-if(page == "Index" || page == "Thread"){
-  var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
-              else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
-              else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
+function Observer(){
+  if(page == "Index" || page == "Thread"){
+    var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
+                else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
+                else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
 
-  var observer = new MutationObserver(function(mutations){
-    if(page == "Index")
-      WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
-    else if(page == "Thread")
-      WaitAndRun(".riot-voting", LoadThread);
-  });
+    var observer = new MutationObserver(function(mutations){
+      if(page == "Index")
+        WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
+      else if(page == "Thread")
+        WaitAndRun(".riot-voting", LoadThread);
+    });
 
-  var config = {attributes: true, childList: true, characterData: true};
+    var config = {attributes: true, childList: true, characterData: true};
 
-  observer.observe(target, config);
+    observer.observe(target, config);
+  }
+}
+
+///////////////////////////////////////////////////////
+// This function is a mess, I need to make it better //
+///////////////////////////////////////////////////////
+function ReportError(msg){
+  //   if(errorMessage != "")
+  //     errorMessage += "<br><br>";
+
+  //   errorMessage += msg;
+
+  //   // If an errorIcon doesn't currently exist
+  //   if(document.getElementById("errorFek") == null)
+  //   {
+  //     var errorFek = document.createElement("div");
+  //     errorFek.setAttribute("id", "errorFek");
+  //     $("#riotbar-service-status").append(errorFek);
+
+  //     var errorFekIcon = document.createElement("img");
+  //     errorFekIcon.setAttribute("id", "errorFekIcon");
+  //     errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");
+  //     errorFekIcon.style.setProperty("position", "relative");
+  //     errorFekIcon.style.setProperty("top", "5px");
+
+  //     $(errorFek).append(errorFekIcon);
+
+  //     $(errorFekIcon).hover(function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/Y32t3E5.png");}, function() {errorFekIcon.setAttribute("src", "http://i.imgur.com/djAvEc6.png");});
+
+  //     $(errorFekIcon).on("click", function(event)
+  //     {
+  //       event.stopPropagation();
+  //       event.preventDefault();
+
+  //       if(document.getElementById("errorFekInfo") == null)
+  //       {
+  //         var errorFekInfo = document.createElement("div");
+  //         errorFekInfo.setAttribute("id", "errorFekInfo");
+  //         errorFekInfo.style.setProperty("position", "absolute");
+  //         errorFekInfo.style.setProperty("top", "48px");
+  //         errorFekInfo.style.setProperty("right", "-80px");
+  //         errorFekInfo.style.setProperty("width", "350px");
+  //       //errorFekInfo.style.setProperty("padding", "14px 20px 10px 40px");
+  //         errorFekInfo.style.setProperty("padding", "10px 20px 10px 20px");
+  //         errorFekInfo.style.setProperty("border-radius", "5px");
+  //         errorFekInfo.style.setProperty("border-width", "1px");
+  //         errorFekInfo.style.setProperty("border-style", "solid");
+  //         errorFekInfo.style.setProperty("border-color", "#7E744E #B6A671 #55513A");
+  //         errorFekInfo.style.setProperty("box-shadow", "0px 0px 3px 1px rgba(0, 0, 0, 0.3) inset, -1px 1px 10px 0px rgba(0, 0, 0, 0.8)");
+  //         errorFekInfo.style.setProperty("background", "transparent linear-gradient(#1F3948, #0D1417) repeat scroll 0% 0%");
+  //         errorFekInfo.style.setProperty("-webkit-touch-callout", "text");
+  //         errorFekInfo.style.setProperty("-webkit-user-select", "text");
+  //         errorFekInfo.style.setProperty("-khtml-user-select", "text");
+  //         errorFekInfo.style.setProperty("-moz-user-select", "text");
+  //         errorFekInfo.style.setProperty("-ms-user-select", "text");
+  //         errorFekInfo.style.setProperty("-ms-user-select", "text");
+
+  //         errorFekInfo.style.setProperty("font-family", "Tahoma");
+  //         errorFekInfo.style.setProperty("color", "#9B9480");
+  //         errorFekInfo.style.setProperty("font-size", "12px");
+  //         errorFekInfo.style.setProperty("line-height", "1.4em");
+  //         errorFekInfo.style.setProperty("z-index", "10");
+
+  //         errorFekInfo.innerHTML = errorMessage;
+  //         $(errorFek).append(errorFekInfo);
+
+  //         var errorFekArrowContainer = document.createElement("div");
+  //         errorFekArrowContainer.setAttribute("id", "errorFekArrowContainer");
+  //         errorFekArrowContainer.style.setProperty("height", "15px");
+  //         errorFekArrowContainer.style.setProperty("overflow", "hidden");
+  //         $(errorFek).append(errorFekArrowContainer);
+
+  //         var errorFekArrow = document.createElement("div");
+  //         errorFekArrow.setAttribute("id", "errorFekArrow");
+  //         errorFekArrow.style.setProperty("position", "relative");
+  //         errorFekArrow.style.setProperty("content", "");
+  //         errorFekArrow.style.setProperty("top", "10px");
+  //         errorFekArrow.style.setProperty("right", "-10px");
+  //         errorFekArrow.style.setProperty("width", "10px");
+  //         errorFekArrow.style.setProperty("height", "10px");
+  //         errorFekArrow.style.setProperty("background", "repeating-linear-gradient(135deg, #044247 0px, #232930 6.5px)");
+  //         errorFekArrow.style.setProperty("border-top", "1px solid #7E744E");
+  //         errorFekArrow.style.setProperty("border-left", "1px solid #7E744E");
+  //         errorFekArrow.style.setProperty("-webkit-transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("-moz-transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("-ms-transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("transform", "rotate(45deg)");
+  //         errorFekArrow.style.setProperty("z-index", "10");
+  //         $(errorFekArrowContainer).append(errorFekArrow);
+
+  //         // Allow clicking away from the panel to close the message box
+  //         $("body").click(function()
+  //         {
+  //           document.getElementById("errorFekArrow").remove();
+  //           document.getElementById("errorFekArrowContainer").remove();
+  //           document.getElementById("errorFekInfo").remove();
+  //         });
+  //       }
+  //       else
+  //       {
+  //         document.getElementById("errorFekArrow").remove();
+  //         document.getElementById("errorFekArrowContainer").remove();
+  //         document.getElementById("errorFekInfo").remove();
+  //       }
+  //     });
+  //   }
 }
