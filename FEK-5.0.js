@@ -23,9 +23,6 @@
 // Library: ChangeElementType
 (function($) {$.fn.ChangeElementType = function(newType) {var attrs = {}; $.each(this[0].attributes, function(idx, attr) {attrs[attr.nodeName] = attr.nodeValue;}); this.replaceWith(function() {return $("<" + newType + "/>", attrs).append($(this).contents());});};})(jQuery);
 
-// Library: GradientText (this is really awful, find a better way to make gradient text)
-(function(e){e("head").append('<style type="text/css">.sn-pxg .pxg-set{user-select:none;-moz-user-select:none;-webkit-user-select:none;}.sn-pxg span.pxg-source{position:relative;display:inline-block;z-index:2;}.sn-pxg U.pxg-set,.sn-pxg U.pxg-set S,.sn-pxg U.pxg-set S B{left:0;right:0;top:0;bottom:0;height:inherit;width:inherit;position:absolute;display:inline-block;text-decoration:none;font-weight:inherit;}.sn-pxg U.pxg-set S{overflow:hidden;}.sn-pxg U.pxg-set{text-decoration:none;z-index:1;display:inline-block;position:relative;}</style>');e.fn.GradientText=function(t){function r(e){if("#"==e.substr(0,1)){e=e.substr(1)}if(3==e.length){e=e.substr(0,1)+e.substr(0,1)+e.substr(1,1)+e.substr(1,1)+e.substr(2,1)+e.substr(2,1)}return[parseInt(e.substr(0,2),16),parseInt(e.substr(2,2),16),parseInt(e.substr(4,2),16)]}function i(e){var t="0123456789abcdef";return"#"+t.charAt(parseInt(e[0]/16))+t.charAt(e[0]%16)+t.charAt(parseInt(e[1]/16))+t.charAt(e[1]%16)+t.charAt(parseInt(e[2]/16))+t.charAt(e[2]%16)}function s(e,n){var r=e>0?e/n:0;for(var i=0;i<t.colors.length;i++){fStopPosition=i/(t.colors.length-1);fLastPosition=i>0?(i-1)/(t.colors.length-1):0;if(r==fStopPosition){return t.colors[i]}else if(r<fStopPosition){fCurrentStop=(r-fLastPosition)/(fStopPosition-fLastPosition);return o(t.RGBcolors[i-1],t.RGBcolors[i],fCurrentStop)}}return t.colors[t.colors.length-1]}function o(e,t,n){var r=[];for(var s=0;s<3;s++){r[s]=e[s]+Math.round((t[s]-e[s])*n)}return i(r)}var t=e.extend({step:10,colors:["#ffcc00","#cc0000","#000000"],dir:"y"},t);t.RGBcolors=[];for(var n=0;n<t.colors.length;n++){t.RGBcolors[n]=r(t.colors[n])}return this.each(function(n,r){var i=e(r);if(!i.hasClass("sn-pxg")){var o=i.html();i.html('<span class="pxg-source" style="visibility: hidden;">'+o+"</span>").append('<u class="pxg-set"></u>');var u=i.find(".pxg-set");var a=i.find(".pxg-source");var f=a.innerWidth();var l=a.innerHeight();a.hide();i.addClass("sn-pxg");if(t.dir=="x"){var c=f}else if(t.dir=="y"){var c=l}var h=Math.floor(c/t.step);var p=h;var d=c-h*t.step;if(d>0){p++}u.css({width:f,height:l});var v=0;var m="";if(t.dir=="x"){for(var n=0;n<p;n++){var g=s(v,c);m+='<s style="height:'+l+"px;width:"+t.step+"px;left:"+v+"px;color:"+g+'"><b style="left:-'+v+"px;width:"+f+"px;height:"+l+'px;">'+o+"</b></s>";v=v+t.step}}else if(t.dir=="y"){for(var n=0;n<p;n++){var g=s(v,c);m+='<s style="width:'+f+"px;height:"+t.step+"px;top:"+v+"px;color:"+g+'"><b style="top:-'+v+"px;height:"+f+"px;height:"+l+'px;">'+o+"</b></s>";v=v+t.step}}u.append(m)}})}})(jQuery);
-
 // Library: PRNG
 !function(a,b,c,d,e,f,g,h,i){function j(a){var b,c=a.length,e=this,f=0,g=e.i=e.j=0,h=e.S=[];for(c||(a=[c++]);d>f;)h[f]=f++;for(f=0;d>f;f++)h[f]=h[g=s&g+a[f%c]+(b=h[f])],h[g]=b;(e.g=function(a){for(var b,c=0,f=e.i,g=e.j,h=e.S;a--;)b=h[f=s&f+1],c=c*d+h[s&(h[f]=h[g=s&g+b])+(h[g]=b)];return e.i=f,e.j=g,c})(d)}function k(a,b){var c,d=[],e=typeof a;if(b&&"object"==e)for(c in a)try{d.push(k(a[c],b-1))}catch(f){}return d.length?d:"string"==e?a:a+"\0"}function l(a,b){for(var c,d=a+"",e=0;e<d.length;)b[s&e]=s&(c^=19*b[s&e])+d.charCodeAt(e++);return n(b)}function m(c){try{return o?n(o.randomBytes(d)):(a.crypto.getRandomValues(c=new Uint8Array(d)),n(c))}catch(e){return[+new Date,a,(c=a.navigator)&&c.plugins,a.screen,n(b)]}}function n(a){return String.fromCharCode.apply(0,a)}var o,p=c.pow(d,e),q=c.pow(2,f),r=2*q,s=d-1,t=c["seed"+i]=function(a,f,g){var h=[];f=1==f?{entropy:!0}:f||{};var o=l(k(f.entropy?[a,n(b)]:null==a?m():a,3),h),s=new j(h);return l(n(s.S),b),(f.pass||g||function(a,b,d){return d?(c[i]=a,b):a})(function(){for(var a=s.g(e),b=p,c=0;q>a;)a=(a+c)*d,b*=d,c=s.g(1);for(;a>=r;)a/=2,b/=2,c>>>=1;return(a+c)/b},o,"global"in f?f.global:this==c)};if(l(c[i](),b),g&&g.exports){g.exports=t;try{o=require("crypto")}catch(u){}}else h&&h.amd&&h(function(){return t})}(this,[],Math,256,6,52,"object"==typeof module&&module,"function"==typeof define&&define,"random");
 
@@ -1547,13 +1544,8 @@ Fek.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
           divTitle.style.setProperty("font-size", "10px", "important");
 
         if(staff == "1"){
+          $(divTitle).addClass("fek-staff-name");
           divTitle.style.setProperty("font-size", "26px", "important");
-
-          $(divTitle).GradientText({
-            step: 10,
-            colors: ["#68BAFF", "#008AFF", "#68BAFF"],
-            dir: "x"
-          });
 
           if(title.length >= 16)
             divTitle.style.setProperty("font-size", "13px", "important");
@@ -1849,8 +1841,9 @@ Fek.prototype.LoadThread = function(self){
         region   = region.substring(1, region.length - 1);
 
     // FEK staff have special gradient names, so I need to extract them using this method
-    if(this.getElementsByClassName("pxg-set").length > 0)
-      username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+    // NOT NEEDED ANYMORE
+    // if(this.getElementsByClassName("pxg-set").length > 0)
+    //   username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
     self.users.push(username);
     self.regions.push(region);
@@ -2016,8 +2009,9 @@ Fek.prototype.FormatSinglePost1 = function(obj, op){
   var region        = obj.getElementsByClassName("realm")[0];
 
   // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+  // NOT NEEDED ANYMORE
+  // if(obj.getElementsByClassName("pxg-set").length > 0)
+  //   usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon; if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
@@ -2364,8 +2358,9 @@ Fek.prototype.FormatSinglePost2 = function(obj, op){
   // var region        = obj.getElementsByClassName("realm")[0];
 
   // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+  // NOT NEEDED ANYMORE
+  // if(obj.getElementsByClassName("pxg-set").length > 0)
+  //   usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon; if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
@@ -2530,17 +2525,10 @@ Fek.prototype.FormatSinglePost2 = function(obj, op){
   // Username: All Posts
   if(1){
     if(staff == "1"){
-      // Gradient names have problems where if they are too long and have a space, they will
-      // go on a second line. So if a name is a certain length (>= 14) and has at least one
-      // space in it, decrease the font size to 12
-      if(usernameT.length >= 12 && (usernameT.indexOf(" ") >= 0))
-        username.style.setProperty("font-size", "12px", "important");
-
-      $(username).GradientText({
-        step:    10,
-        colors: ["#68BAFF", "#008AFF", "#68BAFF"],
-        dir:    "x"
-      });
+      username.style.setProperty("font-size",   "12px",    "important");
+      username.style.setProperty("font-family", "Georgia", "important");
+      username.style.setProperty("font-weight", "bold",    "important");
+      $(username).addClass("fek-staff-name");
     }
   }
 

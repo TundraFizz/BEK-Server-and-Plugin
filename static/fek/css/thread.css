@@ -23,3 +23,10 @@
 #content {
   padding-left: "0px";
 }
+
+.fek-staff-name {
+  background-image: linear-gradient(to right, #35beff 25%, #4382ff 50%, #35beff 75%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
