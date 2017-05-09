@@ -46,13 +46,12 @@ var regions          = [];
 var results          = [];
 var errorMessage     = "";
 
-
 // LoadCSS(`${domain}/fek/css/fekv4panel.css`);
 // LoadCSS(`${domain}/fek/css/fekevent.css`);
 // LoadCSS(`${domain}/fek/css/thread.css`);
-LoadCSS(`${domain}/fek/css/fekv4panel.css`);
-LoadCSS(`${domain}/fek/css/fekevent.css`);
-LoadCSS(`${domain}/fek/css/thread.css`);
+LoadCSS(`https://mudki.ps/fek/css/fekv4panel.css`);
+LoadCSS(`https://mudki.ps/fek/css/fekevent.css`);
+LoadCSS(`https://mudki.ps/fek/css/thread.css`);
 
 //////////////////////////////////////////////////////
 // Modify the navigation bar at the top of the page //
@@ -160,18 +159,84 @@ var start          = windowURL.indexOf(".") + 1;
 var end            = windowURL.indexOf(".", start);
 var platformRegion = windowURL.substring(start, end);
 
-///////////////////////////////////////
-// ========== ENTRY POINT ========== //
-///////////////////////////////////////
-(function(){Get(null, function(data){Main(data)});})();
+function FEK(){}
 
-function Main(data){
-  console.log(data);
-  CreateGUI();
-  CreateFeatures();
-  SettleGUI();
+///////////////////////////////////////////
+// Initialize: Initializes FEK variables //
+///////////////////////////////////////////
+FEK.prototype.Initialize = function(){
+  var self = this;
+  // Clear();
+  Get(null, function(data){
+    if($.isEmptyObject(data)){
+      self.DefaultVariables();
+    }else{
+      self.data = data;
+      if(self.data["version"] != FEKversion)
+        self.HandleUpdate();
+      else
+        self.Main();
+    }
+  });
+}
+
+/////////////////////////////////////////////
+// HandleUpdate: Initializes FEK variables //
+/////////////////////////////////////////////
+FEK.prototype.HandleUpdate = function(){
+  var self = this;
+  console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");
+  self.data["version"] = FEKversion;
+
+  Set(self.data, function(){
+    self.Main();
+  });
+}
+
+/////////////////////////////////////////////////
+// DefaultVariables: Initializes FEK variables //
+/////////////////////////////////////////////////
+FEK.prototype.DefaultVariables = function(){
+  var self = this;
+
+  self.data = {
+    "version":               FEKversion,
+    "blacklist":             {},
+    "hide":                  {},
+    "avatarSize":            "off",
+    "fallbackAvatar":        "off",
+    "votingDisplay":         "off",
+    "blacklisting":          "off",
+    "OPStyle":               "off",
+    "removeProfHovPop":      "off",
+    "enhancedThreadPreview": "off",
+    "highlightMyThreads":    "off",
+    "boardsDropdownMenu":    "off",
+    "animateThumbnails":     "off",
+    "emptyVoteReplacement":  "off",
+    "embedMedia":            "off",
+    "favoriteChampion":      "off",
+    "favoriteSpell":         "off",
+    "favoriteItem":          "off",
+    "favoriteIcons":         "off",
+    "rollDice":              "off"
+  };
+
+  Set(self.data, function(){
+    self.Main();
+  });
+}
+
+FEK.prototype.Main = function(){
+  var self = this;
+
+  self.CreateGUI();
+  self.CreateFeatures();
+  self.SettleGUI();
+  self.KeyWatch();
+
   // $("#fekpanel").style.setProperty("visibility", "hidden", "important");
-  KeyWatch();
+  return;
 
   if(document.title == "Boards"){
     HideSubboards();
@@ -219,6 +284,829 @@ function Main(data){
   // Put this back in later
   // if(RPint < 15 && title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
 }
+
+//////////////////////////////////////////////////
+// CreateGUI: Creates the GUI for the FEK panel //
+//////////////////////////////////////////////////
+FEK.prototype.CreateGUI = function(){
+  var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
+
+  var panelhtml = `
+  <div id="fekpanel">
+    <div id="col1">
+      <div id="logo" style="background:url(${FEKgfx}logo.png) no-repeat"></div>
+      <div id="version">v${FEKversion}</div>
+      <div id="tabs"></div>
+    </div>
+    <div id="col2">
+      <div id="refreshNotice">
+        Changes Saved. Click Here To Refresh The Page.
+      </div>
+      <div id="fekScrollRegion" class="fekScrollRegion"></div>
+    </div>
+  </div>
+  `;
+
+  var docbody = $("html").first().find("body:not(.wysiwyg)").first();
+  docbody.append(panelhtml);
+  docbody.append(tooltipshtml);
+
+  // Hide FEK Panel so the user doesn't see a whole bunch
+  // of random text for the second while the webpage loads
+  $("#fekpanel").hide();
+}
+
+////////////////////////////////////////////////////////////
+// CreateFeatures: This is where all FEK features are set //
+////////////////////////////////////////////////////////////
+FEK.prototype.CreateFeatures = function(){
+  var tabgroup, tab, category, initvalue, label, options, tooltip;
+
+  // Core Mods -> LoL Boards -> User Identities
+  tabgroup = "Core Mods";
+  tab      = "LoL Boards";
+  category = "User Identities";
+
+  //////////////////////////
+  // Feature: FEK Avatars //
+  //////////////////////////
+  tooltip = "The size of FEK avatars.";
+  options = ["100|100x100",
+             "125|125x125",
+             "150|150x150",
+             "175|175x175",
+             "200|200x200"];
+
+  CreateFeature("FEK Avatars", "_fekAvatars", options, "100", tooltip, tabgroup, tab, category, function(option){
+    avatarSize = parseInt(option);
+  });
+
+  ///////////////////////////////
+  // Feature: Fallback Avatars //
+  ///////////////////////////////
+  tooltip = "The avatar to use when a person doesn't have a FEK avatar.";
+  options = ["off|Disable",
+             "1|Trident (Dark)",
+             "2|Trident (Light)",
+             "3|Trident (Parchment)",
+             "4|Poro (Dark)",
+             "5|Poro (Light)",
+             "6|Poro (Parchment)",
+             "7|Happy Cloud (Dark)",
+             "8|Happy Cloud (Light)",
+             "9|Happy Cloud (Parchment)"];
+
+  CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category, function(option){
+    if     (option == "1") fallbackAvatar = FEKgfx + "no-avatar-trident-dark.gif";
+    else if(option == "2") fallbackAvatar = FEKgfx + "no-avatar-trident-light.gif";
+    else if(option == "3") fallbackAvatar = FEKgfx + "no-avatar-trident-parchment.gif";
+    else if(option == "4") fallbackAvatar = FEKgfx + "no-avatar-poro-dark.gif";
+    else if(option == "5") fallbackAvatar = FEKgfx + "no-avatar-poro-light.gif";
+    else if(option == "6") fallbackAvatar = FEKgfx + "no-avatar-poro-parchment.gif";
+    else if(option == "7") fallbackAvatar = FEKgfx + "no-avatar-dark.gif";
+    else if(option == "8") fallbackAvatar = FEKgfx + "no-avatar-light.gif";
+    else if(option == "9") fallbackAvatar = FEKgfx + "no-avatar-parchment.gif";
+  });
+
+  //////////////////////////////
+  // Feature: Enhanced Voting //
+  //////////////////////////////
+  tooltip = "Gives a green color to upvotes, and a red color to downvotes. Also gives you the choice of how to display votes when you hover your mouse over them.";
+  options = ["off|Disable",
+             "individual|Individual Votes",
+             "total|Total Votes",
+             "hide|Hide Votes"];
+
+  CreateFeature("Enhanced Voting", "_enhancedVoting", options, "individual", tooltip, tabgroup, tab, category, function(option){
+    votingDisplay = option;
+  });
+
+  ///////////////////////////
+  // Feature: Blacklisting //
+  ///////////////////////////
+  tooltip = "Hides posts and threads made by users that you have on your blacklist. To blacklist somebody, hover your mouse over their avatar and click on blacklist";
+  CreateFeature("Blacklisting", "_blacklisting", "", "on", tooltip, tabgroup, tab, category, function(option){
+    blacklisting = option;
+  });
+
+  //////////////////////////////
+  // Feature: OP Style Change //
+  //////////////////////////////
+  tooltip = "Removes the colored background on an original poster's posts.";
+  CreateFeature("OP Style Change", "_opStyleChange", "", "on", tooltip, tabgroup, tab, category, function(option){
+    OPStyle = option;
+  });
+
+  /////////////////////////////////////////
+  // Feature: Remove Profile Hover Popup //
+  /////////////////////////////////////////
+  tooltip = "Removes Riot's profile popup when you hover over a user.";
+  CreateFeature("Remove Profile Hover Popup", "_removeProfHovPop", "", "on", tooltip, tabgroup, tab, category, function(option){
+    removeProfHovPop = option;
+  });
+
+  // Core Mods -> LoL Boards -> Navigation Enhancements
+  tabgroup = "Core Mods";
+  tab      = "LoL Boards";
+  category = "Navigation Enhancements";
+
+  //////////////////////////////////////
+  // Feature: Enhanced Thread Preview //
+  //////////////////////////////////////
+  category = "Navigation Enhancements";
+  tooltip  = "Replaces the default thread preview tooltip with a more visible and enhanced one.";
+  CreateFeature("Enhanced Thread Preview", "_enhancedThreadPreview", "", "on", tooltip, tabgroup, tab, category, function(option){
+    enhancedThreadPreview = option;
+  });
+
+  //////////////////////////////////
+  // Feature: Thread Highlighting //
+  //////////////////////////////////
+  category = "Navigation Enhancements";
+  tooltip  = "Threads created by you will have a colored background to stand out from the rest.";
+  options = ["off|Disable",
+             "#000000|Black",
+             "#400000|Red",
+             "#442000|Orange",
+             "#303000|Yellow",
+             "#002800|Green",
+             "#003737|Cyan",
+             "#000A50|Blue",
+             "#551A8B|Purple",
+             "#9400D3|Violet"];
+
+  CreateFeature("Highlight My Threads", "_threadHighlight", options, "#000000", tooltip, tabgroup, tab, category, function(option){
+    highlightMyThreads = option;
+  });
+
+  ///////////////////////////////////
+  // Feature: Boards Dropdown Menu //
+  ///////////////////////////////////
+  category = "Navigation Enhancements";
+  tooltip  = "Adds a dropdown menu when you hover your mouse over the Boards button at the top of the page on the navigation bar.";
+  CreateFeature("Boards Dropdown Menu", "_boardsDropdownMenu", "", "on", tooltip, tabgroup, tab, category, function(option){
+    boardsDropdownMenu = option;
+  });
+
+  /////////////////////////////////
+  // Feature: Animate Thumbnails //
+  /////////////////////////////////
+  category = "Navigation Enhancements";
+  tooltip  = "Animates thumbnails (if they have one) for a thread's image on the index. You may also choose to hide thumbnails completely.";
+  options = ["off|Disable",
+             "animate|Animate thumbnails",
+             "hide|Hide thumbnails"];
+  CreateFeature("Thumbnails", "_thumbnails", options, "animate", tooltip, tabgroup, tab, category, function(option){
+    animateThumbnails = option;
+  });
+
+  ////////////////////////////
+  // Feature: Sticky Navbar //
+  ////////////////////////////
+  category = "Navigation Enhancements";
+  tooltip  = "Keeps the Navbar at the top of the browser window even when you scroll down.";
+  CreateFeature("Sticky Navbar", "_stickyNavbar", "", "off", tooltip, tabgroup, tab, category, function(option){
+    document.getElementById("riotbar-bar").style.setProperty("position", "fixed");
+    document.getElementById("riotbar-bar").style.setProperty("top",      "0px");
+  });
+
+  ///////////////////////////////////////
+  // Feature: Empty Vote Replacement //
+  ///////////////////////////////////////
+  category = "Navigation Enhancements";
+  tooltip  = "If votes aren't displayed, extra stuff can be added to fill the gap.";
+  options = ["off|Disable",
+             "banners|Green banners",
+             "bannersavatars|Green banners and avatars"];
+  CreateFeature("Empty Vote Replacement", "_emptyvotereplacement", options, "off", tooltip, tabgroup, tab, category, function(option){
+    emptyVoteReplacement = option;
+  });
+
+  // Core Mods -> LoL Boards -> Multimedia
+  tabgroup = "Core Mods";
+  tab      = "LoL Boards";
+  category = "Multimedia";
+
+  //////////////////////////////
+  // Feature: Media Embedding //
+  //////////////////////////////
+  tooltip = "Embeds .webm and YouTube movies into the posts themselves, rather than showing up as just links.";
+  CreateFeature("Media Embedding", "_mediaEmbedding", "", "on", tooltip, tabgroup, tab, category, function(option){
+    embedMedia = option;
+  });
+
+  // Core Mods -> LoL Boards -> Miscellaneous
+  tabgroup = "Core Mods";
+  tab      = "LoL Boards";
+  category = "Miscellaneous";
+
+  ////////////////////////////////
+  // Feature: Favorite Champion //
+  ////////////////////////////////
+  tooltip = "Champion icon that will be used when making posts.";
+  options = ["aatrox|Aatrox",
+             "ahri|Ahri",
+             "akali|Akali",
+             "alistar|Alistar",
+             "amumu|Amumu",
+             "anivia|Anivia",
+             "annie|Annie",
+             "ashe|Ashe",
+             "azir|Azir",
+             "bard|Bard",
+             "blitzcrank|Blitzcrank",
+             "brand|Brand",
+             "braum|Braum",
+             "caitlyn|Caitlyn",
+             "cassiopeia|Cassiopeia",
+             "chogath|Cho'Gath",
+             "corki|Corki",
+             "darius|Darius",
+             "diana|Diana",
+             "drmundo|Dr. Mundo",
+             "draven|Draven",
+             "ekko|Ekko",
+             "elise|Elise",
+             "evelynn|Evelynn",
+             "ezreal|Ezreal",
+             "fiddlesticks|Fiddlesticks",
+             "fiora|Fiora",
+             "fizz|Fizz",
+             "galio|Galio",
+             "gangplank|Gangplank",
+             "garen|Garen",
+             "gnar|Gnar",
+             "gragas|Gragas",
+             "graves|Graves",
+             "hecarim|Hecarim",
+             "heimerdinger|Heimerdinger",
+             "irelia|Irelia",
+             "janna|Janna",
+             "jarvaniv|Jarvan IV",
+             "jax|Jax",
+             "jayce|Jayce",
+             "jinx|Jinx",
+             "kalista|Kalista",
+             "karma|Karma",
+             "karthus|Karthus",
+             "kassadin|Kassadin",
+             "katarina|Katarina",
+             "kayle|Kayle",
+             "kennen|Kennen",
+             "khazix|Kha'Zix",
+             "kindred|Kindred",
+             "kogmaw|Kog'Maw",
+             "leblanc|LeBlanc",
+             "leesin|Lee Sin",
+             "leona|Leona",
+             "lissandra|Lissandra",
+             "lucian|Lucian",
+             "lulu|Lulu",
+             "lux|Lux",
+             "malphite|Malphite",
+             "malzahar|Malzahar",
+             "maokai|Maokai",
+             "masteryi|Master Yi",
+             "missfortune|Miss Fortune",
+             "mordekaiser|Mordekaiser",
+             "morgana|Morgana",
+             "nami|Nami",
+             "nasus|Nasus",
+             "nautilus|Nautilus",
+             "nidalee|Nidalee",
+             "nocturne|Nocturne",
+             "nunu|Nunu",
+             "olaf|Olaf",
+             "orianna|Orianna",
+             "pantheon|Pantheon",
+             "poppy|Poppy",
+             "quinn|Quinn",
+             "rammus|Rammus",
+             "reksai|Rek'Sai",
+             "renekton|Renekton",
+             "rengar|Rengar",
+             "riven|Riven",
+             "rumble|Rumble",
+             "ryze|Ryze",
+             "sejuani|Sejuani",
+             "shaco|Shaco",
+             "shen|Shen",
+             "shyvana|Shyvana",
+             "singed|Singed",
+             "sion|Sion",
+             "sivir|Sivir",
+             "skarner|Skarner",
+             "sona|Sona",
+             "soraka|Soraka",
+             "swain|Swain",
+             "syndra|Syndra",
+             "tahmkench|Tahm Kench",
+             "talon|Talon",
+             "taric|Taric",
+             "teemo|Teemo",
+             "thresh|Thresh",
+             "tristana|Tristana",
+             "trundle|Trundle",
+             "tryndamere|Tryndamere",
+             "twistedfate|Twisted Fate",
+             "twitch|Twitch",
+             "udyr|Udyr",
+             "urgot|Urgot",
+             "varus|Varus",
+             "vayne|Vayne",
+             "veigar|Veigar",
+             "velkoz|Vel'Koz",
+             "vi|Vi",
+             "viktor|Viktor",
+             "vladimir|Vladimir",
+             "volibear|Volibear",
+             "warwick|Warwick",
+             "wukong|Wukong",
+             "xerath|Xerath",
+             "xinzhao|Xin Zhao",
+             "yasuo|Yasuo",
+             "yorick|Yorick",
+             "zac|Zac",
+             "zed|Zed",
+             "ziggs|Ziggs",
+             "zilean|Zilean",
+             "zyra|Zyra"];
+  CreateFeature("Favorite Champion", "_favoritechampion", options, "fizz", tooltip, tabgroup, tab, category, function(option){
+    favoriteChampion = option;
+  });
+
+  //////////////////////////////////////
+  // Feature: Favorite Summoner Spell //
+  //////////////////////////////////////
+  tooltip = "Spell icon that will be used when making posts.";
+  options = ["barrier|Barrier",
+             "clairvoyance|Clairvoyance",
+             "clarity|Clarity",
+             "cleanse|Cleanse",
+             "exhaust|Exhaust",
+             "flash|Flash",
+             "garrison|Garrison",
+             "ghost|Ghost",
+             "heal|Heal",
+             "ignite|Ignite",
+             "mark|Mark",
+             "porotoss|Poro Toss",
+             "smite|Smite",
+             "teleport|Teleport",
+             "totheking|To the King"];
+  CreateFeature("Favorite Summoner Spell", "_favoritesummonerspell", options, "ignite", tooltip, tabgroup, tab, category, function(option){
+    favoriteSpell = option;
+  });
+
+  ////////////////////////////
+  // Feature: Favorite Item //
+  ////////////////////////////
+  tooltip = "Item icon that will be used when making posts.";
+  options = ["blackcleaver|Black Cleaver",
+             "bladeoftheruinedking|Blade of the Ruined King",
+             "bootsofmobility|Boots of Mobility",
+             "bootsofswiftness|Boots of Swiftness",
+             "deathfiregrasp|Deathfire Grasp",
+             "deathsdance|Death's Dance",
+             "deathsdaughter|Death's Daughter",
+             "doransring|Doran's Ring",
+             "essencereaver|Essence Reaver",
+             "frostqueensclaim|Frost Queen's Claim",
+             "headofkhazix|Head of Kha'Zix",
+             "hextechglp800|Hextech GLP-800",
+             "hextechgunblade|Hextech Gunblade",
+             "hextechprotobelt01|Hextech Protobelt-01",
+             "huntersmachete|Hunter's Machete",
+             "infinityedge|Infinity Edge",
+             "lastwhisper|Last Whisper",
+             "liandrystorment|Liandry's Torment",
+             "lichbane|Lich Bane",
+             "locketoftheironsolari|Locket of the Iron Solari",
+             "lostchapter|Lost Chapter",
+             "orbofwinter|Orb of Winter",
+             "phantomdancer|Phantom Dancer",
+             "rabadonsdeathcap|Rabadon's Deathcap",
+             "ravenoushydra|Ravenous Hydra",
+             "sightstone|Sightstone",
+             "talismanofascension|Talisman of Ascension",
+             "tearofthegoddess|Tear of the Goddess",
+             "theblackcleaver|The Black Cleaver",
+             "thornmail|Thornmail",
+             "trinityforce|Trinity Force",
+             "warmogsarmor|Warmog's Armor",
+             "youmuusghostblade|Youmuu's Ghostblade",
+             "zeal|Zeal",
+             "zhonyashourglass|Zhonya's Hourglass",
+             "zzrotportal|Zz'Rot Portal"];
+  CreateFeature("Favorite Item", "_favoriteitem", options, "lichbane", tooltip, tabgroup, tab, category, function(option){
+    favoriteItem = option;
+  });
+
+  /////////////////////////////
+  // Feature: Favorite Icons //
+  /////////////////////////////
+  tooltip  = "How favorite icons (champion/spell/item) are displayed.";
+  options = ["off|Disable",
+             "on|Always On",
+             "mouseover|Mouse Over"];
+  CreateFeature("Favorite Icons", "_favoriteicons", options, "mouseover", tooltip, tabgroup, tab, category, function(option){
+    favoriteIcons = option;
+  });
+
+  ////////////////////////
+  // Feature: Roll Dice //
+  ////////////////////////
+  tooltip = "Shows dice rolls. Disable this feature to completely hide them.";
+  CreateFeature("Roll Dice", "_rollDice", "", "on", tooltip, tabgroup, tab, category, function(option){
+    rollDice = option;
+  });
+
+  ///////////////////////////
+  // Feature: Blacklisting //
+  ///////////////////////////
+  if(blacklisting == "on"){
+    PanelCreateTab(tabgroup, "Blacklist", function(contentview){
+      $(`#tab[tab="core-mods-blacklist"]`).click(function(){
+        contentview.html("<h1>Blacklisted Users</h1><br>Click on a name to remove it from your blacklist<br><br>");
+
+        var vals = GM_listValues();
+        for(var i = 0; i < vals.length; i++){
+          if(vals[i][0] != "_"){
+            myThing = document.createElement("div");
+            myThing.innerHTML = `<a href="#">${vals[i]}</a><br>`;
+
+            $(myThing).click(function(event){
+              event.preventDefault();
+              event.stopPropagation();
+              GM_deleteValue(this.textContent);
+              this.remove();
+            });
+
+            contentview[0].appendChild(myThing);
+          }
+        }
+      });
+    });
+  }
+
+  // Core Mods -> Hidden Boards -> These boards are hidden from the front page
+  tabgroup = "Core Mods";
+  tab      = "Hidden Boards";
+  category = "These boards are hidden from the front page";
+
+  /////////////////////////////
+  // Feature: Hide Subboards //
+  /////////////////////////////
+  function HideSubboard(boardName, optionVar){
+    tooltip  = "Hide threads from " + boardName;
+
+    CreateFeature(boardName, optionVar, "", "off", tooltip, tabgroup, tab, category, function(option){
+      hide[boardName] = option;
+    });
+  }
+
+  HideSubboard("Gameplay",                     "_gameplay");
+  HideSubboard("Story, Art, & Sound",          "_storyartsound");
+  HideSubboard("Esports",                      "_esports");
+  HideSubboard("Team Recruitment",             "_teamrecruitment");
+  HideSubboard("Concepts & Creations",         "_conceptscreations");
+  HideSubboard("Player Behavior & Moderation", "_playerbehaviormoderation");
+  HideSubboard("Miscellaneous",                "_miscellaneous");
+  HideSubboard("Memes & Games",                "_memesgames");
+  HideSubboard("General Discussion",           "_generaldiscussion");
+  HideSubboard("Roleplay",                     "_roleplay");
+  HideSubboard("Help & Support",               "_helpsupport");
+  HideSubboard("Report a Bug",                 "_reportabug");
+  HideSubboard("Boards Feedback",              "_boardsfeedback");
+
+  /////////////////////////
+  // Feature: Fish Chips //
+  /////////////////////////
+  PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
+    $(`#tab[tab="core-mods-fish-chips"]`).click(function(){
+      LoadWebPanel("fishchips", contentview);
+    });
+  });
+
+  // New Tabgroup: Social
+  tabgroup = "Social";
+
+  PanelCreateTab(tabgroup, "Friends", function(contentview){
+    $(`#tab[tab="social-friends"]`).click(function(){
+      LoadWebPanel("friends", contentview);
+    });
+  });
+
+  PanelCreateTab(tabgroup, "Messages", function(contentview){
+    $(`#tab[tab="social-messages"]`).click(function(){
+      LoadWebPanel("messages", contentview);
+    });
+  });
+
+  PanelCreateTab(tabgroup, "Send PM", function(contentview){
+    $(`#tab[tab="social-send-pm"]`).click(function(){
+      LoadWebPanel("sendpm", contentview);
+    });
+  });
+
+  // New Tabgroup: FEK
+  tabgroup = "FEK";
+
+  ///////////////////////////
+  // Twitter Announcements //
+  ///////////////////////////
+  PanelCreateTab(tabgroup, "Announcements", function(contentview){
+    contentview.html("Loading Announcements...");
+
+    // Prepare the twitter popup html
+    var docbody = $("html").first().find("body:not(.wysiwyg)").first();
+    docbody.append(`<div id="twitter_row" class="popup"></div>`);
+
+    $(document).on("tweetsLoaded", function(){
+      contentview.html("<h1>Announcements</h1>");
+      if(FEKtweets.length){
+        for(var i = 0; i < FEKtweets.length; i++){
+          contentview.append(`
+          <div id="twitter_row">
+            <div id="twitterlink">
+              <a href="https://twitter.com/${FEKtweets[i].user[0]}" target="_blank">
+                <img src="${FEKgfx}twittericon.png">
+              </a>
+            </div>
+            <h2>${ParseTwitterDate(FEKtweets[i].created_at)}</h2>
+            <img id="twitter_img" src="${FEKtweets[i].user[2]}">
+            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets[i].text.replace("#FEK ", ""))}</span>
+            <span style="opacity:0; clear:both;">.</span>
+            <div id="spike"></div>
+          </div>
+          `);
+        }
+
+        //Compare last read announcement to current one
+        if(false){
+        // if(GM_getValue("_lastReadTwitter", "") == FEKtweets[0].id){
+          // The latest announcement has been read
+        }else{
+          // The latest announcement has NOT been read yet
+          // Append alert icons for unread announcements
+          alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
+
+          $(`a[href="#fekpanel"]`).eq(0).append(alertHTML);
+          $(`a[href="#fekpanel"]`).eq(1).append(alertHTML);
+          $(`#fekpanel #tab[tab="misc-announcements"]`).append(alertHTML);
+          $(`body #twitter_row.popup`).html(`
+          <div id="twitterlink">
+            <a href="https://twitter.com/Tundra_Fizz" target="_blank">
+              <img src="${FEKgfx}twittericon.png">
+            </a>
+          </div>
+          <h2>
+            ${ParseTwitterDate(FEKtweets[0].created_at)}
+          </h2>
+          <img id="twitter_img" src="${FEKtweets[0].user[2]}">
+          <span id="twitter_text">
+            ${ReplaceUrlWithHtmlLink(FEKtweets[0].text.replace("#FEK ", ""))}
+          </span>
+          <div id="dismiss">
+            Click here to dismiss the notification
+          </div>
+          <span style="opacity:0; clear:both;">
+            .
+          </span>
+          <div id="spike"></div>
+          `);
+
+          $("body #twitter_row.popup").fadeIn();
+        }
+      }
+
+      // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
+      $("#dismiss").click(function(event){
+        if(FEKtweets[0])
+          GM_setValue("_lastReadTwitter", FEKtweets[0].id);
+        $("body #twitter_row.popup").fadeOut();
+        $("body #fekalert").each(function(){
+          $(this).fadeOut();
+        });
+      });
+    });
+  });
+
+  ///////////////
+  // Changelog //
+  ///////////////
+  PanelCreateTab(tabgroup, "Changelog", function(contentview){
+    $(`#tab[tab*="fek-changelog"]`).click(function(){
+      LoadWebPanel("changelog", contentview);
+    });
+  });
+
+  ////////////
+  // Donate //
+  ////////////
+  PanelCreateTab(tabgroup, "Donate", function(contentview){
+    $(`#tab[tab*="fek-donate"]`).click(function(){
+      LoadWebPanel("donate", contentview);
+    });
+  });
+
+  // Register the hotkey ~ to toggle the FEK panel on and off
+  hotkeys["192"] = function(state, event){
+    if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
+      PanelToggle();
+  };
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// SettleGUI: Sets the FEK panel to a default tab so that it doesn't look ugly //
+/////////////////////////////////////////////////////////////////////////////////
+FEK.prototype.SettleGUI = function(){
+  // This sets the GUI panel to the first tab
+  $("#fekpanel #tab").each(function(){
+    // Remove all contentviews and active tabs
+    $(this).removeClass("active");
+    $("#fekpanel #col2 #contentview").hide();
+  });
+
+  // Now set our active tab and contentview to the first tab listed
+  $("#fekpanel #tab:first").addClass("active");
+  $(`#fekpanel #col2 #contentview[tablink="${$("#fekpanel #tab:first").attr("tab")}"]`).show();
+}
+
+//////////////////////////////////////
+// KeyWatch: Watches for keypresses //
+//////////////////////////////////////
+FEK.prototype.KeyWatch = function(){
+  // Clear the active keys when the window is focused or when the text area is refocused
+  $(window).focus(function(){
+    activeKeys = [];
+  });
+
+  // Watch for key modifiers being held down
+  $(document).keydown(function(event){
+    var i = activeKeys.indexOf(event.which);
+    if(i == -1)
+      activeKeys.push(event.which);
+
+    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
+      hotkeys[event.which]("keydown", event);
+  });
+
+  // Watch for key modifiers being released
+  $(document).keyup(function(event){
+    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
+      hotkeys[event.which]("keyup", event);
+
+    var i = activeKeys.indexOf(event.which);
+
+    if(i != -1)
+      activeKeys.splice(i, 1);
+  });
+
+  // Setup the fek tooltip
+  $(document).on("mousemove", function(e){
+    if($("#fektooltip").css("opacity") > 0){
+      $("#fektooltip").css({
+        left:  e.pageX + 20,
+        top:   e.pageY - 20
+      });
+    }else{
+      $("#fektooltip").css({
+        left:  -10000
+      });
+    }
+  });
+
+  $("#fekpanel #button").mouseenter(function(){
+    $("#fektooltip").html($(this).find("#fektooltip-data").html());
+    $("#fektooltip").css("opacity", 1);
+  });
+
+  $("#fekpanel #button").mouseleave(function(){
+    $("#fektooltip").html($(this).find("#fektooltip-data").html());
+    $("#fektooltip").css("opacity", 0);
+  });
+
+  // Allow clicking away from the panel to close the panel
+  $("body").click(function(){
+    PanelHide();
+  });
+
+  $("#fekpanel").click(function(event){
+    event.stopPropagation();
+    $("#fekpanel #button").find("ul").hide();
+  });
+
+  // Register click events and activates the feklink tabs
+  $("body").on("click", `a[href*="#fektab"]`, function(event){
+    event.stopPropagation();
+    event.preventDefault();
+    var tab = $(this).attr("href").replace("#fektab-","");
+    $(`#tab[tab="${tab}"]`).trigger("click");
+    PanelShow();
+  });
+
+  $(`a[href="#fekpanel"]`).click(function(event){
+    event.stopPropagation();
+    event.preventDefault();
+    PanelToggle();
+  });
+
+  $("#fekpanel #tab").click(function(){
+    $("#fekpanel #tab").each(function(){
+      // Remove all contentviews and active tabs
+      $(this).removeClass("active");
+      $("#fekpanel #col2 #contentview").hide();
+    });
+
+    $(this).addClass("active");
+    $("#fekpanel #col2 .fekScrollRegion").scrollTop(0);
+    $("#fekpanel #col2 #contentview[tablink=" +$(this).attr("tab") + "]").show();
+    InitScrollbar(".fekScrollRegion");
+  });
+
+  $("#fekpanel").on("mousewheel", function(event){
+    event.preventDefault();
+  });
+
+  $("#fekpanel #button").find("ul").on("mousewheel", function(event){
+    event.stopPropagation();
+    event.preventDefault();
+  });
+
+  $("#fekpanel #button").click(function(event){
+    event.stopPropagation();
+    if($(this).hasClass("dropdown")){
+      if($(this).find("ul").is(":visible"))
+        $(this).find("ul").hide();
+      else{
+        $("#fekpanel #button").find("ul").hide();
+        $("#fekpanel #button").css("z-index", "9998");
+        $(this).find("ul").show();
+        $(this).css("z-index", "9999");
+        $(this).find("ul").scrollTop(0);
+        InitScrollbar($(this).find("ul"));
+      }
+    }else{
+      $("#fekpanel #button").find("ul").hide();
+      $("#refreshNotice").addClass("visible");
+
+      var variablename = $(this).attr("fekvar");
+
+      if($(this).hasClass("inactive")){
+        // Turn the variable on and save state
+        GM_setValue(variablename, "on");
+        $(this).removeClass("inactive");
+        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
+      }else{
+        // Turn the variable and save state
+        GM_setValue(variablename, "off");
+        $(this).addClass("inactive");
+        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
+      }
+    }
+  });
+
+  $("#fekpanel #button ul li").click(function(){
+    var previousChoice = $(this).closest("#button").find("#choice").text();
+    if($(this).text() !== previousChoice){
+      var variablename = $(this).parent().parent().attr("fekvar");
+      GM_setValue(variablename, $(this).attr("fekvalue"));
+      $("#refreshNotice").addClass("visible");
+    }
+
+    $(this).closest("#button").find("#choice").html($(this).html());
+    $(this).closest("#button").find("#choice").attr("fekvalue", $(this).attr("fekvalue"));
+
+    if($(this).attr("fekvalue") === "off"){
+      if($(this).closest("#button").hasClass("inactive")){
+        // Nothing
+      }else{
+        $(this).closest("#button").addClass("inactive");
+        $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
+      }
+    }else{
+      $(this).closest("#button").removeClass("inactive");
+      $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
+    }
+  });
+
+  $("#refreshNotice").click(function(){
+    location.reload();
+  });
+}
+
+///////////////////////////////////////
+// ========== ENTRY POINT ========== //
+///////////////////////////////////////
+var fek = new FEK();
+fek.Initialize();
+
+
+
+
+
+
 
 ///////////////////////////////
 // LoadCSS: Loads a CSS file //
@@ -1242,606 +2130,7 @@ function FormatWebmAvatar(obj, avatar){
 // ========== FEK CONTROL PANEL ========== //
 /////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// CreateFeatures: This is where all FEK features are set //
-////////////////////////////////////////////////////////////
-function CreateFeatures(){
-  var tabgroup, tab, category, initvalue, label, options, tooltip;
 
-  // Core Mods -> LoL Boards -> User Identities
-  tabgroup = "Core Mods";
-  tab      = "LoL Boards";
-  category = "User Identities";
-
-  //////////////////////////
-  // Feature: FEK Avatars //
-  //////////////////////////
-  tooltip = "The size of FEK avatars.";
-  options = ["100|100x100",
-             "125|125x125",
-             "150|150x150",
-             "175|175x175",
-             "200|200x200"];
-
-  CreateFeature("FEK Avatars", "_fekAvatars", options, "100", tooltip, tabgroup, tab, category, function(option){
-    avatarSize = parseInt(option);
-  });
-
-  ///////////////////////////////
-  // Feature: Fallback Avatars //
-  ///////////////////////////////
-  tooltip = "The avatar to use when a person doesn't have a FEK avatar.";
-  options = ["off|Disable",
-             "1|Trident (Dark)",
-             "2|Trident (Light)",
-             "3|Trident (Parchment)",
-             "4|Poro (Dark)",
-             "5|Poro (Light)",
-             "6|Poro (Parchment)",
-             "7|Happy Cloud (Dark)",
-             "8|Happy Cloud (Light)",
-             "9|Happy Cloud (Parchment)"];
-
-  CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category, function(option){
-    if     (option == "1") fallbackAvatar = FEKgfx + "no-avatar-trident-dark.gif";
-    else if(option == "2") fallbackAvatar = FEKgfx + "no-avatar-trident-light.gif";
-    else if(option == "3") fallbackAvatar = FEKgfx + "no-avatar-trident-parchment.gif";
-    else if(option == "4") fallbackAvatar = FEKgfx + "no-avatar-poro-dark.gif";
-    else if(option == "5") fallbackAvatar = FEKgfx + "no-avatar-poro-light.gif";
-    else if(option == "6") fallbackAvatar = FEKgfx + "no-avatar-poro-parchment.gif";
-    else if(option == "7") fallbackAvatar = FEKgfx + "no-avatar-dark.gif";
-    else if(option == "8") fallbackAvatar = FEKgfx + "no-avatar-light.gif";
-    else if(option == "9") fallbackAvatar = FEKgfx + "no-avatar-parchment.gif";
-  });
-
-  //////////////////////////////
-  // Feature: Enhanced Voting //
-  //////////////////////////////
-  tooltip = "Gives a green color to upvotes, and a red color to downvotes. Also gives you the choice of how to display votes when you hover your mouse over them.";
-  options = ["off|Disable",
-             "individual|Individual Votes",
-             "total|Total Votes",
-             "hide|Hide Votes"];
-
-  CreateFeature("Enhanced Voting", "_enhancedVoting", options, "individual", tooltip, tabgroup, tab, category, function(option){
-    votingDisplay = option;
-  });
-
-  ///////////////////////////
-  // Feature: Blacklisting //
-  ///////////////////////////
-  tooltip = "Hides posts and threads made by users that you have on your blacklist. To blacklist somebody, hover your mouse over their avatar and click on blacklist";
-  CreateFeature("Blacklisting", "_blacklisting", "", "on", tooltip, tabgroup, tab, category, function(option){
-    blacklisting = option;
-  });
-
-  //////////////////////////////
-  // Feature: OP Style Change //
-  //////////////////////////////
-  tooltip = "Removes the colored background on an original poster's posts.";
-  CreateFeature("OP Style Change", "_opStyleChange", "", "on", tooltip, tabgroup, tab, category, function(option){
-    OPStyle = option;
-  });
-
-  /////////////////////////////////////////
-  // Feature: Remove Profile Hover Popup //
-  /////////////////////////////////////////
-  tooltip = "Removes Riot's profile popup when you hover over a user.";
-  CreateFeature("Remove Profile Hover Popup", "_removeProfHovPop", "", "on", tooltip, tabgroup, tab, category, function(option){
-    removeProfHovPop = option;
-  });
-
-  // Core Mods -> LoL Boards -> Navigation Enhancements
-  tabgroup = "Core Mods";
-  tab      = "LoL Boards";
-  category = "Navigation Enhancements";
-
-  //////////////////////////////////////
-  // Feature: Enhanced Thread Preview //
-  //////////////////////////////////////
-  category = "Navigation Enhancements";
-  tooltip  = "Replaces the default thread preview tooltip with a more visible and enhanced one.";
-  CreateFeature("Enhanced Thread Preview", "_enhancedThreadPreview", "", "on", tooltip, tabgroup, tab, category, function(option){
-    enhancedThreadPreview = option;
-  });
-
-  //////////////////////////////////
-  // Feature: Thread Highlighting //
-  //////////////////////////////////
-  category = "Navigation Enhancements";
-  tooltip  = "Threads created by you will have a colored background to stand out from the rest.";
-  options = ["off|Disable",
-             "#000000|Black",
-             "#400000|Red",
-             "#442000|Orange",
-             "#303000|Yellow",
-             "#002800|Green",
-             "#003737|Cyan",
-             "#000A50|Blue",
-             "#551A8B|Purple",
-             "#9400D3|Violet"];
-
-  CreateFeature("Highlight My Threads", "_threadHighlight", options, "#000000", tooltip, tabgroup, tab, category, function(option){
-    highlightMyThreads = option;
-  });
-
-  ///////////////////////////////////
-  // Feature: Boards Dropdown Menu //
-  ///////////////////////////////////
-  category = "Navigation Enhancements";
-  tooltip  = "Adds a dropdown menu when you hover your mouse over the Boards button at the top of the page on the navigation bar.";
-  CreateFeature("Boards Dropdown Menu", "_boardsDropdownMenu", "", "on", tooltip, tabgroup, tab, category, function(option){
-    boardsDropdownMenu = option;
-  });
-
-  /////////////////////////////////
-  // Feature: Animate Thumbnails //
-  /////////////////////////////////
-  category = "Navigation Enhancements";
-  tooltip  = "Animates thumbnails (if they have one) for a thread's image on the index. You may also choose to hide thumbnails completely.";
-  options = ["off|Disable",
-             "animate|Animate thumbnails",
-             "hide|Hide thumbnails"];
-  CreateFeature("Thumbnails", "_thumbnails", options, "animate", tooltip, tabgroup, tab, category, function(option){
-    animateThumbnails = option;
-  });
-
-  ////////////////////////////
-  // Feature: Sticky Navbar //
-  ////////////////////////////
-  category = "Navigation Enhancements";
-  tooltip  = "Keeps the Navbar at the top of the browser window even when you scroll down.";
-  CreateFeature("Sticky Navbar", "_stickyNavbar", "", "off", tooltip, tabgroup, tab, category, function(option){
-    document.getElementById("riotbar-bar").style.setProperty("position", "fixed");
-    document.getElementById("riotbar-bar").style.setProperty("top",      "0px");
-  });
-
-  ///////////////////////////////////////
-  // Feature: Empty Vote Replacement //
-  ///////////////////////////////////////
-  category = "Navigation Enhancements";
-  tooltip  = "If votes aren't displayed, extra stuff can be added to fill the gap.";
-  options = ["off|Disable",
-             "banners|Green banners",
-             "bannersavatars|Green banners and avatars"];
-  CreateFeature("Empty Vote Replacement", "_emptyvotereplacement", options, "off", tooltip, tabgroup, tab, category, function(option){
-    emptyVoteReplacement = option;
-  });
-
-  // Core Mods -> LoL Boards -> Multimedia
-  tabgroup = "Core Mods";
-  tab      = "LoL Boards";
-  category = "Multimedia";
-
-  //////////////////////////////
-  // Feature: Media Embedding //
-  //////////////////////////////
-  tooltip = "Embeds .webm and YouTube movies into the posts themselves, rather than showing up as just links.";
-  CreateFeature("Media Embedding", "_mediaEmbedding", "", "on", tooltip, tabgroup, tab, category, function(option){
-    embedMedia = option;
-  });
-
-  // Core Mods -> LoL Boards -> Miscellaneous
-  tabgroup = "Core Mods";
-  tab      = "LoL Boards";
-  category = "Miscellaneous";
-
-  ////////////////////////////////
-  // Feature: Favorite Champion //
-  ////////////////////////////////
-  tooltip = "Champion icon that will be used when making posts.";
-  options = ["aatrox|Aatrox",
-             "ahri|Ahri",
-             "akali|Akali",
-             "alistar|Alistar",
-             "amumu|Amumu",
-             "anivia|Anivia",
-             "annie|Annie",
-             "ashe|Ashe",
-             "azir|Azir",
-             "bard|Bard",
-             "blitzcrank|Blitzcrank",
-             "brand|Brand",
-             "braum|Braum",
-             "caitlyn|Caitlyn",
-             "cassiopeia|Cassiopeia",
-             "chogath|Cho'Gath",
-             "corki|Corki",
-             "darius|Darius",
-             "diana|Diana",
-             "drmundo|Dr. Mundo",
-             "draven|Draven",
-             "ekko|Ekko",
-             "elise|Elise",
-             "evelynn|Evelynn",
-             "ezreal|Ezreal",
-             "fiddlesticks|Fiddlesticks",
-             "fiora|Fiora",
-             "fizz|Fizz",
-             "galio|Galio",
-             "gangplank|Gangplank",
-             "garen|Garen",
-             "gnar|Gnar",
-             "gragas|Gragas",
-             "graves|Graves",
-             "hecarim|Hecarim",
-             "heimerdinger|Heimerdinger",
-             "irelia|Irelia",
-             "janna|Janna",
-             "jarvaniv|Jarvan IV",
-             "jax|Jax",
-             "jayce|Jayce",
-             "jinx|Jinx",
-             "kalista|Kalista",
-             "karma|Karma",
-             "karthus|Karthus",
-             "kassadin|Kassadin",
-             "katarina|Katarina",
-             "kayle|Kayle",
-             "kennen|Kennen",
-             "khazix|Kha'Zix",
-             "kindred|Kindred",
-             "kogmaw|Kog'Maw",
-             "leblanc|LeBlanc",
-             "leesin|Lee Sin",
-             "leona|Leona",
-             "lissandra|Lissandra",
-             "lucian|Lucian",
-             "lulu|Lulu",
-             "lux|Lux",
-             "malphite|Malphite",
-             "malzahar|Malzahar",
-             "maokai|Maokai",
-             "masteryi|Master Yi",
-             "missfortune|Miss Fortune",
-             "mordekaiser|Mordekaiser",
-             "morgana|Morgana",
-             "nami|Nami",
-             "nasus|Nasus",
-             "nautilus|Nautilus",
-             "nidalee|Nidalee",
-             "nocturne|Nocturne",
-             "nunu|Nunu",
-             "olaf|Olaf",
-             "orianna|Orianna",
-             "pantheon|Pantheon",
-             "poppy|Poppy",
-             "quinn|Quinn",
-             "rammus|Rammus",
-             "reksai|Rek'Sai",
-             "renekton|Renekton",
-             "rengar|Rengar",
-             "riven|Riven",
-             "rumble|Rumble",
-             "ryze|Ryze",
-             "sejuani|Sejuani",
-             "shaco|Shaco",
-             "shen|Shen",
-             "shyvana|Shyvana",
-             "singed|Singed",
-             "sion|Sion",
-             "sivir|Sivir",
-             "skarner|Skarner",
-             "sona|Sona",
-             "soraka|Soraka",
-             "swain|Swain",
-             "syndra|Syndra",
-             "tahmkench|Tahm Kench",
-             "talon|Talon",
-             "taric|Taric",
-             "teemo|Teemo",
-             "thresh|Thresh",
-             "tristana|Tristana",
-             "trundle|Trundle",
-             "tryndamere|Tryndamere",
-             "twistedfate|Twisted Fate",
-             "twitch|Twitch",
-             "udyr|Udyr",
-             "urgot|Urgot",
-             "varus|Varus",
-             "vayne|Vayne",
-             "veigar|Veigar",
-             "velkoz|Vel'Koz",
-             "vi|Vi",
-             "viktor|Viktor",
-             "vladimir|Vladimir",
-             "volibear|Volibear",
-             "warwick|Warwick",
-             "wukong|Wukong",
-             "xerath|Xerath",
-             "xinzhao|Xin Zhao",
-             "yasuo|Yasuo",
-             "yorick|Yorick",
-             "zac|Zac",
-             "zed|Zed",
-             "ziggs|Ziggs",
-             "zilean|Zilean",
-             "zyra|Zyra"];
-  CreateFeature("Favorite Champion", "_favoritechampion", options, "fizz", tooltip, tabgroup, tab, category, function(option){
-    favoriteChampion = option;
-  });
-
-  //////////////////////////////////////
-  // Feature: Favorite Summoner Spell //
-  //////////////////////////////////////
-  tooltip = "Spell icon that will be used when making posts.";
-  options = ["barrier|Barrier",
-             "clairvoyance|Clairvoyance",
-             "clarity|Clarity",
-             "cleanse|Cleanse",
-             "exhaust|Exhaust",
-             "flash|Flash",
-             "garrison|Garrison",
-             "ghost|Ghost",
-             "heal|Heal",
-             "ignite|Ignite",
-             "mark|Mark",
-             "porotoss|Poro Toss",
-             "smite|Smite",
-             "teleport|Teleport",
-             "totheking|To the King"];
-  CreateFeature("Favorite Summoner Spell", "_favoritesummonerspell", options, "ignite", tooltip, tabgroup, tab, category, function(option){
-    favoriteSpell = option;
-  });
-
-  ////////////////////////////
-  // Feature: Favorite Item //
-  ////////////////////////////
-  tooltip = "Item icon that will be used when making posts.";
-  options = ["blackcleaver|Black Cleaver",
-             "bladeoftheruinedking|Blade of the Ruined King",
-             "bootsofmobility|Boots of Mobility",
-             "bootsofswiftness|Boots of Swiftness",
-             "deathfiregrasp|Deathfire Grasp",
-             "deathsdance|Death's Dance",
-             "deathsdaughter|Death's Daughter",
-             "doransring|Doran's Ring",
-             "essencereaver|Essence Reaver",
-             "frostqueensclaim|Frost Queen's Claim",
-             "headofkhazix|Head of Kha'Zix",
-             "hextechglp800|Hextech GLP-800",
-             "hextechgunblade|Hextech Gunblade",
-             "hextechprotobelt01|Hextech Protobelt-01",
-             "huntersmachete|Hunter's Machete",
-             "infinityedge|Infinity Edge",
-             "lastwhisper|Last Whisper",
-             "liandrystorment|Liandry's Torment",
-             "lichbane|Lich Bane",
-             "locketoftheironsolari|Locket of the Iron Solari",
-             "lostchapter|Lost Chapter",
-             "orbofwinter|Orb of Winter",
-             "phantomdancer|Phantom Dancer",
-             "rabadonsdeathcap|Rabadon's Deathcap",
-             "ravenoushydra|Ravenous Hydra",
-             "sightstone|Sightstone",
-             "talismanofascension|Talisman of Ascension",
-             "tearofthegoddess|Tear of the Goddess",
-             "theblackcleaver|The Black Cleaver",
-             "thornmail|Thornmail",
-             "trinityforce|Trinity Force",
-             "warmogsarmor|Warmog's Armor",
-             "youmuusghostblade|Youmuu's Ghostblade",
-             "zeal|Zeal",
-             "zhonyashourglass|Zhonya's Hourglass",
-             "zzrotportal|Zz'Rot Portal"];
-  CreateFeature("Favorite Item", "_favoriteitem", options, "lichbane", tooltip, tabgroup, tab, category, function(option){
-    favoriteItem = option;
-  });
-
-  /////////////////////////////
-  // Feature: Favorite Icons //
-  /////////////////////////////
-  tooltip  = "How favorite icons (champion/spell/item) are displayed.";
-  options = ["off|Disable",
-             "on|Always On",
-             "mouseover|Mouse Over"];
-  CreateFeature("Favorite Icons", "_favoriteicons", options, "mouseover", tooltip, tabgroup, tab, category, function(option){
-    favoriteIcons = option;
-  });
-
-  ////////////////////////
-  // Feature: Roll Dice //
-  ////////////////////////
-  tooltip = "Shows dice rolls. Disable this feature to completely hide them.";
-  CreateFeature("Roll Dice", "_rollDice", "", "on", tooltip, tabgroup, tab, category, function(option){
-    rollDice = option;
-  });
-
-  ///////////////////////////
-  // Feature: Blacklisting //
-  ///////////////////////////
-  if(blacklisting == "on"){
-    PanelCreateTab(tabgroup, "Blacklist", function(contentview){
-      $(`#tab[tab="core-mods-blacklist"]`).click(function(){
-        contentview.html("<h1>Blacklisted Users</h1><br>Click on a name to remove it from your blacklist<br><br>");
-
-        var vals = GM_listValues();
-        for(var i = 0; i < vals.length; i++){
-          if(vals[i][0] != "_"){
-            myThing = document.createElement("div");
-            myThing.innerHTML = `<a href="#">${vals[i]}</a><br>`;
-
-            $(myThing).click(function(event){
-              event.preventDefault();
-              event.stopPropagation();
-              GM_deleteValue(this.textContent);
-              this.remove();
-            });
-
-            contentview[0].appendChild(myThing);
-          }
-        }
-      });
-    });
-  }
-
-  // Core Mods -> Hidden Boards -> These boards are hidden from the front page
-  tabgroup = "Core Mods";
-  tab      = "Hidden Boards";
-  category = "These boards are hidden from the front page";
-
-  /////////////////////////////
-  // Feature: Hide Subboards //
-  /////////////////////////////
-  function HideSubboard(boardName, optionVar){
-    tooltip  = "Hide threads from " + boardName;
-
-    CreateFeature(boardName, optionVar, "", "off", tooltip, tabgroup, tab, category, function(option){
-      hide[boardName] = option;
-    });
-  }
-
-  HideSubboard("Gameplay",                     "_gameplay");
-  HideSubboard("Story, Art, & Sound",          "_storyartsound");
-  HideSubboard("Esports",                      "_esports");
-  HideSubboard("Team Recruitment",             "_teamrecruitment");
-  HideSubboard("Concepts & Creations",         "_conceptscreations");
-  HideSubboard("Player Behavior & Moderation", "_playerbehaviormoderation");
-  HideSubboard("Miscellaneous",                "_miscellaneous");
-  HideSubboard("Memes & Games",                "_memesgames");
-  HideSubboard("General Discussion",           "_generaldiscussion");
-  HideSubboard("Roleplay",                     "_roleplay");
-  HideSubboard("Help & Support",               "_helpsupport");
-  HideSubboard("Report a Bug",                 "_reportabug");
-  HideSubboard("Boards Feedback",              "_boardsfeedback");
-
-  /////////////////////////
-  // Feature: Fish Chips //
-  /////////////////////////
-  PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
-    $(`#tab[tab="core-mods-fish-chips"]`).click(function(){
-      LoadWebPanel("fishchips", contentview);
-    });
-  });
-
-  // New Tabgroup: Social
-  tabgroup = "Social";
-
-  PanelCreateTab(tabgroup, "Friends", function(contentview){
-    $(`#tab[tab="social-friends"]`).click(function(){
-      LoadWebPanel("friends", contentview);
-    });
-  });
-
-  PanelCreateTab(tabgroup, "Messages", function(contentview){
-    $(`#tab[tab="social-messages"]`).click(function(){
-      LoadWebPanel("messages", contentview);
-    });
-  });
-
-  PanelCreateTab(tabgroup, "Send PM", function(contentview){
-    $(`#tab[tab="social-send-pm"]`).click(function(){
-      LoadWebPanel("sendpm", contentview);
-    });
-  });
-
-  // New Tabgroup: FEK
-  tabgroup = "FEK";
-
-  ///////////////////////////
-  // Twitter Announcements //
-  ///////////////////////////
-  PanelCreateTab(tabgroup, "Announcements", function(contentview){
-    contentview.html("Loading Announcements...");
-
-    // Prepare the twitter popup html
-    var docbody = $("html").first().find("body:not(.wysiwyg)").first();
-    docbody.append(`<div id="twitter_row" class="popup"></div>`);
-
-    $(document).on("tweetsLoaded", function(){
-      contentview.html("<h1>Announcements</h1>");
-      if(FEKtweets.length){
-        for(var i = 0; i < FEKtweets.length; i++){
-          contentview.append(`
-          <div id="twitter_row">
-            <div id="twitterlink">
-              <a href="https://twitter.com/${FEKtweets[i].user[0]}" target="_blank">
-                <img src="${FEKgfx}twittericon.png">
-              </a>
-            </div>
-            <h2>${ParseTwitterDate(FEKtweets[i].created_at)}</h2>
-            <img id="twitter_img" src="${FEKtweets[i].user[2]}">
-            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets[i].text.replace("#FEK ", ""))}</span>
-            <span style="opacity:0; clear:both;">.</span>
-            <div id="spike"></div>
-          </div>
-          `);
-        }
-
-        //Compare last read announcement to current one
-        if(false){
-        // if(GM_getValue("_lastReadTwitter", "") == FEKtweets[0].id){
-          // The latest announcement has been read
-        }else{
-          // The latest announcement has NOT been read yet
-          // Append alert icons for unread announcements
-          alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
-
-          $(`a[href="#fekpanel"]`).eq(0).append(alertHTML);
-          $(`a[href="#fekpanel"]`).eq(1).append(alertHTML);
-          $(`#fekpanel #tab[tab="misc-announcements"]`).append(alertHTML);
-          $(`body #twitter_row.popup`).html(`
-          <div id="twitterlink">
-            <a href="https://twitter.com/Tundra_Fizz" target="_blank">
-              <img src="${FEKgfx}twittericon.png">
-            </a>
-          </div>
-          <h2>
-            ${ParseTwitterDate(FEKtweets[0].created_at)}
-          </h2>
-          <img id="twitter_img" src="${FEKtweets[0].user[2]}">
-          <span id="twitter_text">
-            ${ReplaceUrlWithHtmlLink(FEKtweets[0].text.replace("#FEK ", ""))}
-          </span>
-          <div id="dismiss">
-            Click here to dismiss the notification
-          </div>
-          <span style="opacity:0; clear:both;">
-            .
-          </span>
-          <div id="spike"></div>
-          `);
-
-          $("body #twitter_row.popup").fadeIn();
-        }
-      }
-
-      // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
-      $("#dismiss").click(function(event){
-        if(FEKtweets[0])
-          GM_setValue("_lastReadTwitter", FEKtweets[0].id);
-        $("body #twitter_row.popup").fadeOut();
-        $("body #fekalert").each(function(){
-          $(this).fadeOut();
-        });
-      });
-    });
-  });
-
-  ///////////////
-  // Changelog //
-  ///////////////
-  PanelCreateTab(tabgroup, "Changelog", function(contentview){
-    $(`#tab[tab*="fek-changelog"]`).click(function(){
-      LoadWebPanel("changelog", contentview);
-    });
-  });
-
-  ////////////
-  // Donate //
-  ////////////
-  PanelCreateTab(tabgroup, "Donate", function(contentview){
-    $(`#tab[tab*="fek-donate"]`).click(function(){
-      LoadWebPanel("donate", contentview);
-    });
-  });
-
-  // Register the hotkey ~ to toggle the FEK panel on and off
-  hotkeys["192"] = function(state, event){
-    if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
-      PanelToggle();
-  };
-}
 
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
@@ -1956,53 +2245,6 @@ function CreateFeature(label, variablename, options, initvalue, tooltip, tabgrou
   // Run the feature by callback if it isn't disabled
   if(useInitValue !== "off")
     callback(useInitValue);
-}
-
-//////////////////////////////////////////////////
-// CreateGUI: Creates the GUI for the FEK panel //
-//////////////////////////////////////////////////
-function CreateGUI(){
-  var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
-
-  var panelhtml = `
-  <div id="fekpanel">
-    <div id="col1">
-      <div id="logo" style="background:url(${FEKgfx}logo.png) no-repeat"></div>
-      <div id="version">v${FEKversion}</div>
-      <div id="tabs"></div>
-    </div>
-    <div id="col2">
-      <div id="refreshNotice">
-        Changes Saved. Click Here To Refresh The Page.
-      </div>
-      <div id="fekScrollRegion" class="fekScrollRegion"></div>
-    </div>
-  </div>
-  `;
-
-  var docbody = $("html").first().find("body:not(.wysiwyg)").first();
-  docbody.append(panelhtml);
-  docbody.append(tooltipshtml);
-
-  // Hide FEK Panel so the user doesn't see a whole bunch
-  // of random text for the second while the webpage loads
-  $("#fekpanel").hide();
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-// SettleGUI: Sets the FEK panel to a default tab so that it doesn't look ugly //
-/////////////////////////////////////////////////////////////////////////////////
-function SettleGUI(){
-  // This sets the GUI panel to the first tab
-  $("#fekpanel #tab").each(function(){
-    // Remove all contentviews and active tabs
-    $(this).removeClass("active");
-    $("#fekpanel #col2 #contentview").hide();
-  });
-
-  // Now set our active tab and contentview to the first tab listed
-  $("#fekpanel #tab:first").addClass("active");
-  $(`#fekpanel #col2 #contentview[tablink="${$("#fekpanel #tab:first").attr("tab")}"]`).show();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2202,169 +2444,6 @@ $.fn.hasOverflowY = function(){
 /////////////////////////////////////
 // ========== UTILITIES ========== //
 /////////////////////////////////////
-
-//////////////////////////////////////
-// KeyWatch: Watches for keypresses //
-//////////////////////////////////////
-function KeyWatch(){
-  // Clear the active keys when the window is focused or when the text area is refocused
-  $(window).focus(function(){
-    activeKeys = [];
-  });
-
-  // Watch for key modifiers being held down
-  $(document).keydown(function(event){
-    var i = activeKeys.indexOf(event.which);
-    if(i == -1)
-      activeKeys.push(event.which);
-
-    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-      hotkeys[event.which]("keydown", event);
-  });
-
-  // Watch for key modifiers being released
-  $(document).keyup(function(event){
-    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-      hotkeys[event.which]("keyup", event);
-
-    var i = activeKeys.indexOf(event.which);
-
-    if(i != -1)
-      activeKeys.splice(i, 1);
-  });
-
-  // Setup the fek tooltip
-  $(document).on("mousemove", function(e){
-    if($("#fektooltip").css("opacity") > 0){
-      $("#fektooltip").css({
-        left:  e.pageX + 20,
-        top:   e.pageY - 20
-      });
-    }else{
-      $("#fektooltip").css({
-        left:  -10000
-      });
-    }
-  });
-
-  $("#fekpanel #button").mouseenter(function(){
-    $("#fektooltip").html($(this).find("#fektooltip-data").html());
-    $("#fektooltip").css("opacity", 1);
-  });
-
-  $("#fekpanel #button").mouseleave(function(){
-    $("#fektooltip").html($(this).find("#fektooltip-data").html());
-    $("#fektooltip").css("opacity", 0);
-  });
-
-  // Allow clicking away from the panel to close the panel
-  $("body").click(function(){
-    PanelHide();
-  });
-
-  $("#fekpanel").click(function(event){
-    event.stopPropagation();
-    $("#fekpanel #button").find("ul").hide();
-  });
-
-  // Register click events and activates the feklink tabs
-  $("body").on("click", `a[href*="#fektab"]`, function(event){
-    event.stopPropagation();
-    event.preventDefault();
-    var tab = $(this).attr("href").replace("#fektab-","");
-    $(`#tab[tab="${tab}"]`).trigger("click");
-    PanelShow();
-  });
-
-  $(`a[href="#fekpanel"]`).click(function(event){
-    event.stopPropagation();
-    event.preventDefault();
-    PanelToggle();
-  });
-
-  $("#fekpanel #tab").click(function(){
-    $("#fekpanel #tab").each(function(){
-      // Remove all contentviews and active tabs
-      $(this).removeClass("active");
-      $("#fekpanel #col2 #contentview").hide();
-    });
-
-    $(this).addClass("active");
-    $("#fekpanel #col2 .fekScrollRegion").scrollTop(0);
-    $("#fekpanel #col2 #contentview[tablink=" +$(this).attr("tab") + "]").show();
-    InitScrollbar(".fekScrollRegion");
-  });
-
-  $("#fekpanel").on("mousewheel", function(event){
-    event.preventDefault();
-  });
-
-  $("#fekpanel #button").find("ul").on("mousewheel", function(event){
-    event.stopPropagation();
-    event.preventDefault();
-  });
-
-  $("#fekpanel #button").click(function(event){
-    event.stopPropagation();
-    if($(this).hasClass("dropdown")){
-      if($(this).find("ul").is(":visible"))
-        $(this).find("ul").hide();
-      else{
-        $("#fekpanel #button").find("ul").hide();
-        $("#fekpanel #button").css("z-index", "9998");
-        $(this).find("ul").show();
-        $(this).css("z-index", "9999");
-        $(this).find("ul").scrollTop(0);
-        InitScrollbar($(this).find("ul"));
-      }
-    }else{
-      $("#fekpanel #button").find("ul").hide();
-      $("#refreshNotice").addClass("visible");
-
-      var variablename = $(this).attr("fekvar");
-
-      if($(this).hasClass("inactive")){
-        // Turn the variable on and save state
-        GM_setValue(variablename, "on");
-        $(this).removeClass("inactive");
-        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
-      }else{
-        // Turn the variable and save state
-        GM_setValue(variablename, "off");
-        $(this).addClass("inactive");
-        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
-      }
-    }
-  });
-
-  $("#fekpanel #button ul li").click(function(){
-    var previousChoice = $(this).closest("#button").find("#choice").text();
-    if($(this).text() !== previousChoice){
-      var variablename = $(this).parent().parent().attr("fekvar");
-      GM_setValue(variablename, $(this).attr("fekvalue"));
-      $("#refreshNotice").addClass("visible");
-    }
-
-    $(this).closest("#button").find("#choice").html($(this).html());
-    $(this).closest("#button").find("#choice").attr("fekvalue", $(this).attr("fekvalue"));
-
-    if($(this).attr("fekvalue") === "off"){
-      if($(this).closest("#button").hasClass("inactive")){
-        // Nothing
-      }else{
-        $(this).closest("#button").addClass("inactive");
-        $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
-      }
-    }else{
-      $(this).closest("#button").removeClass("inactive");
-      $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
-    }
-  });
-
-  $("#refreshNotice").click(function(){
-    location.reload();
-  });
-}
 
 ///////////////////////////////////////////////////
 // ChangeElementType: Changes the element's type //
