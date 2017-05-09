@@ -1,0 +1,32 @@
+.discussionTitle {
+  position: "relative";
+  left:     "65px";
+}
+
+.title {
+  position: "relative";
+  left:     "-70px";
+}
+
+#opHook {
+  position:  "relative";
+  left:      "-234px";
+  font-size: "18px";
+}
+
+.body {
+  position:   "relative";
+  top:        "-12px";
+  margin-top: "0px";
+}
+
+#content {
+  padding-left: "0px";
+}
+
+.fek-staff-name {
+  background-image: linear-gradient(to right, #35beff 25%, #4382ff 50%, #35beff 75%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
