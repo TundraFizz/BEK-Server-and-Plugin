@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "version": "0.2.1",
-  "name": "Getting started example",
+  "version": "0.2.2",
+  "name": "Forum Enhancer Kit",
   "short_name": "FEK",
   "description": "A plain text description",
   "author": "Tundra Fizz",
@@ -19,7 +19,7 @@
 
   "content_scripts": [{
     "matches": ["https://*.leagueoflegends.com/*"],
-    "js": ["jquery.js", "main.js"]
+    "js": ["jquery.js", "perfect-scrollbar.js", "main.js"]
   }],
 
   "permissions": [
