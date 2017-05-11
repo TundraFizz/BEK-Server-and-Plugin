@@ -46,7 +46,7 @@ var regions          = [];
 var results          = [];
 var errorMessage     = "";
 
-LoadCSS(`${domain}/fek/css/fek.css`);
+LoadCSS(`${domain}/fek/css/fek.css`); // CSS should only be loaded for development purposes
 
 //////////////////////////////////////////////////////
 // Modify the navigation bar at the top of the page //
@@ -160,41 +160,9 @@ FEK.prototype.DefaultVariables = function(){
   var self = this;
 
   self.data = {
-    "version":               FEKversion,
-    "blacklist":             {}
-    // "hide":                  {},
-    // "avatarSize":            "off",
-    // "fallbackAvatar":        "off",
-    // "votingDisplay":         "off",
-    // "blacklisting":          "off",
-    // "OPStyle":               "off",
-    // "removeProfHovPop":      "off",
-    // "enhancedThreadPreview": "off",
-    // "highlightMyThreads":    "off",
-    // "boardsDropdownMenu":    "off",
-    // "animateThumbnails":     "off",
-    // "emptyVoteReplacement":  "off",
-    // "embedMedia":            "off",
-    // "favoriteChampion":      "off",
-    // "favoriteSpell":         "off",
-    // "favoriteItem":          "off",
-    // "favoriteIcons":         "off",
-    // "rollDice":              "off"
+    "version":   FEKversion,
+    "blacklist": {}
   };
-
-  // self.data["hide"]["Gameplay"]                     = "off";
-  // self.data["hide"]["Story, Art, & Sound"]          = "off";
-  // self.data["hide"]["Esports"]                      = "off";
-  // self.data["hide"]["Team Recruitment"]             = "off";
-  // self.data["hide"]["Concepts & Creations"]         = "off";
-  // self.data["hide"]["Player Behavior & Moderation"] = "off";
-  // self.data["hide"]["Miscellaneous"]                = "off";
-  // self.data["hide"]["Memes & Games"]                = "off";
-  // self.data["hide"]["General Discussion"]           = "off";
-  // self.data["hide"]["Roleplay"]                     = "off";
-  // self.data["hide"]["Help & Support"]               = "off";
-  // self.data["hide"]["Report a Bug"]                 = "off";
-  // self.data["hide"]["Boards Feedback"]              = "off";
 
   Set(self.data, function(){
     self.Main();
@@ -338,6 +306,7 @@ FEK.prototype.CreateFeatures = function(){
     if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
       PanelToggle();
   };
+
   return;
 
   ///////////////////////////////
@@ -970,8 +939,8 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   }
 
   // Create the tab if we need to
-  if($(`#tab[tab="${tabGroup2}-${tab2}"]`).length == 0){
-    $(`#tabgroup[tabgroup="${tabGroup2}"]`).append(`
+  if($(`.tab[tab="${tabGroup2}-${tab2}"]`).length == 0){
+    $(`.tabgroup[tabgroup="${tabGroup2}"]`).append(`
     <div class="tab" tab="${tabGroup2}-${tab2}">
       ${tab}
       <div class="indicator"></div>
@@ -980,13 +949,13 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   }
 
   // Create the category if we need to
-  if($(`#fekpanel .col-right .fekScrollRegion #contentview[tablink="${tabGroup2}-${tab2}"]`).length == 0){
+  if($(`#fekpanel .col-right .fekScrollRegion .contentview[tablink="${tabGroup2}-${tab2}"]`).length == 0){
     $("#fekpanel .col-right .fekScrollRegion").append(`
     <div class="contentview" tablink="${tabGroup2}-${tab2}"></div>
     `);
   }
 
-  var contentview = $(`#contentview[tablink="${tabGroup2}-${tab2}"]`);
+  var contentview = $(`.contentview[tablink="${tabGroup2}-${tab2}"]`);
 
   // Create the button within the returned contentview
   var buttonhtml, tooltiphtml, initclass, initstyle;
@@ -1011,31 +980,35 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
 
   if(options){
     // If options are not null, then it's a dropdown menu
-    var initlabel, listhtml = "";
+    var displayLabel, listhtml = "";
 
     // Prepare the list html
     for(var i = 0; i < options.length; ++i){
       // Split the option and associated value apart
       var optionpair = options[i].split("|");
       listhtml += `<li fekvalue="${optionpair[0]}">${optionpair[1]}</li>`;
+
+      if(optionpair[0] == self.data[label]){
+        displayLabel = optionpair[1];
+      }
     }
 
     // Prepare the button html
     if(self.data[label] === "off"){
       initclass = "inactive ";
       initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
-      initlabel = "Disable";
+      displayLabel = "Disable";
     }else{
       initclass = "";
       initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
     }
 
     buttonhtml = `
-    <div id="button" class="${initclass}dropdown" fekvar="${self.data[label]}" style="background-position:right 10px; background-repeat:no-repeat; background-image:url('${FEKgfx}drop-indicator.png');">
+    <div class="button ${initclass}dropdown" fekvar="${self.data[label]}" style="background-position:right 10px; background-repeat:no-repeat; background-image:url('${FEKgfx}drop-indicator.png');">
       ${tooltiphtml}
-      <div id="indicator" style="${initstyle}"></div>
-      <span id="label">${label}</span>
-      <span id="choice" fekvalue="${self.data[label]}">${initlabel}</span>
+      <div class="indicator" style="${initstyle}"></div>
+      <span class="label">${label}</span>
+      <span class="choice" fekvalue="${self.data[label]}">${displayLabel}</span>
       <ul>
         ${listhtml}
       </ul>
@@ -1054,10 +1027,10 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
     }
 
     buttonhtml = `
-    <div id="button" class="${initclass}" fekvar="${self.data[label]}">
+    <div class="button ${initclass}" fekvar="${self.data[label]}">
       ${tooltiphtml}
-      <div id="indicator" style="${initstyle}"></div>
-      <span id="label">${label}</span>
+      <div class="indicator" style="${initstyle}"></div>
+      <span class="label">${label}</span>
     </div>
     `;
 
@@ -1069,20 +1042,12 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
     callback(self.data[label]);
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-// SettleGUI: Sets the FEK panel to a default tab so that it doesn't look ugly //
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+// SettleGUI: Sets the FEK panel to the default first tab //
+////////////////////////////////////////////////////////////
 FEK.prototype.SettleGUI = function(){
-  // This sets the GUI panel to the first tab
-  $("#fekpanel #tab").each(function(){
-    // Remove all contentviews and active tabs
-    $(this).removeClass("active");
-    $("#fekpanel .col-right .contentview").hide();
-  });
-
-  // Now set our active tab and contentview to the first tab listed
-  $("#fekpanel #tab:first").addClass("active");
-  $(`#fekpanel .col-right .contentview[tablink="${$("#fekpanel #tab:first").attr("tab")}"]`).show();
+  $("#fekpanel .tab:first").addClass("active");
+  $("#fekpanel .contentview:first-child").css("display", "block");
 }
 
 //////////////////////////////////////

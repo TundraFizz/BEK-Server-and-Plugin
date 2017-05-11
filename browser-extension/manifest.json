@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.2.2",
+  "version": "0.2.3",
   "name": "Forum Enhancer Kit",
   "short_name": "FEK",
   "description": "A plain text description",
@@ -19,6 +19,7 @@
 
   "content_scripts": [{
     "matches": ["https://*.leagueoflegends.com/*"],
+    "css": ["style.css"],
     "js": ["jquery.js", "perfect-scrollbar.js", "main.js"]
   }],
 
