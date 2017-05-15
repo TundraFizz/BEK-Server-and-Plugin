@@ -221,7 +221,7 @@ FEK.prototype.Main = function(){
   if(page == "Thread" && favoriteIcons != "off")
     WaitAndRun(".button.gamedata.champion", FavoriteIcons);
 
-  document.getElementById("fekpanel").style.setProperty("visibility", "visible", "important");
+  document.getElementById("fek-panel").style.setProperty("visibility", "visible", "important");
 
   // Put this back in later
   // if(RPint < 15 && title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
@@ -235,17 +235,15 @@ FEK.prototype.CreateGUI = function(){
   var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
 
   var panelhtml = `
-  <div id="fekpanel">
+  <div id="fek-panel">
     <div class="col-left">
-      <div class="logo" style="background:url(${FEKgfx}logo.png) no-repeat"></div>
       <div class="version">v${FEKversion}</div>
+      <div class="logo"></div>
       <div class="tabs"></div>
     </div>
     <div class="col-right">
-      <div class="refreshNotice">
-        Click here to save the changes.
-      </div>
-      <div class="fekScrollRegion"></div>
+      <div class="refreshNotice">Click here to save the changes.</div>
+      <div class="scroll-region"></div>
     </div>
   </div>
   `;
@@ -255,7 +253,7 @@ FEK.prototype.CreateGUI = function(){
   docbody.append(tooltipshtml);
 
   // Hide FEK Panel so the user doesn't see a whole bunch of random text for the second while the webpage loads
-  $("#fekpanel").hide();
+  $("#fek-panel").hide();
 }
 
 ////////////////////////////////////////////////////////////
@@ -272,11 +270,6 @@ FEK.prototype.CreateFeatures = function(){
     "options":       null,
     "defaultOption": null
   };
-
-  // Core Mods -> LoL Boards -> User Identities
-  tabgroup = "Core Mods";
-  tab      = "LoL Boards";
-  category = "User Identities";
 
   //////////////////////////
   // Feature: FEK Avatars //
@@ -301,30 +294,31 @@ FEK.prototype.CreateFeatures = function(){
     avatarSize = parseInt(option);
   });
 
-  // Register the hotkey ~ to toggle the FEK panel on and off
-  hotkeys["192"] = function(state, event){
-    if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
-      PanelToggle();
-  };
-
-  return;
-
   ///////////////////////////////
   // Feature: Fallback Avatars //
   ///////////////////////////////
-  tooltip = "The avatar to use when a person doesn't have a FEK avatar.";
-  options = ["off|Disable",
-             "1|Trident (Dark)",
-             "2|Trident (Light)",
-             "3|Trident (Parchment)",
-             "4|Poro (Dark)",
-             "5|Poro (Light)",
-             "6|Poro (Parchment)",
-             "7|Happy Cloud (Dark)",
-             "8|Happy Cloud (Light)",
-             "9|Happy Cloud (Parchment)"];
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "User Identities",
+    "label":    "Fallback Avatars",
+    "tooltip":  "The avatar to use when a person doesn't have a FEK avatar.",
+    "options":  [
+     "off|Disable",
+     "1|Trident (Dark)",
+     "2|Trident (Light)",
+     "3|Trident (Parchment)",
+     "4|Poro (Dark)",
+     "5|Poro (Light)",
+     "6|Poro (Parchment)",
+     "7|Happy Cloud (Dark)",
+     "8|Happy Cloud (Light)",
+     "9|Happy Cloud (Parchment)"
+    ],
+    "defaultOption": "off"
+  };
 
-  CreateFeature("Fallback Avatars", "_fallbackAvatars", options, "off", tooltip, tabgroup, tab, category, function(option){
+  self.CreateFeature(featureMetaData, function(option){
     if     (option == "1") fallbackAvatar = FEKgfx + "no-avatar-trident-dark.gif";
     else if(option == "2") fallbackAvatar = FEKgfx + "no-avatar-trident-light.gif";
     else if(option == "3") fallbackAvatar = FEKgfx + "no-avatar-trident-parchment.gif";
@@ -335,6 +329,50 @@ FEK.prototype.CreateFeatures = function(){
     else if(option == "8") fallbackAvatar = FEKgfx + "no-avatar-light.gif";
     else if(option == "9") fallbackAvatar = FEKgfx + "no-avatar-parchment.gif";
   });
+
+  ////////////
+  // SAMPLE //
+  ////////////
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "User Identities",
+    "label":    "sdjlkf",
+    "tooltip":  "sdfsdkljf",
+    "options":  ["off|Disable","1|Trident (Dark)"],
+    "defaultOption": "off"
+  };
+  self.CreateFeature(featureMetaData, function(option){});
+
+  featureMetaData = {
+    "tabGroup": "Group Two",
+    "tab":      "Tab Three",
+    "category": "Cat2",
+    "label":    "dlkfjdf",
+    "tooltip":  "dklffi",
+    "options":  ["off|Disable","1|Trident (Dark)"],
+    "defaultOption": "off"
+  };
+  self.CreateFeature(featureMetaData, function(option){});
+
+  featureMetaData = {
+    "tabGroup": "Group Two",
+    "tab":      "Tab Four",
+    "category": "Cat3",
+    "label":    "sdlkjflksdfdlrg",
+    "tooltip":  "dlkfioe",
+    "options":  ["off|Disable","1|Trident (Dark)"],
+    "defaultOption": "off"
+  };
+  self.CreateFeature(featureMetaData, function(option){});
+
+  // Register the hotkey ~ to toggle the FEK panel on and off
+  hotkeys["192"] = function(state, event){
+    if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
+      PanelToggle();
+  };
+
+  return;
 
   //////////////////////////////
   // Feature: Enhanced Voting //
@@ -819,9 +857,9 @@ FEK.prototype.CreateFeatures = function(){
           // Append alert icons for unread announcements
           alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
 
-          $(`a[href="#fekpanel"]`).eq(0).append(alertHTML);
-          $(`a[href="#fekpanel"]`).eq(1).append(alertHTML);
-          $(`#fekpanel #tab[tab="misc-announcements"]`).append(alertHTML);
+          $(`a[href="#fek-panel"]`).eq(0).append(alertHTML);
+          $(`a[href="#fek-panel"]`).eq(1).append(alertHTML);
+          $(`#fek-panel #tab[tab="misc-announcements"]`).append(alertHTML);
           $(`body #twitter_row.popup`).html(`
           <div id="twitterlink">
             <a href="https://twitter.com/Tundra_Fizz" target="_blank">
@@ -930,17 +968,17 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   var label2    = label.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Create the tabGroup if we need to
-  if($(`#fekpanel .col-left .tabgroup[tabgroup="${tabGroup2}"]`).length <= 0){
-    $(`#fekpanel .col-left .tabs`).append(`
-    <div class="tabgroup" tabgroup="${tabGroup2}">
+  if($(`#fek-panel [tab-group="${tabGroup2}"]`).length == 0){
+    $(`#fek-panel .tabs`).append(`
+    <div class="tab-group" tab-group="${tabGroup2}">
       <h1>${tabGroup}</h1>
     </div>
     `);
   }
 
   // Create the tab if we need to
-  if($(`.tab[tab="${tabGroup2}-${tab2}"]`).length == 0){
-    $(`.tabgroup[tabgroup="${tabGroup2}"]`).append(`
+  if($(`#fek-panel [tab="${tabGroup2}-${tab2}"]`).length == 0){
+    $(`#fek-panel [tab-group="${tabGroup2}"]`).append(`
     <div class="tab" tab="${tabGroup2}-${tab2}">
       ${tab}
       <div class="indicator"></div>
@@ -948,13 +986,49 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
     `);
   }
 
-  // Create the category if we need to
-  if($(`#fekpanel .col-right .fekScrollRegion .contentview[tablink="${tabGroup2}-${tab2}"]`).length == 0){
-    $("#fekpanel .col-right .fekScrollRegion").append(`
-    <div class="contentview" tablink="${tabGroup2}-${tab2}"></div>
+  // Create the groupview if we need to
+  if($(`#fek-panel [group-view="${tabGroup2}-${tab2}"]`).length == 0){
+    $("#fek-panel .scroll-region").append(`
+    <div class="group-view" group-view="${tabGroup2}-${tab2}"></div>
     `);
   }
 
+  // Create the category if we need to
+  if($(`#fek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).length == 0){
+    $(`#fek-panel [group-view="${tabGroup2}-${tab2}"]`).append(`
+      <div class="category" category="${tabGroup2}-${tab2}-${category2}">
+        <div class="category-name">${category}</div>
+      </div>
+    `);
+  }
+
+  var onOrOff;
+  if(self.data[label] === "off")
+    onOrOff = "off";
+  else
+    onOrOff = "on";
+
+  var listhtml = "";
+
+  var yoloSwag = `
+  <div class="setting">
+    <div class="tooltip-data">
+      <span id="ttlabel">${label}</span><br>
+      <p>${tooltip}</p>
+    </div>
+    <div class="indicator ${onOrOff}"></div>
+    <span class="label">${label}</span>
+      <span class="choice" fekvalue="PLACEHOLDER">${self.data[label]}</span>
+      <ul>
+        ${listhtml}
+      </ul>
+  </div>
+  `;
+
+  $(`#fek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).append(yoloSwag);
+
+  if(false)
+  {
   var contentview = $(`.contentview[tablink="${tabGroup2}-${tab2}"]`);
 
   // Create the button within the returned contentview
@@ -970,11 +1044,18 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
     `);
   }
 
+  var onOrOff;
+  if(self.data[label] === "off")
+    onOrOff = "off";
+  else
+    onOrOff = "on";
+
   tooltiphtml = `
   <div id="fektooltip-data">
     <span id="ttlabel">${label}</span><br>
     <span id="loadtime"></span>
     <p>${tooltip}</p>
+    <div class="indicator ${onOrOff}"></div>
   </div>
   `;
 
@@ -1040,14 +1121,15 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   // Run the feature by callback if it isn't disabled
   if(self.data[label] !== "off")
     callback(self.data[label]);
+  }
 }
 
 ////////////////////////////////////////////////////////////
 // SettleGUI: Sets the FEK panel to the default first tab //
 ////////////////////////////////////////////////////////////
 FEK.prototype.SettleGUI = function(){
-  $("#fekpanel .tab:first").addClass("active");
-  $("#fekpanel .contentview:first-child").css("display", "block");
+  $("#fek-panel .tab:first").addClass("active");
+  $("#fek-panel .group-view:first-child").css("display", "block");
 }
 
 //////////////////////////////////////
@@ -1094,12 +1176,12 @@ FEK.prototype.KeyWatch = function(){
     }
   });
 
-  $("#fekpanel #button").mouseenter(function(){
+  $("#fek-panel #button").mouseenter(function(){
     $("#fektooltip").html($(this).find("#fektooltip-data").html());
     $("#fektooltip").css("opacity", 1);
   });
 
-  $("#fekpanel #button").mouseleave(function(){
+  $("#fek-panel #button").mouseleave(function(){
     $("#fektooltip").html($(this).find("#fektooltip-data").html());
     $("#fektooltip").css("opacity", 0);
   });
@@ -1109,9 +1191,9 @@ FEK.prototype.KeyWatch = function(){
     PanelHide();
   });
 
-  $("#fekpanel").click(function(event){
+  $("#fek-panel").click(function(event){
     event.stopPropagation();
-    $("#fekpanel #button").find("ul").hide();
+    $("#fek-panel #button").find("ul").hide();
   });
 
   // Register click events and activates the feklink tabs
@@ -1123,49 +1205,51 @@ FEK.prototype.KeyWatch = function(){
     PanelShow();
   });
 
-  $(`a[href="#fekpanel"]`).click(function(event){
+  $(`a[href="#fek-panel"]`).click(function(event){
     event.stopPropagation();
     event.preventDefault();
     PanelToggle();
   });
 
-  $("#fekpanel #tab").click(function(){
-    $("#fekpanel #tab").each(function(){
+  $("#fek-panel .tab").click(function(){
+    $("#fek-panel .tab").each(function(){
       // Remove all contentviews and active tabs
       $(this).removeClass("active");
-      $("#fekpanel .col-right .contentview").hide();
+      $("#fek-panel .group-view").hide();
     });
 
+    var thisTab = $(this).attr("tab");
+
+    $("#fek-panel .scroll-region").scrollTop(0);
+    $(`#fek-panel [group-view="${thisTab}"]`).show();
+    InitScrollbar(".scroll-region");
     $(this).addClass("active");
-    $("#fekpanel .col-right .fekScrollRegion").scrollTop(0);
-    $("#fekpanel .col-right .contentview[tablink=" +$(this).attr("tab") + "]").show();
-    InitScrollbar(".fekScrollRegion");
   });
 
-  $("#fekpanel").on("mousewheel", function(event){
+  $("#fek-panel").on("mousewheel", function(event){
     event.preventDefault();
   });
 
-  $("#fekpanel #button").find("ul").on("mousewheel", function(event){
+  $("#fek-panel #button").find("ul").on("mousewheel", function(event){
     event.stopPropagation();
     event.preventDefault();
   });
 
-  $("#fekpanel #button").click(function(event){
+  $("#fek-panel #button").click(function(event){
     event.stopPropagation();
     if($(this).hasClass("dropdown")){
       if($(this).find("ul").is(":visible"))
         $(this).find("ul").hide();
       else{
-        $("#fekpanel #button").find("ul").hide();
-        $("#fekpanel #button").css("z-index", "9998");
+        $("#fek-panel #button").find("ul").hide();
+        $("#fek-panel #button").css("z-index", "9998");
         $(this).find("ul").show();
         $(this).css("z-index", "9999");
         $(this).find("ul").scrollTop(0);
         InitScrollbar($(this).find("ul"));
       }
     }else{
-      $("#fekpanel #button").find("ul").hide();
+      $("#fek-panel #button").find("ul").hide();
       $("#refreshNotice").addClass("visible");
 
       var variablename = $(this).attr("fekvar");
@@ -1184,7 +1268,7 @@ FEK.prototype.KeyWatch = function(){
     }
   });
 
-  $("#fekpanel #button ul li").click(function(){
+  $("#fek-panel #button ul li").click(function(){
     var previousChoice = $(this).closest("#button").find("#choice").text();
     if($(this).text() !== previousChoice){
       var variablename = $(this).parent().parent().attr("fekvar");
@@ -1223,9 +1307,9 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
   var stab      = tab.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Check if the tabgroup exists
-  if($(`#fekpanel .col-left .tabgroup[tabgroup="${stabgroup}"]`).length <= 0){
+  if($(`#fek-panel .col-left .tabgroup[tabgroup="${stabgroup}"]`).length <= 0){
     // Create the tabgroup
-    $(`#fekpanel .col-left .tabs`).append(`
+    $(`#fek-panel .col-left .tabs`).append(`
     <div class="tabgroup" tabgroup="${stabgroup}">
       <h1>${tabgroup}</h1>
     </div>
@@ -1242,8 +1326,8 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
     `);
 
   // Create the contentview if it doesn't exist
-  if($(`#fekpanel .col-right .fekScrollRegion .contentview[tablink="${stabgroup}-${stab}"]`).length == 0)
-    $("#fekpanel .col-right .fekScrollRegion").append(`
+  if($(`#fek-panel .col-right .scroll-region .contentview[tablink="${stabgroup}-${stab}"]`).length == 0)
+    $("#fek-panel .col-right .scroll-region").append(`
     <div id="contentview" tablink="${stabgroup}-${stab}"></div>
     `);
 
@@ -2289,33 +2373,33 @@ function FormatWebmAvatar(obj, avatar){
 // PanelShow: Shows the FEK control panel //
 ////////////////////////////////////////////
 function PanelShow(){
-  if($("#fekpanel").is(":visible")){
+  if($("#fek-panel").is(":visible")){
     // If the panel is already visible when show is called, do nothing
   }else{
     // Hide all content views to speed up the .show animation
-    $(".fekScrollRegion").hide();
+    $(".scroll-region").hide();
 
     // Show the panels off-screen so that we can perform pre-animation calculations
-    $("#fekpanel .col-left").css("left", "-200vw");
-    $("#fekpanel .col-right").css("left", "-200vw");
+    $("#fek-panel .col-left").css("left", "-200vw");
+    $("#fek-panel .col-right").css("left", "-200vw");
 
-    $("#fekpanel").show(); $("#fekpanel .col-right").show();
+    $("#fek-panel").show(); $("#fek-panel .col-right").show();
 
     // Get current panel widths
-    var colLeftWidth  = $("#fekpanel .col-left").outerWidth();
-    var colRightWidth = $("#fekpanel .col-right").outerWidth();
+    var colLeftWidth  = $("#fek-panel .col-left").outerWidth();
+    var colRightWidth = $("#fek-panel .col-right").outerWidth();
 
     // Set start points
-    $("#fekpanel .col-left").css("left", "-" + colLeftWidth + "px");
-    $("#fekpanel .col-right").css("left", "-" + colRightWidth + "px");
+    $("#fek-panel .col-left").css("left", "-" + colLeftWidth + "px");
+    $("#fek-panel .col-right").css("left", "-" + colRightWidth + "px");
 
     // Animate
-    $("#fekpanel .col-left" ).stop().animate({left: "0px"}, 200, function(){
-      $("#fekpanel .col-right").css("left","-" + (colRightWidth - colLeftWidth) + "px");
-      $( "#fekpanel .col-right" ).stop().animate({left: colLeftWidth + "px"}, 150, function(){
+    $("#fek-panel .col-left" ).stop().animate({left: "0px"}, 200, function(){
+      $("#fek-panel .col-right").css("left","-" + (colRightWidth - colLeftWidth) + "px");
+      $( "#fek-panel .col-right" ).stop().animate({left: colLeftWidth + "px"}, 150, function(){
         // Hide all content views to speed up the .show animation
-        $(".fekScrollRegion").show();
-        InitScrollbar(".fekScrollRegion");
+        $(".scroll-region").show();
+        InitScrollbar(".scroll-region");
       });
     });
   }
@@ -2326,18 +2410,18 @@ function PanelShow(){
 ////////////////////////////////////////////
 function PanelHide(){
   // Get current panel widths
-  var colLeftWidth = $("#fekpanel .col-left").outerWidth();
-  var colRightWidth = $("#fekpanel .col-right").outerWidth();
+  var colLeftWidth = $("#fek-panel .col-left").outerWidth();
+  var colRightWidth = $("#fek-panel .col-right").outerWidth();
 
   // Hide all content views to speed up the .show animation
-  $(".fekScrollRegion").hide();
+  $(".scroll-region").hide();
 
   // Animate
-  $("#fekpanel #button").find("ul").hide();
-  $("#fekpanel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
-    $("#fekpanel .col-right").hide();
-    $( "#fekpanel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
-      $("#fekpanel").hide();
+  $("#fek-panel #button").find("ul").hide();
+  $("#fek-panel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
+    $("#fek-panel .col-right").hide();
+    $( "#fek-panel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
+      $("#fek-panel").hide();
     });
   });
 }
@@ -2346,7 +2430,7 @@ function PanelHide(){
 // PanelToggle: Toggles the FEK control panel //
 ////////////////////////////////////////////////
 function PanelToggle(){
-  if($("#fekpanel").is(":visible"))
+  if($("#fek-panel").is(":visible"))
     PanelHide();
   else
     PanelShow();
@@ -2361,7 +2445,7 @@ function LoadWebPanel(page, container){
 
   SendToServer(`${domain}/webpanel`, formData, function(data){
     container.html(data);
-    InitScrollbar(".fekScrollRegion");
+    InitScrollbar(".scroll-region");
   });
 }
 
