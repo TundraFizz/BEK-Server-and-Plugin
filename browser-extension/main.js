@@ -337,31 +337,32 @@ FEK.prototype.CreateFeatures = function(){
     "tabGroup": "Core Mods",
     "tab":      "LoL Boards",
     "category": "User Identities",
-    "label":    "sdjlkf",
-    "tooltip":  "sdfsdkljf",
-    "options":  ["off|Disable","1|Trident (Dark)"],
+    "label":    "Dropdown Test",
+    "tooltip":  "This is the tooltip for Dropdown Test",
+    "options":  [
+      "off|Disable",
+      "1|Option One",
+      "2|Second choice",
+      "3|Third is great",
+      "4|Numbah four",
+      "5|Fifth place",
+      "6|Six sticks",
+      "7|Probably seven",
+      "8|Eight is great",
+      "9|A fine nine",
+      "10|Final ten"
+    ],
     "defaultOption": "off"
   };
   self.CreateFeature(featureMetaData, function(option){});
 
   featureMetaData = {
-    "tabGroup": "Group Two",
-    "tab":      "Tab Three",
-    "category": "Cat2",
-    "label":    "dlkfjdf",
-    "tooltip":  "dklffi",
-    "options":  ["off|Disable","1|Trident (Dark)"],
-    "defaultOption": "off"
-  };
-  self.CreateFeature(featureMetaData, function(option){});
-
-  featureMetaData = {
-    "tabGroup": "Group Two",
-    "tab":      "Tab Four",
-    "category": "Cat3",
-    "label":    "sdlkjflksdfdlrg",
-    "tooltip":  "dlkfioe",
-    "options":  ["off|Disable","1|Trident (Dark)"],
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "User Identities",
+    "label":    "On Off Test",
+    "tooltip":  "This is the tooltip for On Off Test",
+    "options":  [],
     "defaultOption": "off"
   };
   self.CreateFeature(featureMetaData, function(option){});
@@ -935,29 +936,47 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   var tooltip       = featureMetaData["tooltip"];
   var options       = featureMetaData["options"];
   var defaultOption = featureMetaData["defaultOption"];
+  var hasDropDown   = "false";
+  var optionsType   = "binary";
+  var optionsKeys   = [];
+  var optionsVals   = [];
+  var currentKey    = self.data[label];
+  var currentVal    = null;
+  var validOption   = false;
+  var optionList    = "";
+  var listhtml      = "";
+  var labelContent  = "";
 
-  // Get saved value if it exists (otherwise load the defaultOption)
-  if(typeof self.data[label] === "undefined")
-    self.data[label] = defaultOption;
+  if(options.length){
+    optionsType = "dropdown";
+    hasDropDown = "true";
 
-  // Check if the provided saved value is in the options group, if not reset it to the default option
-  if(options){
-    var validOption = false;
     for(var i = 0; i < options.length; ++i){
-      // Split the option and associated value apart
-      if(self.data[label] == options[i].split("|")[0]){
+      optionsKeys.push(options[i].split("|")[0]);
+      optionsVals.push(options[i].split("|")[1]);
+    }
+  }else{
+    optionsKeys.push("on");
+    optionsKeys.push("off");
+    optionsVals.push("on");
+    optionsVals.push("off");
+  }
+
+  // Check if the saved value is valid for features with multiple options
+  if(optionsType == "dropdown"){
+    for(var i = 0; i < optionsKeys.length; ++i){
+      if(currentKey == optionsKeys[i]){
         validOption = true;
         break;
       }
     }
-
-    if(!validOption)
-      self.data[label] = defaultOption;
-  }else{
-    // If there are no options, then it's an on/off button
-    if(self.data[label] != "on" && self.data[label] != "off")
-      self.data[label] = defaultOption;
   }
+  // Check if the saved value is valid for on/off features
+  else if(currentKey == "on" || currentKey == "off")
+    validOption = true;
+
+  if(!validOption)
+      currentKey = self.data[label] = defaultOption;
 
   // Create the tabGroup if we need to
   // Create the tab      if we need to
@@ -1002,126 +1021,49 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
     `);
   }
 
-  var onOrOff;
-  if(self.data[label] === "off")
-    onOrOff = "off";
-  else
-    onOrOff = "on";
+  if(options.length){
+    labelContent = `
+    <p>${label}</p>
+    <p>${currentKey}</p>
+    `;
 
-  var listhtml = "";
+    var list = "";
+
+    for(var i = 0; i < options.length; i++){
+      var option = options[i].split("|");
+      list += `<li data="${option[0]}">${option[1]}</li>`;
+    }
+
+    optionList = `
+    <div class="option-list">
+      <ul>${list}</ul>
+    </div>
+    `;
+  }else{
+    labelContent = `<p>${label}</p>`;
+  }
 
   var yoloSwag = `
-  <div class="setting">
-    <div class="tooltip-data">
-      <span id="ttlabel">${label}</span><br>
-      <p>${tooltip}</p>
+  <div class="setting" dropdown=${hasDropDown} data=${currentKey}>
+    <div class="data-container">
+      <div class="tooltip-data">
+        <span id="ttlabel">${label}</span><br>
+        <p>${tooltip}</p>
+      </div>
+      <div class="indicator"></div>
+      <div class="label">
+        <div class="content">${labelContent}</div>
+      </div>
     </div>
-    <div class="indicator ${onOrOff}"></div>
-    <span class="label">${label}</span>
-      <span class="choice" fekvalue="PLACEHOLDER">${self.data[label]}</span>
-      <ul>
-        ${listhtml}
-      </ul>
+    ${optionList}
   </div>
   `;
 
   $(`#fek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).append(yoloSwag);
 
-  if(false)
-  {
-  var contentview = $(`.contentview[tablink="${tabGroup2}-${tab2}"]`);
-
-  // Create the button within the returned contentview
-  var buttonhtml, tooltiphtml, initclass, initstyle;
-  var category2 = category.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
-
-  // Create the category if it doesn't exist
-  if(contentview.find(`.optiongroup[optiongroup="${category2}"]`).length == 0){
-    contentview.append(`
-    <div class="optiongroup" optiongroup="${category2}">
-      <h1 class="breakhead">${category}</h1>
-    </div>
-    `);
-  }
-
-  var onOrOff;
-  if(self.data[label] === "off")
-    onOrOff = "off";
-  else
-    onOrOff = "on";
-
-  tooltiphtml = `
-  <div id="fektooltip-data">
-    <span id="ttlabel">${label}</span><br>
-    <span id="loadtime"></span>
-    <p>${tooltip}</p>
-    <div class="indicator ${onOrOff}"></div>
-  </div>
-  `;
-
-  if(options){
-    // If options are not null, then it's a dropdown menu
-    var displayLabel, listhtml = "";
-
-    // Prepare the list html
-    for(var i = 0; i < options.length; ++i){
-      // Split the option and associated value apart
-      var optionpair = options[i].split("|");
-      listhtml += `<li fekvalue="${optionpair[0]}">${optionpair[1]}</li>`;
-
-      if(optionpair[0] == self.data[label]){
-        displayLabel = optionpair[1];
-      }
-    }
-
-    // Prepare the button html
-    if(self.data[label] === "off"){
-      initclass = "inactive ";
-      initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
-      displayLabel = "Disable";
-    }else{
-      initclass = "";
-      initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
-    }
-
-    buttonhtml = `
-    <div class="button ${initclass}dropdown" fekvar="${self.data[label]}" style="background-position:right 10px; background-repeat:no-repeat; background-image:url('${FEKgfx}drop-indicator.png');">
-      ${tooltiphtml}
-      <div class="indicator" style="${initstyle}"></div>
-      <span class="label">${label}</span>
-      <span class="choice" fekvalue="${self.data[label]}">${displayLabel}</span>
-      <ul>
-        ${listhtml}
-      </ul>
-    </div>
-    `;
-
-    contentview.find(`.optiongroup[optiongroup="${category2}"]`).append(buttonhtml);
-  }else{
-    // If options is null, then it's a yes/no button that is toggled
-    if(self.data[label] === "off"){
-      initclass = "inactive";
-      initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-off.png");`;
-    }else{
-      initclass = "";
-      initstyle = `background-position:center; background-repeat:no-repeat; background-image:url("${FEKgfx}button-on.png");`;
-    }
-
-    buttonhtml = `
-    <div class="button ${initclass}" fekvar="${self.data[label]}">
-      ${tooltiphtml}
-      <div class="indicator" style="${initstyle}"></div>
-      <span class="label">${label}</span>
-    </div>
-    `;
-
-    contentview.find(`.optiongroup[optiongroup="${category2}"]`).append(buttonhtml);
-  }
-
   // Run the feature by callback if it isn't disabled
-  if(self.data[label] !== "off")
-    callback(self.data[label]);
-  }
+  if(currentKey !== "off")
+    callback(currentKey);
 }
 
 ////////////////////////////////////////////////////////////
@@ -1176,13 +1118,12 @@ FEK.prototype.KeyWatch = function(){
     }
   });
 
-  $("#fek-panel #button").mouseenter(function(){
-    $("#fektooltip").html($(this).find("#fektooltip-data").html());
+  $("#fek-panel .setting").mouseenter(function(){
+    $("#fektooltip").html($(this).find(".tooltip-data").html());
     $("#fektooltip").css("opacity", 1);
   });
 
-  $("#fek-panel #button").mouseleave(function(){
-    $("#fektooltip").html($(this).find("#fektooltip-data").html());
+  $("#fek-panel .setting").mouseleave(function(){
     $("#fektooltip").css("opacity", 0);
   });
 
@@ -1193,7 +1134,7 @@ FEK.prototype.KeyWatch = function(){
 
   $("#fek-panel").click(function(event){
     event.stopPropagation();
-    $("#fek-panel #button").find("ul").hide();
+    $("#fek-panel .setting").find("ul").hide();
   });
 
   // Register click events and activates the feklink tabs
@@ -1230,65 +1171,45 @@ FEK.prototype.KeyWatch = function(){
     event.preventDefault();
   });
 
-  $("#fek-panel #button").find("ul").on("mousewheel", function(event){
+  $("#fek-panel .setting").find("ul").on("mousewheel", function(event){
     event.stopPropagation();
     event.preventDefault();
   });
 
-  $("#fek-panel #button").click(function(event){
+  $("#fek-panel .setting").click(function(event){
     event.stopPropagation();
-    if($(this).hasClass("dropdown")){
+    if($(this).attr("dropdown") == "true"){
       if($(this).find("ul").is(":visible"))
         $(this).find("ul").hide();
       else{
-        $("#fek-panel #button").find("ul").hide();
-        $("#fek-panel #button").css("z-index", "9998");
+        $("#fek-panel .setting").find("ul").hide();
         $(this).find("ul").show();
-        $(this).css("z-index", "9999");
         $(this).find("ul").scrollTop(0);
         InitScrollbar($(this).find("ul"));
       }
     }else{
-      $("#fek-panel #button").find("ul").hide();
       $("#refreshNotice").addClass("visible");
-
-      var variablename = $(this).attr("fekvar");
-
-      if($(this).hasClass("inactive")){
-        // Turn the variable on and save state
-        GM_setValue(variablename, "on");
-        $(this).removeClass("inactive");
-        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
+      if($(this).attr("data") == "off"){
+        $(this).attr("data", "on");
       }else{
-        // Turn the variable and save state
-        GM_setValue(variablename, "off");
-        $(this).addClass("inactive");
-        $(this).find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
+        $(this).attr("data", "off");
       }
     }
   });
 
-  $("#fek-panel #button ul li").click(function(){
-    var previousChoice = $(this).closest("#button").find("#choice").text();
-    if($(this).text() !== previousChoice){
-      var variablename = $(this).parent().parent().attr("fekvar");
-      GM_setValue(variablename, $(this).attr("fekvalue"));
+  $("#fek-panel .setting ul li").click(function(){
+    var setting        = $(this).closest(".setting");
+    var previousChoice = $(setting).attr("data");
+    var newKey         = $(this).attr("data");
+    var newVal         = $(this).text();
+    console.log(newKey);
+    console.log(newVal);
+    if(previousChoice !== newKey){
+      $(setting).attr("data", newKey);
+      $(".data-container .label .content p:nth-child(2)", $(setting)).html(newVal);
+
+      // SAVE THE SETTING HERE!
       $("#refreshNotice").addClass("visible");
-    }
-
-    $(this).closest("#button").find("#choice").html($(this).html());
-    $(this).closest("#button").find("#choice").attr("fekvalue", $(this).attr("fekvalue"));
-
-    if($(this).attr("fekvalue") === "off"){
-      if($(this).closest("#button").hasClass("inactive")){
-        // Nothing
-      }else{
-        $(this).closest("#button").addClass("inactive");
-        $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-off.png\");");
-      }
-    }else{
-      $(this).closest("#button").removeClass("inactive");
-      $(this).closest("#button").find("#indicator").attr("style", "background-position:center; background-repeat:no-repeat; background-image:url(\"" + FEKgfx + "button-on.png\");");
     }
   });
 
@@ -2417,7 +2338,7 @@ function PanelHide(){
   $(".scroll-region").hide();
 
   // Animate
-  $("#fek-panel #button").find("ul").hide();
+  $("#fek-panel .setting").find("ul").hide();
   $("#fek-panel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
     $("#fek-panel .col-right").hide();
     $( "#fek-panel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
