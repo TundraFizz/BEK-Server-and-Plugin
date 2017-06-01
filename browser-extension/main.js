@@ -29,9 +29,9 @@ var domain = "https://tundrafizz.space";
 function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);}
 
 // Minimized function I made which helps sending form POST data easily
-function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(){cab();});}
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(err, two){cab();});}
 
-var FEKversion       = "5.0.0";
+var FEKversion       = "5.0.1";
 var FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
 var FEKgfx           = `${domain}/fek/gfx/misc/`;
 var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
@@ -46,7 +46,8 @@ var regions          = [];
 var results          = [];
 var errorMessage     = "";
 
-LoadCSS(`${domain}/fek/css/fek.css`); // CSS should only be loaded for development purposes
+LoadCSS(`${domain}/fek/css/fek.css`);    // CSS should only be loaded for development purposes
+LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
 
 //////////////////////////////////////////////////////
 // Modify the navigation bar at the top of the page //
@@ -70,16 +71,16 @@ var threadMode; if     (page == "Thread" && $(".flat-comments").length)      thr
                 else if(page == "Thread" && $(".flat-comments").length == 0) threadMode = "Discuss"; // Discussion Mode
                 else                                                         threadMode = "NULL";    // We're not in a thread
 
-if(page == "Thread"){
-  var head  = $("head")[0];
-  var link  = document.createElement("link");
-  link.id   = "fek-thread-css";
-  link.rel  = "stylesheet";
-  link.type = "text/css";
-  link.href = `${domain}/fek/css/thread.css`;
-  link.media = "all";
-  head.appendChild(link);
-}
+// if(page == "Thread"){
+//   var head  = $("head")[0];
+//   var link  = document.createElement("link");
+//   link.id   = "fek-thread-css";
+//   link.rel  = "stylesheet";
+//   link.type = "text/css";
+//   link.href = `${domain}/fek/css/thread.css`;
+//   link.media = "all";
+//   head.appendChild(link);
+// }
 
 /////////////////////
 // Variables: Misc //
@@ -87,7 +88,7 @@ if(page == "Thread"){
 var originalPoster = "";                    // The name of the original poster in a thread
 var currentDate    = new Date();            // Gets today's date
 var RPint = 0;
-// var RPint          = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
+// var RPint       = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
 var alertPopUp     = false;                 // Only one alert can display at a time
                                             // 1: Can't connect to FEK server
                                             // 2: FEK needs to be updated
@@ -127,6 +128,30 @@ FEK.prototype.Initialize = function(){
   var self = this;
   // TESTING: Query the server and that's it
   self.QueryServer();
+
+  // ------------------------------------------
+
+  /////////////////////////////////////////////
+  // ========== MUTATION OBSERVER ========== //
+  /////////////////////////////////////////////
+  if(page == "Index" || page == "Thread"){
+    var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
+                else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
+                else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
+
+    var observer = new MutationObserver(function(mutations){
+      if(page == "Index")
+        self.WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
+      else if(page == "Thread"){
+        self.WaitAndRun(".riot-voting", self.FormatAllPosts(true));
+        // self.WaitAndRun(".riot-voting", LoadThread);
+      }
+    });
+
+    var config = {attributes: true, childList: true, characterData: true};
+
+    observer.observe(target, config);
+  }
   return;
 
   // Clear();
@@ -232,6 +257,28 @@ FEK.prototype.Main = function(){
 
   // Put this back in later
   // if(RPint < 15 && title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
+
+  // ------------------------------------------
+
+  /////////////////////////////////////////////
+  // ========== MUTATION OBSERVER ========== //
+  /////////////////////////////////////////////
+  if(page == "Index" || page == "Thread"){
+    var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
+                else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
+                else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
+
+    var observer = new MutationObserver(function(mutations){
+      if(page == "Index")
+        WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
+      else if(page == "Thread")
+        WaitAndRun(".riot-voting", LoadThread);
+    });
+
+    var config = {attributes: true, childList: true, characterData: true};
+
+    observer.observe(target, config);
+  }
 }
 
 //////////////////////////////////////////////////
@@ -1284,6 +1331,13 @@ FEK.prototype.QueryServer = function(){
     users.push(username);
     regions.push(region);
   });
+  myName = "Tundra Fizz";
+  myRegion = "NA";
+  // console.log("===== Stuff =====");
+  // console.log(myName);
+  // console.log(myRegion);
+  // console.log(users);
+  // console.log(regions);
 
   var formData = new FormData();
   formData.append("name",    myName);
@@ -1325,25 +1379,25 @@ FEK.prototype.QueryServer = function(){
 
     // SKIP CHECKING FOR VERSIONS (for now at least)
     if(0){
-    if(FEKversion != results.version && window.location.href != FEKpage){
-      var html = `
-      There has been an update to FEK!<br><br>
-      <a href="${results.details}" style="color:#00C0FF;">Click here</a>
-      for the post detailing new changes and to download version ${results.version}
-      `;
+      if(FEKversion != results.version && window.location.href != FEKpage){
+        var html = `
+        There has been an update to FEK!<br><br>
+        <a href="${results.details}" style="color:#00C0FF;">Click here</a>
+        for the post detailing new changes and to download version ${results.version}
+        `;
 
-      CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
-    }else{
-      if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
-        CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
-                       "Error " + results.apiStatusCode + ": " + results.apiMessage);
-      }
+        CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
+      }else{
+        if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
+          CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
+                         "Error " + results.apiStatusCode + ": " + results.apiMessage);
+        }
 
-      if(typeof results.alert !== "undefined" && alertPopUp === false){
-        CreateAlertBox(results.top, results.color1, results.color2, results.font,
-                       results.alert);
+        if(typeof results.alert !== "undefined" && alertPopUp === false){
+          CreateAlertBox(results.top, results.color1, results.color2, results.font,
+                         results.alert);
+        }
       }
-    }
     } // SKIP CHECKING FOR VERSIONS (for now at least)
 
     if(page == "Thread")
@@ -1912,8 +1966,9 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
         FormatWebmAvatar(obj, avatar);
       else
         obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
-    }else if(fallbackAvatar != "off")
-      obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
+    }
+    // else if(fallbackAvatar != "off")
+    //   obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
   }
 }
 
@@ -2044,6 +2099,40 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       }
     }
   });
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
+////////////////////////////////////////////////////////////////////////////////////////////////
+FEK.prototype.WaitAndRun = function(selector, callback){
+  var timeOut = 2000, currentTime = 0;
+
+  var interval = setInterval(function(){
+    currentTime = currentTime + 1;
+
+    if(currentTime >= timeOut)
+      clearInterval(interval);
+    else if($(selector).length > 0){
+      clearInterval(interval);
+      callback();
+    }
+  }, 1);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// WaitAndRunManual: Waits for a specified amount of time before executing the callback //
+//////////////////////////////////////////////////////////////////////////////////////////
+FEK.prototype.WaitAndRunManual = function(time, callback){
+  var timeOut = time, currentTime = 0;
+
+  var interval = setInterval(function(){
+    currentTime = currentTime + 1;
+
+    if(currentTime >= timeOut){
+      clearInterval(interval);
+      callback();
+    }
+  }, 1);
 }
 
 ///////////////////////////////////////
@@ -2679,40 +2768,6 @@ function ReplaceUrlWithHtmlLink(text){
   return text.replace(exp, `<a href="$1" target="_blank">$1</a>`);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-// WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
-////////////////////////////////////////////////////////////////////////////////////////////////
-function WaitAndRun(selector, callback){
-  var timeOut = 2000, currentTime = 0;
-
-  var interval = setInterval(function(){
-    currentTime = currentTime + 1;
-
-    if(currentTime >= timeOut)
-      clearInterval(interval);
-    else if($(selector).length > 0){
-      clearInterval(interval);
-      callback();
-    }
-  }, 1);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// WaitAndRunManual: Waits for a specified amount of time before executing the callback //
-//////////////////////////////////////////////////////////////////////////////////////////
-function WaitAndRunManual(time, callback){
-  var timeOut = time, currentTime = 0;
-
-  var interval = setInterval(function(){
-    currentTime = currentTime + 1;
-
-    if(currentTime >= timeOut){
-      clearInterval(interval);
-      callback();
-    }
-  }, 1);
-}
-
 ////////////////////////////////////////
 // ========== FEK FEATURES ========== //
 ////////////////////////////////////////
@@ -3331,23 +3386,3 @@ $(".link").hover(function(){
 }, function(){
   this.style.setProperty("color", "#CFBA6B");
 });
-
-/////////////////////////////////////////////
-// ========== MUTATION OBSERVER ========== //
-/////////////////////////////////////////////
-if(page == "Index" || page == "Thread"){
-  var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
-              else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
-              else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
-
-  var observer = new MutationObserver(function(mutations){
-    if(page == "Index")
-      WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
-    else if(page == "Thread")
-      WaitAndRun(".riot-voting", LoadThread);
-  });
-
-  var config = {attributes: true, childList: true, characterData: true};
-
-  observer.observe(target, config);
-}
