@@ -125,6 +125,10 @@ function FEK(){}
 ///////////////////////////////////////////
 FEK.prototype.Initialize = function(){
   var self = this;
+  // TESTING: Query the server and that's it
+  self.QueryServer();
+  return;
+
   // Clear();
   Get(null, function(data){
     console.log(data);
@@ -169,6 +173,9 @@ FEK.prototype.DefaultVariables = function(){
   });
 }
 
+/////////////////
+// Main: ????? //
+/////////////////
 FEK.prototype.Main = function(){
   var self = this;
 
@@ -1256,6 +1263,76 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
   callback($(`#contentview[tablink="${stabgroup}-${stab}"]`));
 }
 
+//////////////////////////////////////////////////////////////////////////
+// QueryFEKServer: Makes a connection to the FEK server for information //
+//////////////////////////////////////////////////////////////////////////
+FEK.prototype.QueryServer = function(){
+  var formData = new FormData();
+  formData.append("name",    myName);
+  formData.append("region",  myRegion);
+  formData.append("users",   users);
+  formData.append("regions", regions);
+
+  SendToServer(`${domain}/database`, formData, function(data){
+    console.log(data);
+    results   = data.records;
+    FEKtweets = data.announcements;
+    FEKevent  = data.event;
+    var unixTime = Math.floor(Date.now() / 1000);
+
+    // THIS FEATURE TEMPORARILY DISABLED!
+    // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
+    if(0){
+      var NavBarEvent = document.createElement("li");
+      var html = `
+      <a href="#">Event</a>
+      <div id="fek-event">
+        <div id="fek-event-top">${FEKevent.message}</div>
+        <div id="fek-event-bottom-left">
+          <a href="${FEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
+        </div>
+        <div id="fek-event-bottom-right">
+          <a href="${FEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
+        </div>
+      </div>
+      `;
+
+      AddToNavBar(NavBarEvent, "touchpoint-event", html, RiotBar, 8);
+
+      window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
+
+      // Hides dropdown event information by default, and displays it with mouse hover
+      $("#fek-event").hide();
+      $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
+    }
+
+    if(FEKversion != results.version && window.location.href != FEKpage){
+      var html = `
+      There has been an update to FEK!<br><br>
+      <a href="${results.details}" style="color:#00C0FF;">Click here</a>
+      for the post detailing new changes and to download version ${results.version}
+      `;
+
+      CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
+    }else{
+      if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
+        CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
+                       "Error " + results.apiStatusCode + ": " + results.apiMessage);
+      }
+
+      if(typeof results.alert !== "undefined" && alertPopUp === false){
+        CreateAlertBox(results.top, results.color1, results.color2, results.font,
+                       results.alert);
+      }
+    }
+
+    if(page == "Thread")
+      FormatAllPosts(true);
+
+    $.event.trigger({type: "tweetsLoaded"});
+  });
+}
+
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
 ///////////////////////////////////////
@@ -1412,75 +1489,6 @@ function SetGrayscaleProperties(obj){
 //////////////////////////////////////
 // ========== LOAD PAGES ========== //
 //////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// QueryFEKServer: Makes a connection to the FEK server for information //
-//////////////////////////////////////////////////////////////////////////
-function QueryFEKServer(){
-  var formData = new FormData();
-  formData.append("name",    myName);
-  formData.append("region",  myRegion);
-  formData.append("users",   users);
-  formData.append("regions", regions);
-
-  SendToServer(`${domain}/database`, formData, function(data){
-    results   = data.records;
-    FEKtweets = data.announcements;
-    FEKevent  = data.event;
-    var unixTime = Math.floor(Date.now() / 1000);
-
-    // THIS FEATURE TEMPORARILY DISABLED!
-    // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
-    if(0){
-      var NavBarEvent = document.createElement("li");
-      var html = `
-      <a href="#">Event</a>
-      <div id="fek-event">
-        <div id="fek-event-top">${FEKevent.message}</div>
-        <div id="fek-event-bottom-left">
-          <a href="${FEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
-        </div>
-        <div id="fek-event-bottom-right">
-          <a href="${FEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
-        </div>
-      </div>
-      `;
-
-      AddToNavBar(NavBarEvent, "touchpoint-event", html, RiotBar, 8);
-
-      window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
-
-      // Hides dropdown event information by default, and displays it with mouse hover
-      $("#fek-event").hide();
-      $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
-    }
-
-    if(FEKversion != results.version && window.location.href != FEKpage){
-      var html = `
-      There has been an update to FEK!<br><br>
-      <a href="${results.details}" style="color:#00C0FF;">Click here</a>
-      for the post detailing new changes and to download version ${results.version}
-      `;
-
-      CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
-    }else{
-      if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
-        CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
-                       "Error " + results.apiStatusCode + ": " + results.apiMessage);
-      }
-
-      if(typeof results.alert !== "undefined" && alertPopUp === false){
-        CreateAlertBox(results.top, results.color1, results.color2, results.font,
-                       results.alert);
-      }
-    }
-
-    if(page == "Thread")
-      FormatAllPosts(true);
-
-    $.event.trigger({type: "tweetsLoaded"});
-  });
-}
 
 ////////////////////////////////////////////////////
 // LoadIndex: Loads everything for the Index page //
