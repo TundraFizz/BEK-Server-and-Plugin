@@ -1267,6 +1267,24 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
 // QueryFEKServer: Makes a connection to the FEK server for information //
 //////////////////////////////////////////////////////////////////////////
 FEK.prototype.QueryServer = function(){
+  var self = this;
+
+  users   = [];
+  regions = [];
+
+  $(".inline-profile").each(function(){
+    var username = this.getElementsByClassName("username")[0].textContent;
+    var region   = this.getElementsByClassName("realm")[0].textContent;
+        region   = region.substring(1, region.length - 1);
+
+    // FEK staff have special gradient names, so I need to extract them using this method
+    if(this.getElementsByClassName("pxg-set").length > 0)
+      username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+
+    users.push(username);
+    regions.push(region);
+  });
+
   var formData = new FormData();
   formData.append("name",    myName);
   formData.append("region",  myRegion);
@@ -1274,7 +1292,6 @@ FEK.prototype.QueryServer = function(){
   formData.append("regions", regions);
 
   SendToServer(`${domain}/database`, formData, function(data){
-    console.log(data);
     results   = data.records;
     FEKtweets = data.announcements;
     FEKevent  = data.event;
@@ -1306,6 +1323,8 @@ FEK.prototype.QueryServer = function(){
       $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
     }
 
+    // SKIP CHECKING FOR VERSIONS (for now at least)
+    if(0){
     if(FEKversion != results.version && window.location.href != FEKpage){
       var html = `
       There has been an update to FEK!<br><br>
@@ -1325,291 +1344,46 @@ FEK.prototype.QueryServer = function(){
                        results.alert);
       }
     }
+    } // SKIP CHECKING FOR VERSIONS (for now at least)
 
     if(page == "Thread")
-      FormatAllPosts(true);
+      self.FormatAllPosts(true);
 
     $.event.trigger({type: "tweetsLoaded"});
   });
 }
 
-///////////////////////////////////////
-// ========== ENTRY POINT ========== //
-///////////////////////////////////////
-var fek = new FEK();
-fek.Initialize();
-
-
-
-
-
-
-
-///////////////////////////////
-// LoadCSS: Loads a CSS file //
-///////////////////////////////
-function LoadCSS(url){
-  var head     = document.getElementsByTagName("head")[0];
-  var cssFile  = document.createElement("link");
-  cssFile.type = "text/css";
-  cssFile.rel  = "stylesheet";
-  cssFile.href = encodeURI(url);
-  head.appendChild(cssFile);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
-//////////////////////////////////////////////////////////////////////////////
-function EmptyVoteReplacement(){
-  if(emptyVoteReplacement == "banners"){
-    $(".inline-profile").each(function(){
-      var src           = "https://i.imgur.com/NcHbI1d.png";
-      var votingElement = $(this).parent().parent().parent().find(".no-voting");
-      $(votingElement).html(`
-      <div class="riot-apollo voting">
-        <ul class="riot-voting">
-          <li class="total-votes">
-            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}">
-          </li>
-        </ul>
-      </div>
-      `);
-    });
-  }else if(emptyVoteReplacement == "bannersavatars"){
-    users   = [];
-    regions = [];
-
-    $(".inline-profile").each(function(){
-      var username = this.getElementsByClassName("username")[0].textContent;
-      var region   = this.getElementsByClassName("realm")[0].textContent;
-          region   = region.substring(1, region.length - 1);
-
-      users.push(username);
-      regions.push(region);
-    });
-
-    var formData = new FormData();
-    formData.append("users",   users);
-    formData.append("regions", regions);
-
-    SendToServer(`${domain}/GetOnlyAvatars`, formData, function(data){
-      $(".inline-profile").each(function(){
-        var username = this.getElementsByClassName("username")[0].textContent;
-        var region   = this.getElementsByClassName("realm")[0].textContent;
-            region   = region.substring(1, region.length - 1);
-        var votingElement = $(this).parent().parent().parent().find(".no-voting");
-        var avatar = data["records"][username][region].avatar;
-        var src;
-
-        if(avatar !== undefined) src = avatar;
-        else                     src = "https://i.imgur.com/NcHbI1d.png";
-
-        $(votingElement).html(`
-        <div class="riot-apollo voting">
-          <ul class="riot-voting">
-            <li class="total-votes">
-            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}"></li>
-          </ul>
-        </div>
-        `);
-      });
-    });
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////
-// HideSubboards: Hides the sub-boards that the user doesn't want to see //
-///////////////////////////////////////////////////////////////////////////
-function HideSubboards(){
-  $(".discussion-list-item").each(function(){
-
-    // Always show pinned threads
-    if(!$(this.getElementsByClassName("pin")[0]).length){
-      var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
-
-      // Only hide the thread if it's from a board that is recognized
-      if(typeof subboard !== "undefined"){
-        var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
-        if(hide[subboard] == "on")
-          $(this).remove();
-      }
-    }
-  });
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// FavoriteIcons: Changes the champion/spell/item icons in the posting area //
-//////////////////////////////////////////////////////////////////////////////
-function FavoriteIcons(){
-  $(".button.gamedata.champion").each(function(){
-    var url = FEKgfxLargeChamp + favoriteChampion;
-    this.style.setProperty("background-image", `url("${url}.png")`, "important");
-    this.style.setProperty("background-position", "-3px -3px", "important");
-    this.style.setProperty("background-size", "120% auto", "important");
-
-    if(favoriteIcons == "mouseover")
-      SetGrayscaleProperties(this);
-  });
-
-  $(".button.gamedata.summoner").each(function(){
-    var url = FEKgfxLargeSpell + favoriteSpell;
-    this.style.setProperty("background-image", `url("${url}.png")`, "important");
-    this.style.setProperty("background-position", "-3px -3px", "important");
-    this.style.setProperty("background-size", "120% auto", "important");
-
-    if(favoriteIcons == "mouseover")
-      SetGrayscaleProperties(this);
-  });
-
-  $(".button.gamedata.item").each(function()
-  {
-    var url = FEKgfxLargeItem + favoriteItem;
-    this.style.setProperty("background-image", `url("${url}.png")`, "important");
-    this.style.setProperty("background-position", "-3px -3px", "important");
-    this.style.setProperty("background-size", "120% auto", "important");
-
-    if(favoriteIcons == "mouseover")
-      SetGrayscaleProperties(this);
-  });
-}
-
-///////////////////////////////////////////////////////
-// SetGrayscaleProperties: Sets grayscale properties //
-///////////////////////////////////////////////////////
-function SetGrayscaleProperties(obj){
-  obj.style.setProperty("filter", "grayscale(1)", "important");
-
-  $(obj).hover(function(){
-    obj.style.setProperty("filter", "grayscale(0)", "important");
-  }, function(){
-    obj.style.setProperty("filter", "grayscale(1)", "important");
-  });
-}
-
-//////////////////////////////////////
-// ========== LOAD PAGES ========== //
-//////////////////////////////////////
-
-////////////////////////////////////////////////////
-// LoadIndex: Loads everything for the Index page //
-////////////////////////////////////////////////////
-function LoadIndex(){
-  if(blacklisting)
-    IndexBlacklist();
-
-  RemoveThumbnailBackground();
-  ColorVotes();
-  HoverVotes();
-
-  if(enhancedThreadPreview == "on")
-    EnhancedThreadPreview();
-
-  if(highlightMyThreads != "off")
-    HighlightMyThreads();
-
-  QueryFEKServer();
-}
-
-/////////////////////////////////////////////////////////////////////
-// IndexBlacklist: Hides threads by blacklisted users on the index //
-/////////////////////////////////////////////////////////////////////
-function IndexBlacklist(){
-  $(".discussion-list-item.row").each(function(){
-    // Skip threads that have no username (such as Announcements)
-    if($(this).find(".username")[0]){
-      var usernameT = this.getElementsByClassName("username")[0].textContent;
-      var regionT   = this.getElementsByClassName("realm")[0].textContent;
-
-      // If it's a person you blacklisted, hide the thread
-      // if(GM_getValue(usernameT + " " + regionT, 0) == 1)
-      //   $(this).remove();
-    }
-  });
-}
-
-//////////////////////////////////////////////////////
-// LoadThread: Loads everything for the Thread page //
-//////////////////////////////////////////////////////
-function LoadThread(){
-  // Remove all "Posting as X" fields
-  $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
-
-  // Make sure that the users/regions arrays are empty, since they will have
-  // left-over data from when people switch pages in chronological view
-  users   = [];
-  regions = [];
-
-  // Get information on every person within the thread
-  $(".inline-profile").each(function(){
-    var username = this.getElementsByClassName("username")[0].textContent;
-    var region   = this.getElementsByClassName("realm")[0].textContent;
-        region   = region.substring(1, region.length - 1);
-
-    // FEK staff have special gradient names, so I need to extract them using this method
-    if(this.getElementsByClassName("pxg-set").length > 0)
-      username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-
-    users.push(username);
-    regions.push(region);
-  });
-
-  // Bring .toggle-minimized to the front so people can click on it
-  $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
-
-  WaitAndRun(".profile-hover", FormatAllPosts);
-
-  ColorVotes();
-  HoverVotes();
-  QueryFEKServer();
-
-  if(embedMedia == "on")
-    EmbedMedia();
-}
-
-////////////////////////////////////////////////////////////////
-// FormatSomePosts: Calls FormatSinglePost on only some posts //
-////////////////////////////////////////////////////////////////
-function FormatSomePosts(FEKData = false){
-  if(!FEKData){
-    $(".body-container").each(function(){
-      FormatSinglePost1(this, false);
-    });
-  }else{
-    $(".body-container").each(function(){
-      // Only execute the function if the post is not deleted
-      if(!$($(this).find(".deleted")[0]).is(":visible"))
-        FormatSinglePost2(this, false);
-    });
-  }
-}
-
 //////////////////////////////////////////////////////////////////////
 // FormatAllPosts: Calls FormatSinglePost on every post that exists //
 //////////////////////////////////////////////////////////////////////
-function FormatAllPosts(FEKData = false){
+FEK.prototype.FormatAllPosts = function(FEKData = false){
+  var self = this;
+
+  // This removes the thing that mimimizes posts in Discussion View
+  // This isn't desirable because it restricts freedom for Discussion View
   $(document).find(".toggle-minimized").remove();
 
   if(!FEKData){
     if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
       $(".op-container").each(function(){
-        FormatSinglePost1(this, true);
+        self.FormatSinglePost1(this, true);
       });
     }
 
     $(".body-container").each(function(){
-      FormatSinglePost1(this, false);
+      self.FormatSinglePost1(this, false);
     });
   }else{
     if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
       $(".op-container").each(function(){
-        FormatSinglePost2(this, true);
+        self.FormatSinglePost2(this, true);
       });
     }
 
     $(".body-container").each(function(){
       // Only execute the function if the post is not deleted
       if(!$($(this).find(".deleted")[0]).is(":visible"))
-        FormatSinglePost2(this, false);
+        self.FormatSinglePost2(this, false);
     });
   }
 
@@ -1673,7 +1447,8 @@ function FormatAllPosts(FEKData = false){
 ////////////////////////////////////////////////////////////////////////
 // FormatSinglePost1: Formats a single post before inserting FEK data //
 ////////////////////////////////////////////////////////////////////////
-function FormatSinglePost1(obj, op){
+FEK.prototype.FormatSinglePost1 = function(obj, op){
+  alert("FormatSinglePost1");
   if(op === false){
     // Show downvoted posts
     $(obj).parent().removeClass("isLowQuality");
@@ -2035,7 +1810,8 @@ function FormatSinglePost1(obj, op){
 /////////////////////////////////////////////////////////////////
 // FormatSinglePost2: Inserts FEK data into the formatted post //
 /////////////////////////////////////////////////////////////////
-function FormatSinglePost2(obj, op){
+FEK.prototype.FormatSinglePost2 = function(obj, op){
+  var self = this;
   var usernameT     = obj.getElementsByClassName("username")[0].textContent;
   var regionT       = obj.getElementsByClassName("realm")[0].textContent;
   regionT           = regionT.substring(1, regionT.length - 1);
@@ -2084,19 +1860,19 @@ function FormatSinglePost2(obj, op){
 
   // Assign avatars
   if(typeof isRioter !== "undefined")
-    AssignAvatar(obj, true, avatar, tinyIcon);
+    self.AssignAvatar(obj, true, avatar, tinyIcon);
   else
-    AssignAvatar(obj, false, avatar, tinyIcon);
+    self.AssignAvatar(obj, false, avatar, tinyIcon);
 
   // Alter text colors for names and titles
-  if(op === false){
-    if(isRioter)
-      profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
-    else if(staff == "1")
-      profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
-    else
-      profHover.style.setProperty("color", "#94724D", "important"); // Regular users
-  }
+  // if(op === false){
+  //   if(isRioter)
+  //     profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
+  //   else if(staff == "1")
+  //     profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
+  //   else
+  //     profHover.style.setProperty("color", "#94724D", "important"); // Regular users
+  // }
 
   // Username: All Posts
   if(1){
@@ -2115,7 +1891,412 @@ function FormatSinglePost2(obj, op){
     }
   }
 
-  GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
+  // GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
+}
+
+/////////////////////////////////////
+// AssignAvatar: Assigns an avatar //
+/////////////////////////////////////
+FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
+  if(isRioter){
+     if(typeof avatar !== "undefined"){
+       if(avatar.slice(-5) == ".webm"){
+         FormatWebmAvatar(obj, avatar);
+       }else{
+         obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
+       }
+     }
+  }else{
+    if(typeof avatar !== "undefined"){
+      if(avatar.slice(-5) == ".webm")
+        FormatWebmAvatar(obj, avatar);
+      else
+        obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
+    }else if(fallbackAvatar != "off")
+      obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+// GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
+////////////////////////////////////////////////////////////////////////
+FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge){
+  $.getJSON("https://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
+    if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
+      var data;
+      var badges = [];
+
+      if(api.profile){
+        data = api.profile.data;
+
+        if(typeof title == "undefined")
+          title = data.title;
+      }
+
+      if(typeof data !== "undefined"){
+        if(data.b_raf)     {badges.push("https://cdn.leagueoflegends.com/apollo/badges/raf.png");}
+        if(data.b_s01gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s1gold.png");}
+        if(data.b_s01plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s1platinum.png");}
+
+        if(data.b_s02plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s2platinum.png");}
+        if(data.b_s02diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s2diamond.png");}
+
+        if(data.b_s03gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3gold.png");}
+        if(data.b_s03plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3platinum.png");}
+        if(data.b_s03diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3diamond.png");}
+        if(data.b_s03chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3challenger.png");}
+
+        if(data.b_s04gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4gold.png");}
+        if(data.b_s04plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4platinum.png");}
+        if(data.b_s04diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4diamond.png");}
+        if(data.b_s04mast) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4master.png");}
+        if(data.b_s04chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4challenger.png");}
+
+        if(data.b_s05gold) {badges.push("https://i.imgur.com/KqTvYEa.png");}
+        if(data.b_s05plat) {badges.push("https://i.imgur.com/l9lMtwa.png");}
+        if(data.b_s05diam) {badges.push("https://i.imgur.com/A073pTS.png");}
+        if(data.b_s05mast) {badges.push("https://i.imgur.com/ur0LOXd.png");}
+        if(data.b_s05chal) {badges.push("https://i.imgur.com/ZmmVMrB.png");}
+
+        if(data.b_s06gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6gold.png");}
+        if(data.b_s06plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6platinum.png");}
+        if(data.b_s06diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6diamond.png");}
+        if(data.b_s06mast) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6master.png");}
+        if(data.b_s06chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6challenger.png");}
+      }
+
+      if(staff == "1")
+        badges.push(FEKgfx + "fekbadge.png");
+
+      var collection = badge.split(",");
+        for(var i = 0; i < collection.length; i++)
+          if(collection[i])
+            badges.push(collection[i]);
+
+      var badgeContainer;
+      var badgeSize = "36px"; // Badges are 36x36 and 4 badges per line
+
+      if(badges.length > 0){
+        badgeContainer = document.createElement("div");
+        badgeContainer.className = "badge-container";
+        badgeContainer.style.setProperty("position",   "relative", "important");
+        badgeContainer.style.setProperty("top",        "-8px",     "important");
+        badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
+        badgeContainer.style.setProperty("height",     "36px",     "important");
+        badgeContainer.style.setProperty("text-align", "center",   "important");
+        profHover.appendChild(badgeContainer);
+      }
+
+      while(badges.length > 0){
+        var badgeName = badges.shift();
+        var divBadge = document.createElement("img");
+        divBadge.className = "badge";
+        divBadge.setAttribute("src", badgeName);
+
+        divBadge.style.setProperty("width",  badgeSize, "important");
+        divBadge.style.setProperty("height", badgeSize, "important");
+
+        badgeContainer.appendChild(divBadge);
+      }
+
+      // Apply a title if you have one
+      if(title){
+        var divTitle = document.createElement("div");
+
+        divTitle.className = "title";
+        divTitle.textContent = title;
+        divTitle.style.setProperty("position",       "relative",     "important");
+        divTitle.style.setProperty("top",            "-8px",         "important");
+        divTitle.style.setProperty("width",          avatarSize + 60 + "px", "important");
+        divTitle.style.setProperty("max-width",      avatarSize + 60 + "px", "important");
+        divTitle.style.setProperty("max-height",     "52px",         "important");
+        divTitle.style.setProperty("text-align",     "center",       "important");
+        divTitle.style.setProperty("overflow",       "hidden",       "important");
+        divTitle.style.setProperty("letter-spacing", "0px",          "important");
+        divTitle.style.setProperty("display",        "inline-block", "important");
+        divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
+        divTitle.style.setProperty("font-variant",   "normal",       "important");
+        divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
+
+        profHover.appendChild(divTitle);
+
+        if(title.length < 24)
+          divTitle.style.setProperty("font-size", "14px", "important");
+        else if(title.length < 28)
+          divTitle.style.setProperty("font-size", "12px", "important");
+        else
+          divTitle.style.setProperty("font-size", "10px", "important");
+
+        if(staff == "1"){
+          divTitle.style.setProperty("font-size", "26px", "important");
+
+          $(divTitle).GradientText({
+            step: 10,
+            colors: ["#68BAFF", "#008AFF", "#68BAFF"],
+            dir: "x"
+          });
+
+          if(title.length >= 16)
+            divTitle.style.setProperty("font-size", "13px", "important");
+          else
+            divTitle.style.setProperty("font-size", "14px", "important");
+        }
+      }
+    }
+  });
+}
+
+///////////////////////////////////////
+// ========== ENTRY POINT ========== //
+///////////////////////////////////////
+var fek = new FEK();
+fek.Initialize();
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////
+// LoadCSS: Loads a CSS file //
+///////////////////////////////
+function LoadCSS(url){
+  var head     = document.getElementsByTagName("head")[0];
+  var cssFile  = document.createElement("link");
+  cssFile.type = "text/css";
+  cssFile.rel  = "stylesheet";
+  cssFile.href = encodeURI(url);
+  head.appendChild(cssFile);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
+//////////////////////////////////////////////////////////////////////////////
+function EmptyVoteReplacement(){
+  if(emptyVoteReplacement == "banners"){
+    $(".inline-profile").each(function(){
+      var src           = "https://i.imgur.com/NcHbI1d.png";
+      var votingElement = $(this).parent().parent().parent().find(".no-voting");
+      $(votingElement).html(`
+      <div class="riot-apollo voting">
+        <ul class="riot-voting">
+          <li class="total-votes">
+            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}">
+          </li>
+        </ul>
+      </div>
+      `);
+    });
+  }else if(emptyVoteReplacement == "bannersavatars"){
+    users   = [];
+    regions = [];
+
+    $(".inline-profile").each(function(){
+      var username = this.getElementsByClassName("username")[0].textContent;
+      var region   = this.getElementsByClassName("realm")[0].textContent;
+          region   = region.substring(1, region.length - 1);
+
+      users.push(username);
+      regions.push(region);
+    });
+
+    var formData = new FormData();
+    formData.append("users",   users);
+    formData.append("regions", regions);
+
+    SendToServer(`${domain}/GetOnlyAvatars`, formData, function(data){
+      $(".inline-profile").each(function(){
+        var username = this.getElementsByClassName("username")[0].textContent;
+        var region   = this.getElementsByClassName("realm")[0].textContent;
+            region   = region.substring(1, region.length - 1);
+        var votingElement = $(this).parent().parent().parent().find(".no-voting");
+        var avatar = data["records"][username][region].avatar;
+        var src;
+
+        if(avatar !== undefined) src = avatar;
+        else                     src = "https://i.imgur.com/NcHbI1d.png";
+
+        $(votingElement).html(`
+        <div class="riot-apollo voting">
+          <ul class="riot-voting">
+            <li class="total-votes">
+            <img style="width: auto; max-width: 30px; max-height: 30px;" src="${src}"></li>
+          </ul>
+        </div>
+        `);
+      });
+    });
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////
+// HideSubboards: Hides the sub-boards that the user doesn't want to see //
+///////////////////////////////////////////////////////////////////////////
+function HideSubboards(){
+  $(".discussion-list-item").each(function(){
+
+    // Always show pinned threads
+    if(!$(this.getElementsByClassName("pin")[0]).length){
+      var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
+
+      // Only hide the thread if it's from a board that is recognized
+      if(typeof subboard !== "undefined"){
+        var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
+        if(hide[subboard] == "on")
+          $(this).remove();
+      }
+    }
+  });
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// FavoriteIcons: Changes the champion/spell/item icons in the posting area //
+//////////////////////////////////////////////////////////////////////////////
+function FavoriteIcons(){
+  $(".button.gamedata.champion").each(function(){
+    var url = FEKgfxLargeChamp + favoriteChampion;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
+    this.style.setProperty("background-position", "-3px -3px", "important");
+    this.style.setProperty("background-size", "120% auto", "important");
+
+    if(favoriteIcons == "mouseover")
+      SetGrayscaleProperties(this);
+  });
+
+  $(".button.gamedata.summoner").each(function(){
+    var url = FEKgfxLargeSpell + favoriteSpell;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
+    this.style.setProperty("background-position", "-3px -3px", "important");
+    this.style.setProperty("background-size", "120% auto", "important");
+
+    if(favoriteIcons == "mouseover")
+      SetGrayscaleProperties(this);
+  });
+
+  $(".button.gamedata.item").each(function()
+  {
+    var url = FEKgfxLargeItem + favoriteItem;
+    this.style.setProperty("background-image", `url("${url}.png")`, "important");
+    this.style.setProperty("background-position", "-3px -3px", "important");
+    this.style.setProperty("background-size", "120% auto", "important");
+
+    if(favoriteIcons == "mouseover")
+      SetGrayscaleProperties(this);
+  });
+}
+
+///////////////////////////////////////////////////////
+// SetGrayscaleProperties: Sets grayscale properties //
+///////////////////////////////////////////////////////
+function SetGrayscaleProperties(obj){
+  obj.style.setProperty("filter", "grayscale(1)", "important");
+
+  $(obj).hover(function(){
+    obj.style.setProperty("filter", "grayscale(0)", "important");
+  }, function(){
+    obj.style.setProperty("filter", "grayscale(1)", "important");
+  });
+}
+
+//////////////////////////////////////
+// ========== LOAD PAGES ========== //
+//////////////////////////////////////
+
+////////////////////////////////////////////////////
+// LoadIndex: Loads everything for the Index page //
+////////////////////////////////////////////////////
+function LoadIndex(){
+  if(blacklisting)
+    IndexBlacklist();
+
+  RemoveThumbnailBackground();
+  ColorVotes();
+  HoverVotes();
+
+  if(enhancedThreadPreview == "on")
+    EnhancedThreadPreview();
+
+  if(highlightMyThreads != "off")
+    HighlightMyThreads();
+
+  QueryFEKServer();
+}
+
+/////////////////////////////////////////////////////////////////////
+// IndexBlacklist: Hides threads by blacklisted users on the index //
+/////////////////////////////////////////////////////////////////////
+function IndexBlacklist(){
+  $(".discussion-list-item.row").each(function(){
+    // Skip threads that have no username (such as Announcements)
+    if($(this).find(".username")[0]){
+      var usernameT = this.getElementsByClassName("username")[0].textContent;
+      var regionT   = this.getElementsByClassName("realm")[0].textContent;
+
+      // If it's a person you blacklisted, hide the thread
+      // if(GM_getValue(usernameT + " " + regionT, 0) == 1)
+      //   $(this).remove();
+    }
+  });
+}
+
+//////////////////////////////////////////////////////
+// LoadThread: Loads everything for the Thread page //
+//////////////////////////////////////////////////////
+function LoadThread(){
+  // Remove all "Posting as X" fields
+  $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
+
+  // Make sure that the users/regions arrays are empty, since they will have
+  // left-over data from when people switch pages in chronological view
+  users   = [];
+  regions = [];
+
+  // Get information on every person within the thread
+  $(".inline-profile").each(function(){
+    var username = this.getElementsByClassName("username")[0].textContent;
+    var region   = this.getElementsByClassName("realm")[0].textContent;
+        region   = region.substring(1, region.length - 1);
+
+    // FEK staff have special gradient names, so I need to extract them using this method
+    if(this.getElementsByClassName("pxg-set").length > 0)
+      username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+
+    users.push(username);
+    regions.push(region);
+  });
+
+  // Bring .toggle-minimized to the front so people can click on it
+  $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
+
+  WaitAndRun(".profile-hover", FormatAllPosts);
+
+  ColorVotes();
+  HoverVotes();
+  QueryFEKServer();
+
+  if(embedMedia == "on")
+    EmbedMedia();
+}
+
+////////////////////////////////////////////////////////////////
+// FormatSomePosts: Calls FormatSinglePost on only some posts //
+////////////////////////////////////////////////////////////////
+function FormatSomePosts(FEKData = false){
+  if(!FEKData){
+    $(".body-container").each(function(){
+      FormatSinglePost1(this, false);
+    });
+  }else{
+    $(".body-container").each(function(){
+      // Only execute the function if the post is not deleted
+      if(!$($(this).find(".deleted")[0]).is(":visible"))
+        FormatSinglePost2(this, false);
+    });
+  }
 }
 
 //////////////////////////////////
@@ -2256,28 +2437,6 @@ function FormatAvatar(obj, isRioter, tinyIcon, icon){
   }
 }
 
-/////////////////////////////////////
-// AssignAvatar: Assigns an avatar //
-/////////////////////////////////////
-function AssignAvatar(obj, isRioter, avatar, tinyIcon){
-  if(isRioter){
-     if(typeof avatar !== "undefined"){
-       if(avatar.slice(-5) == ".webm"){
-         FormatWebmAvatar(obj, avatar);
-       }else{
-         obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
-       }
-     }
-  }else{
-    if(typeof avatar !== "undefined"){
-      if(avatar.slice(-5) == ".webm")
-        FormatWebmAvatar(obj, avatar);
-      else
-        obj.getElementsByTagName("img")[0].setAttribute("src", avatar);
-    }else if(fallbackAvatar != "off")
-      obj.getElementsByTagName("img")[0].setAttribute("src", fallbackAvatar);
-  }
-}
 
 ////////////////////////////////////////////////////
 // FormatWebmAvatar: Gives the user a webm avatar //
@@ -2552,135 +2711,6 @@ function WaitAndRunManual(time, callback){
       callback();
     }
   }, 1);
-}
-
-////////////////////////////////////////////////////////////////////////
-// GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
-////////////////////////////////////////////////////////////////////////
-function GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge){
-  $.getJSON("https://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
-    if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
-      var data;
-      var badges = [];
-
-      if(api.profile){
-        data = api.profile.data;
-
-        if(typeof title == "undefined")
-          title = data.title;
-      }
-
-      if(typeof data !== "undefined"){
-        if(data.b_raf)     {badges.push("https://cdn.leagueoflegends.com/apollo/badges/raf.png");}
-        if(data.b_s01gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s1gold.png");}
-        if(data.b_s01plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s1platinum.png");}
-
-        if(data.b_s02plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s2platinum.png");}
-        if(data.b_s02diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s2diamond.png");}
-
-        if(data.b_s03gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3gold.png");}
-        if(data.b_s03plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3platinum.png");}
-        if(data.b_s03diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3diamond.png");}
-        if(data.b_s03chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s3challenger.png");}
-
-        if(data.b_s04gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4gold.png");}
-        if(data.b_s04plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4platinum.png");}
-        if(data.b_s04diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4diamond.png");}
-        if(data.b_s04mast) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4master.png");}
-        if(data.b_s04chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s4challenger.png");}
-
-        if(data.b_s05gold) {badges.push("https://i.imgur.com/KqTvYEa.png");}
-        if(data.b_s05plat) {badges.push("https://i.imgur.com/l9lMtwa.png");}
-        if(data.b_s05diam) {badges.push("https://i.imgur.com/A073pTS.png");}
-        if(data.b_s05mast) {badges.push("https://i.imgur.com/ur0LOXd.png");}
-        if(data.b_s05chal) {badges.push("https://i.imgur.com/ZmmVMrB.png");}
-
-        if(data.b_s06gold) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6gold.png");}
-        if(data.b_s06plat) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6platinum.png");}
-        if(data.b_s06diam) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6diamond.png");}
-        if(data.b_s06mast) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6master.png");}
-        if(data.b_s06chal) {badges.push("https://cdn.leagueoflegends.com/apollo/badges/s6challenger.png");}
-      }
-
-      if(staff == "1")
-        badges.push(FEKgfx + "fekbadge.png");
-
-      var collection = badge.split(",");
-        for(var i = 0; i < collection.length; i++)
-          if(collection[i])
-            badges.push(collection[i]);
-
-      var badgeContainer;
-      var badgeSize = "36px"; // Badges are 36x36 and 4 badges per line
-
-      if(badges.length > 0){
-        badgeContainer = document.createElement("div");
-        badgeContainer.className = "badge-container";
-        badgeContainer.style.setProperty("position",   "relative", "important");
-        badgeContainer.style.setProperty("top",        "-8px",     "important");
-        badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
-        badgeContainer.style.setProperty("height",     "36px",     "important");
-        badgeContainer.style.setProperty("text-align", "center",   "important");
-        profHover.appendChild(badgeContainer);
-      }
-
-      while(badges.length > 0){
-        var badgeName = badges.shift();
-        var divBadge = document.createElement("img");
-        divBadge.className = "badge";
-        divBadge.setAttribute("src", badgeName);
-
-        divBadge.style.setProperty("width",  badgeSize, "important");
-        divBadge.style.setProperty("height", badgeSize, "important");
-
-        badgeContainer.appendChild(divBadge);
-      }
-
-      // Apply a title if you have one
-      if(title){
-        var divTitle = document.createElement("div");
-
-        divTitle.className = "title";
-        divTitle.textContent = title;
-        divTitle.style.setProperty("position",       "relative",     "important");
-        divTitle.style.setProperty("top",            "-8px",         "important");
-        divTitle.style.setProperty("width",          avatarSize + 60 + "px", "important");
-        divTitle.style.setProperty("max-width",      avatarSize + 60 + "px", "important");
-        divTitle.style.setProperty("max-height",     "52px",         "important");
-        divTitle.style.setProperty("text-align",     "center",       "important");
-        divTitle.style.setProperty("overflow",       "hidden",       "important");
-        divTitle.style.setProperty("letter-spacing", "0px",          "important");
-        divTitle.style.setProperty("display",        "inline-block", "important");
-        divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
-        divTitle.style.setProperty("font-variant",   "normal",       "important");
-        divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
-
-        profHover.appendChild(divTitle);
-
-        if(title.length < 24)
-          divTitle.style.setProperty("font-size", "14px", "important");
-        else if(title.length < 28)
-          divTitle.style.setProperty("font-size", "12px", "important");
-        else
-          divTitle.style.setProperty("font-size", "10px", "important");
-
-        if(staff == "1"){
-          divTitle.style.setProperty("font-size", "26px", "important");
-
-          $(divTitle).GradientText({
-            step: 10,
-            colors: ["#68BAFF", "#008AFF", "#68BAFF"],
-            dir: "x"
-          });
-
-          if(title.length >= 16)
-            divTitle.style.setProperty("font-size", "13px", "important");
-          else
-            divTitle.style.setProperty("font-size", "14px", "important");
-        }
-      }
-    }
-  });
 }
 
 ////////////////////////////////////////

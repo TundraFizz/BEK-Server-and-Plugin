@@ -211,7 +211,7 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
 
 FEK.prototype.FindAvatar = function(boardsId){
   var localPath = "static/fek-avatars/" + boardsId;
-  var publicPath = "http://localhost:9001/fek-avatars/" + boardsId;
+  var publicPath = "https://tundrafizz.space/fek-avatars/" + boardsId;
   var extensions = [".jpg", ".jpeg", ".png", ".gif", ".webm", ".bmp"];
 
   for(var i = 0; i < extensions.length; i++){
