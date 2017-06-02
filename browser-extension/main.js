@@ -31,7 +31,7 @@ function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to co
 // Minimized function I made which helps sending form POST data easily
 function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(err, two){cab();});}
 
-var FEKversion       = "5.0.1";
+var FEKversion       = "5.0.10";
 var FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
 var FEKgfx           = `${domain}/fek/gfx/misc/`;
 var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
@@ -46,8 +46,11 @@ var regions          = [];
 var results          = [];
 var errorMessage     = "";
 
-LoadCSS(`${domain}/fek/css/fek.css`);    // CSS should only be loaded for development purposes
-LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
+// CSS should only be loaded for development purposes
+if(false){
+  LoadCSS(`${domain}/fek/css/fek.css`);
+  LoadCSS(`${domain}/fek/css/thread.css`);
+}
 
 //////////////////////////////////////////////////////
 // Modify the navigation bar at the top of the page //
@@ -143,8 +146,7 @@ FEK.prototype.Initialize = function(){
       if(page == "Index")
         self.WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
       else if(page == "Thread"){
-        self.WaitAndRun(".riot-voting", self.FormatAllPosts(true));
-        // self.WaitAndRun(".riot-voting", LoadThread);
+        self.WaitAndRun(".riot-voting", self.QueryServer());
       }
     });
 
@@ -1331,13 +1333,9 @@ FEK.prototype.QueryServer = function(){
     users.push(username);
     regions.push(region);
   });
+
   myName = "Tundra Fizz";
   myRegion = "NA";
-  // console.log("===== Stuff =====");
-  // console.log(myName);
-  // console.log(myRegion);
-  // console.log(users);
-  // console.log(regions);
 
   var formData = new FormData();
   formData.append("name",    myName);

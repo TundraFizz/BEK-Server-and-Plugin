@@ -1,0 +1,95 @@
+/******************/
+/* Original posts */
+/******************/
+
+.op-container > .masthead {
+  padding-bottom: 10px !important;
+}
+
+.op-container > .masthead > .discussion-title > .author-info {
+  position: relative !important;
+  top:      -8px     !important;
+}
+
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile {
+  position:   relative !important;
+  width:      200px    !important;
+  height:     0px      !important;
+  left:       -76px    !important;
+  text-align: center   !important;
+}
+
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .icon,
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .userGroupIcon {
+  position: relative !important;
+  top:      70px     !important;
+  left:     50px     !important;
+  width:    auto     !important;
+  height:   auto     !important;
+  margin:   0        !important;
+}
+
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .icon          > img,
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .userGroupIcon > img {
+  width:  100px          !important;
+  height: 100px          !important;
+  border: solid 1px gray !important;
+}
+
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .username {
+  position:       relative                                !important;
+  position:       absolute                                !important;
+  left:           0px                                     !important;
+  top:            45px                                    !important;
+  width:          100%                                    !important;
+  font-size:      16px                                    !important;
+  font-family:    "Constantia","Palatino","Georgia",serif !important;
+  font-variant:   small-caps                              !important;
+  letter-spacing: 1px                                     !important;
+  text-align:     center                                  !important;
+  z-index:        1                                       !important;
+  overflow:       hidden                                  !important;
+}
+
+.op-container > .masthead > .discussion-title > .author-info > .inline-profile > .realm {
+  display: none !important;
+}
+
+#content {
+  padding-top:  0px   !important;
+  padding-left: 200px !important;
+}
+
+/*****************/
+/* Regular posts */
+/*****************/
+
+.body-container > .body {
+  padding-left: 120px !important;
+  min-height:   100px !important;
+}
+
+:not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon,
+:not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .userGroupIcon {
+  position: absolute !important;
+  top:      54px     !important;
+}
+
+:not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon          > img,
+:not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .userGroupIcon > img {
+  width:  100px          !important;
+  height: 100px          !important;
+  border: solid 1px gray !important;
+}
+
+.inline-profile > .profile-hover > .username {
+  background-color: transparent !important;
+}
+
+/****************************/
+/* Remove the profile hover */
+/****************************/
+
+.riot-apollo.profile-hover {
+  display: none !important;
+}
