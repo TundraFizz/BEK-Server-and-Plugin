@@ -29,9 +29,21 @@ var domain = "https://tundrafizz.space";
 function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);}
 
 // Minimized function I made which helps sending form POST data easily
-function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(err, two){cab();});}
+function SendToServer(u,f,c){
+  $.ajax({
+    url:u,
+    type:"POST",
+    data:f,
+    contentType:false,
+    processData:false
+  }).done(function(d){
+    c(d);
+  }).fail(function(err, two){
+    cab();
+  });
+}
 
-var FEKversion       = "5.0.10";
+var FEKversion       = "5.2.0";
 var FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
 var FEKgfx           = `${domain}/fek/gfx/misc/`;
 var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
@@ -47,7 +59,7 @@ var results          = [];
 var errorMessage     = "";
 
 // CSS should only be loaded for development purposes
-if(false){
+if(true){
   LoadCSS(`${domain}/fek/css/fek.css`);
   LoadCSS(`${domain}/fek/css/thread.css`);
 }
@@ -105,8 +117,8 @@ var myName;
 var myRegion;
 
 if($(".riotbar-summoner-info").length){
-  myName   = $(".riotbar-summoner-name").first().text()
-  myRegion = $(".riotbar-summoner-region").first().text()
+  myName   = $(".riotbar-summoner-name").first().text();
+  myRegion = $(".riotbar-summoner-region").first().text();
 
   if     (myRegion == "North America")    myRegion = "NA";
   else if(myRegion == "Oceania")          myRegion = "OCE";
@@ -1334,9 +1346,6 @@ FEK.prototype.QueryServer = function(){
     regions.push(region);
   });
 
-  myName = "Tundra Fizz";
-  myRegion = "NA";
-
   var formData = new FormData();
   formData.append("name",    myName);
   formData.append("region",  myRegion);
@@ -2523,7 +2532,6 @@ function FormatAvatar(obj, isRioter, tinyIcon, icon){
     }
   }
 }
-
 
 ////////////////////////////////////////////////////
 // FormatWebmAvatar: Gives the user a webm avatar //

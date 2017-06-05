@@ -1,3 +1,13 @@
+/* DIAMOND ONLY, NO BACKTALK */
+.apollo-header {
+  background-image: url(https://tundrafizz.space/fek/gfx/no-backtalk.png);
+  background-repeat: no-repeat;
+  background-position-y: 30px;
+  margin-bottom: 0px;
+  padding-bottom: 40px;
+  background-position-x: 64px;
+}
+
 /******************/
 /* Original posts */
 /******************/
@@ -64,6 +74,16 @@
 /* Regular posts */
 /*****************/
 
+.flat-comments > div {
+  padding-top:    4px  !important;
+  padding-bottom: 10px !important;
+}
+
+.flat-comments > div > .small > .voting > .riot-voting {
+  position: absolute !important;
+  top:      46px     !important;
+}
+
 .body-container > .body {
   padding-left: 120px !important;
   min-height:   100px !important;
@@ -72,7 +92,7 @@
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon,
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .userGroupIcon {
   position: absolute !important;
-  top:      54px     !important;
+  top:      46px     !important;
 }
 
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon          > img,
@@ -83,8 +103,28 @@
 }
 
 .inline-profile > .profile-hover > .username {
+  position:         absolute    !important; /* Try with relative, it might be better! */
   background-color: transparent !important;
+  letter-spacing:   0px         !important;
+  font-variant:     normal      !important;
+  text-align:       center      !important;
+  width:            140px       !important;
+  padding:          0px         !important;
+  left:             40px        !important;
 }
+
+:not(.isDeleted) > .body-container > .header > .inline-profile > .realm {
+  position: absolute !important;
+  left:     180px    !important;
+}
+
+:not(.isDeleted) > .body-container > .header > .timeago {
+  left:     180px    !important;
+  position: relative !important;
+}
+
+/*position: absolute;
+top: 45px;*/
 
 /****************************/
 /* Remove the profile hover */

@@ -6,7 +6,7 @@
   },
 
   "manifest_version": 2,
-  "version": "5.0.10",
+  "version": "5.2.0",
   "name": "Forum Enhancer Kit",
   "short_name": "FEK",
   "description": "A plain text description",
@@ -14,18 +14,22 @@
 
   "icons": {
     "16": "icon16.png",
+    "32": "icon32.png",
     "48": "icon48.png",
+    "64": "icon64.png",
+    "96": "icon96.png",
     "128": "icon128.png"
   },
 
   "browser_action": {
     "default_popup": "popup.html",
-    "default_title": "Default Title"
+    "default_title": "Default Title",
+    "default_icon": {"128": "icon128.png"}
   },
 
   "content_scripts": [{
     "matches": ["https://*.leagueoflegends.com/*"],
-    "css": ["fek-panel.css", "thread.css"],
+    "csss": ["fek-panel.css", "thread.css"],
     "js": ["jquery.js", "perfect-scrollbar.js", "main.js"]
   }],
 
@@ -33,6 +37,7 @@
     "activeTab",
     "storage",
     "webRequest",
-    "<all_urls>"
+    "*://*.leagueoflegends.com/*",
+    "*://tundrafizz.space/*"
   ]
 }
