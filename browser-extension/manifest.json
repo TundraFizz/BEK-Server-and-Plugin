@@ -23,14 +23,15 @@
 
   "browser_action": {
     "default_popup": "popup.html",
-    "default_title": "Default Title",
+    "default_title": "Forum Enhancement Kit",
     "default_icon": {"128": "icon128.png"}
   },
 
   "content_scripts": [{
     "matches": ["https://*.leagueoflegends.com/*"],
     "csss": ["fek-panel.css", "thread.css"],
-    "js": ["jquery.js", "perfect-scrollbar.js", "main.js"]
+    "js": ["jquery.js", "perfect-scrollbar.js", "main.js"],
+    "run_at": "document_end"
   }],
 
   "permissions": [

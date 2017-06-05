@@ -142,6 +142,9 @@ function FEK(){}
 FEK.prototype.Initialize = function(){
   var self = this;
   // TESTING: Query the server and that's it
+
+  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
   self.QueryServer();
 
   // ------------------------------------------
@@ -150,13 +153,15 @@ FEK.prototype.Initialize = function(){
   // ========== MUTATION OBSERVER ========== //
   /////////////////////////////////////////////
   if(page == "Index" || page == "Thread"){
-    var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
-                else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
-                else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
+    var target;
+    if     (page == "Index")                             target = document.querySelector("#discussion-list");
+    else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
+    else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
 
     var observer = new MutationObserver(function(mutations){
-      if(page == "Index")
-        self.WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
+      if(page == "Index"){
+        self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex());
+      }
       else if(page == "Thread"){
         self.WaitAndRun(".riot-voting", self.QueryServer());
       }
@@ -216,6 +221,8 @@ FEK.prototype.DefaultVariables = function(){
 // Main: ????? //
 /////////////////
 FEK.prototype.Main = function(){
+  alert("Main shouldn't be called yet");
+  return;
   var self = this;
 
   self.CreateGUI();
@@ -1324,11 +1331,15 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
   callback($(`#contentview[tablink="${stabgroup}-${stab}"]`));
 }
 
-//////////////////////////////////////////////////////////////////////////
-// QueryFEKServer: Makes a connection to the FEK server for information //
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// QueryServer: Makes a connection to the FEK server for information //
+///////////////////////////////////////////////////////////////////////
 FEK.prototype.QueryServer = function(){
   var self = this;
+
+  // Features that can be done right away without needing data from the FEK server
+  // self.WaitAndRun(".total-votes", self.ColorVotes());
+  // self.WaitAndRun(".total-votes", self.HoverVotes());
 
   users   = [];
   regions = [];
@@ -1496,8 +1507,8 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
         $(".body-container").each(function(){
           FormatSinglePost1(this, false);
           FormatSinglePost2(this, false);
-          ColorVotes();
-          HoverVotes();
+          // ColorVotes();
+          // HoverVotes();
           $(".toggle-minimized").each(function(){$(this).css("z-index", "1");});
         });
       });
@@ -2112,7 +2123,9 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
 // WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 FEK.prototype.WaitAndRun = function(selector, callback){
-  var timeOut = 2000, currentTime = 0;
+  var self        = this;
+  var timeOut     = 200
+  var currentTime = 0;
 
   var interval = setInterval(function(){
     currentTime = currentTime + 1;
@@ -2121,9 +2134,9 @@ FEK.prototype.WaitAndRun = function(selector, callback){
       clearInterval(interval);
     else if($(selector).length > 0){
       clearInterval(interval);
-      callback();
+      callback(self);
     }
-  }, 1);
+  }, 10);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2140,6 +2153,104 @@ FEK.prototype.WaitAndRunManual = function(time, callback){
       callback();
     }
   }, 1);
+}
+
+/////////////////////////////////////////////////////////////
+// ColorVotes: Colors upvotes green and downvotes negative //
+/////////////////////////////////////////////////////////////
+FEK.prototype.ColorVotes = function(self){
+  var totalVotes = $(document).find(".total-votes");
+
+  $(totalVotes).each(function(){
+    if($(this).html()[0] == "-")
+      this.style.setProperty( "color", "#FF5C5C", "important"); // Make red for downvotes
+    else if($(this).html()[0] == "•")
+      {} // Do nothing
+    else if($(this).html() != "0" && $(this).html() != "1")
+      this.style.setProperty( "color", "#05E100", "important"); // Make green for upvotes
+  });
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
+//////////////////////////////////////////////////////////////////////////////////////////////
+FEK.prototype.HoverVotes = function(self){
+  var votingDisplay = "on"; // SAMPLE TEST SETTING, REMOVE LATER!
+  if(votingDisplay != "off"){
+    $(".riot-voting").each(function(){
+      if(votingDisplay == "hide")
+        this.style.setProperty("visibility", "hidden", "important");
+      else if(this.hasAttribute("hover-event") === false){
+        this.setAttribute("hover-event", "true");
+        $(this).hover(function(){
+          self.ShowIndividualVotes(this);
+        }, function(){
+          $("#up-down-display").remove();
+          $(".total-votes").show();
+        });
+      }
+    });
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// ShowIndividualVotes: Shows how many upvotes and downvotes a specific thread/post has //
+//////////////////////////////////////////////////////////////////////////////////////////
+FEK.prototype.ShowIndividualVotes = function(obj){
+  var votingDisplay = "individual"; // TESTING TEMP DEFAULT VARIABLE, REMOVE LATER!
+  var self          = this;
+  var voteFinder    = obj.parentElement;
+  var uVotes        = voteFinder.getAttribute("data-apollo-up-votes");
+  var dVotes        = voteFinder.getAttribute("data-apollo-down-votes");
+  var voteScore     = obj.getElementsByClassName("total-votes")[0];
+
+  var upDownDisplay = document.createElement("li");
+  $(upDownDisplay).attr("id", "up-down-display");
+
+  if($(obj).closest(".op-container").length){
+    $(upDownDisplay).css("padding", "4px 0px 4px"); // CSS for op's vote
+    $(upDownDisplay).css("font-size", "12px");
+  }else
+    $(upDownDisplay).css("padding", "4px 0px 2px"); // CSS for non-op's vote
+
+  obj.insertBefore(upDownDisplay, obj.children[1]);
+
+  if(votingDisplay == "individual")
+    upDownDisplay.innerHTML = `
+    <font color="#05E100">${uVotes}</font>
+    <font color="white">|</font>
+    <font color="#FF5C5C">${dVotes}</font>
+    `;
+  else if(votingDisplay == "total")
+    upDownDisplay.innerHTML = `
+    <font color="#FFA500">${(+uVotes + (+dVotes))}</font>
+    `;
+
+  $(voteScore).hide();
+}
+
+////////////////////////////////////////////////////
+// LoadIndex: Loads everything for the Index page //
+////////////////////////////////////////////////////
+FEK.prototype.LoadIndex = function(){
+  var self = this;
+  alert("LOAD INDEX");
+  return;
+
+  // if(blacklisting)
+  //   IndexBlacklist();
+
+  // RemoveThumbnailBackground();
+  // self.ColorVotes();
+  // self.HoverVotes();
+
+  // if(enhancedThreadPreview == "on")
+  //   EnhancedThreadPreview();
+
+  // if(highlightMyThreads != "off")
+  //   HighlightMyThreads();
+
+  // self.QueryServer();
 }
 
 ///////////////////////////////////////
@@ -2302,26 +2413,6 @@ function SetGrayscaleProperties(obj){
 // ========== LOAD PAGES ========== //
 //////////////////////////////////////
 
-////////////////////////////////////////////////////
-// LoadIndex: Loads everything for the Index page //
-////////////////////////////////////////////////////
-function LoadIndex(){
-  if(blacklisting)
-    IndexBlacklist();
-
-  RemoveThumbnailBackground();
-  ColorVotes();
-  HoverVotes();
-
-  if(enhancedThreadPreview == "on")
-    EnhancedThreadPreview();
-
-  if(highlightMyThreads != "off")
-    HighlightMyThreads();
-
-  QueryFEKServer();
-}
-
 /////////////////////////////////////////////////////////////////////
 // IndexBlacklist: Hides threads by blacklisted users on the index //
 /////////////////////////////////////////////////////////////////////
@@ -2343,6 +2434,7 @@ function IndexBlacklist(){
 // LoadThread: Loads everything for the Thread page //
 //////////////////////////////////////////////////////
 function LoadThread(){
+  alert("NOOOOOOOOOOOOOOOOOOOOOOO");
   // Remove all "Posting as X" fields
   $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
 
@@ -2832,79 +2924,6 @@ function EmbedYouTube(){
     // Remove the old object since it's useless
     $(youtubeObj[0]).remove();
   }
-}
-
-/////////////////////////////////////////////////////////////
-// ColorVotes: Colors upvotes green and downvotes negative //
-/////////////////////////////////////////////////////////////
-function ColorVotes(){
-  var totalVotes = $(document).find(".total-votes");
-
-  $(totalVotes).each(function(){
-    if($(this).html()[0] == "-")
-      this.style.setProperty( "color", "#FF5C5C", "important"); // Make red for downvotes
-    else if($(this).html()[0] == "•")
-      {} // Do nothing
-    else if($(this).html() != "0" && $(this).html() != "1")
-      this.style.setProperty( "color", "#05E100", "important"); // Make green for upvotes
-  });
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-// HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
-//////////////////////////////////////////////////////////////////////////////////////////////
-function HoverVotes(){
-  if(votingDisplay != "off"){
-    var voteBox = ".riot-voting";
-
-    $(voteBox).each(function(){
-      if(votingDisplay == "hide")
-        this.style.setProperty("visibility", "hidden", "important");
-      else if(this.hasAttribute("hover-event") === false){
-        this.setAttribute("hover-event", "true");
-        $(this).hover(function(){
-          ShowIndividualVotes(this, page);
-        }, function(){
-          $("#up-down-display").remove();
-          $(".total-votes").show();
-        });
-      }
-    });
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// ShowIndividualVotes: Shows how many upvotes and downvotes a specific thread/post has //
-//////////////////////////////////////////////////////////////////////////////////////////
-function ShowIndividualVotes(obj, page){
-  var voteFinder    = obj.parentElement;
-  var uVotes        = voteFinder.getAttribute("data-apollo-up-votes");
-  var dVotes        = voteFinder.getAttribute("data-apollo-down-votes");
-  var voteScore     = obj.getElementsByClassName("total-votes")[0];
-
-  var upDownDisplay = document.createElement("li");
-  $(upDownDisplay).attr("id", "up-down-display");
-
-  if($(obj).closest(".op-container").length){
-    $(upDownDisplay).css("padding", "4px 0px 4px"); // CSS for op's vote
-    $(upDownDisplay).css("font-size", "12px");
-  }else
-    $(upDownDisplay).css("padding", "4px 0px 2px"); // CSS for non-op's vote
-
-  obj.insertBefore(upDownDisplay, obj.children[1]);
-
-  if(votingDisplay == "individual")
-    upDownDisplay.innerHTML = `
-    <font color="#05E100">${uVotes}</font>
-    <font color="white">|</font>
-    <font color="#FF5C5C">${dVotes}</font>
-    `;
-  else if(votingDisplay == "total")
-    upDownDisplay.innerHTML = `
-    <font color="#FFA500">${(+uVotes + (+dVotes))}</font>
-    `;
-
-  $(voteScore).hide();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
