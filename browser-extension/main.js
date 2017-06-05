@@ -1,3 +1,18 @@
+var domain = "https://tundrafizz.space";  // The domain of course
+var Get    = chrome.storage.local.get;    // Alias for getting data
+var Set    = chrome.storage.local.set;    // Alias for setting data
+var Remove = chrome.storage.local.remove; // Alias for removing data
+var Clear  = chrome.storage.local.clear;  // Alias for clearing data
+
+// This is used in the SendToServer function
+function cab(){/* CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`); */}
+
+// Minimized function I made which helps sending form POST data easily
+function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(err, two){cab();});}
+
+// LoadCSS: Loads a CSS file (for testing on development versions only)
+function LoadCSS(url){var head = document.getElementsByTagName("head")[0];var cssFile = document.createElement("link");cssFile.type = "text/css";cssFile.rel  = "stylesheet";cssFile.href = encodeURI(url);head.appendChild(cssFile);}
+
 ///////////////////
 // Example stuff //
 ///////////////////
@@ -5,12 +20,7 @@
 // Set({ "key1": "This is a string" }, function(){ /* after */ });
 // Remove("key2", function(){});
 // Clear(function(){});
-
-var Get    = chrome.storage.local.get;    // Alias for getting data
-var Set    = chrome.storage.local.set;    // Alias for setting data
-var Remove = chrome.storage.local.remove; // Alias for removing data
-var Clear  = chrome.storage.local.clear;  // Alias for clearing data
-
+//
 //////////////////////////////////////////////////////
 // Example on how the SendToServer function is used //
 //////////////////////////////////////////////////////
@@ -19,185 +29,93 @@ var Clear  = chrome.storage.local.clear;  // Alias for clearing data
 // formData.append("key2", "data2");
 // SendToServer("post-url-here", formData, function(data){});
 
-// if(window.top != window.self ||                     // Prevent FEK from running more than once per page load
-//    typeof disableFEK !== "undefined" && disableFEK) // A custom webpage designed by a wrenchman/mod/etc can manually set disableFEK to true
-//   return;
-
-var domain = "https://tundrafizz.space";
-
-// This function is used in the minimized function below
-function cab(){CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`);}
-
-// Minimized function I made which helps sending form POST data easily
-function SendToServer(u,f,c){
-  $.ajax({
-    url:u,
-    type:"POST",
-    data:f,
-    contentType:false,
-    processData:false
-  }).done(function(d){
-    c(d);
-  }).fail(function(err, two){
-    cab();
-  });
-}
-
-var FEKversion       = "5.2.0";
-var FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
-var FEKgfx           = `${domain}/fek/gfx/misc/`;
-var cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
-var FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
-var FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
-var FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
-var FEKtweets        = [];
-var activeKeys       = [];
-var hotkeys          = [];
-var users            = [];
-var regions          = [];
-var results          = [];
-var errorMessage     = "";
-
-// CSS should only be loaded for development purposes
-if(true){
-  LoadCSS(`${domain}/fek/css/fek.css`);
-  LoadCSS(`${domain}/fek/css/thread.css`);
-}
-
-//////////////////////////////////////////////////////
-// Modify the navigation bar at the top of the page //
-//////////////////////////////////////////////////////
-
-var RiotBar = $("#riotbar-bar");
-if(RiotBar)
-  $(RiotBar).attr("z-index", "-5000 !important");
-
-//////////////////////////
-// Variables: Page Data //
-//////////////////////////
-var page; if     ($("#discussions").length) page = "Index";  // Board Index
-          else if($("#comments").length)    page = "Thread"; // Inside a thread
-          else                              page = "NULL";   // Not on the index or in a thread
-
-var title = $("#breadcrumbs h2")[0].textContent;
-if(title == "My Updates") page = "My Updates";
-
-var threadMode; if     (page == "Thread" && $(".flat-comments").length)      threadMode = "Chrono";  // Chronological Mode
-                else if(page == "Thread" && $(".flat-comments").length == 0) threadMode = "Discuss"; // Discussion Mode
-                else                                                         threadMode = "NULL";    // We're not in a thread
-
-// if(page == "Thread"){
-//   var head  = $("head")[0];
-//   var link  = document.createElement("link");
-//   link.id   = "fek-thread-css";
-//   link.rel  = "stylesheet";
-//   link.type = "text/css";
-//   link.href = `${domain}/fek/css/thread.css`;
-//   link.media = "all";
-//   head.appendChild(link);
-// }
-
-/////////////////////
-// Variables: Misc //
-/////////////////////
-var originalPoster = "";                    // The name of the original poster in a thread
-var currentDate    = new Date();            // Gets today's date
-var RPint = 0;
-// var RPint       = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
-var alertPopUp     = false;                 // Only one alert can display at a time
-                                            // 1: Can't connect to FEK server
-                                            // 2: FEK needs to be updated
-                                            // 3: API Error
-                                            // 4: Account Management
-                                            // 5: Roleplaying Alert
-//////////////////////////
-// Variables: User Data //
-//////////////////////////
-var myName;
-var myRegion;
-
-if($(".riotbar-summoner-info").length){
-  myName   = $(".riotbar-summoner-name").first().text();
-  myRegion = $(".riotbar-summoner-region").first().text();
-
-  if     (myRegion == "North America")    myRegion = "NA";
-  else if(myRegion == "Oceania")          myRegion = "OCE";
-  else if(myRegion == "EU West")          myRegion = "EUW";
-  else if(myRegion == "EU Nordic & East") myRegion = "EUNE";
-}
-
-/////////////////////////////////
-// Get Board's Platform Region //
-/////////////////////////////////
-var windowURL      = window.location.href;
-var start          = windowURL.indexOf(".") + 1;
-var end            = windowURL.indexOf(".", start);
-var platformRegion = windowURL.substring(start, end);
-
 function FEK(){}
 
-///////////////////////////////////////////
-// Initialize: Initializes FEK variables //
-///////////////////////////////////////////
+/////////////////////////////////////
+// Initialize: Entry point for FEK //
+/////////////////////////////////////
 FEK.prototype.Initialize = function(){
+  if(typeof disableFEK !== "undefined" && disableFEK) return; // For Wuks
   var self = this;
-  // TESTING: Query the server and that's it
 
-  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
-  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
-  self.QueryServer();
+  self.FEKversion       = "5.2.0";
+  self.FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
+  self.FEKgfx           = `${domain}/fek/gfx/misc/`;
+  self.cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
+  self.FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
+  self.FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
+  self.FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
+  self.FEKtweets        = [];
+  self.activeKeys       = [];
+  self.hotkeys          = [];
+  self.users            = [];
+  self.regions          = [];
+  self.results          = [];
 
-  // ------------------------------------------
-
-  /////////////////////////////////////////////
-  // ========== MUTATION OBSERVER ========== //
-  /////////////////////////////////////////////
-  if(page == "Index" || page == "Thread"){
-    var target;
-    if     (page == "Index")                             target = document.querySelector("#discussion-list");
-    else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
-    else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
-
-    var observer = new MutationObserver(function(mutations){
-      if(page == "Index"){
-        self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex());
-      }
-      else if(page == "Thread"){
-        self.WaitAndRun(".riot-voting", self.QueryServer());
-      }
-    });
-
-    var config = {attributes: true, childList: true, characterData: true};
-
-    observer.observe(target, config);
+  // CSS should only be loaded for development purposes
+  if(true){
+    LoadCSS(`${domain}/fek/css/fek-panel.css`);
+    LoadCSS(`${domain}/fek/css/thread.css`);
   }
-  return;
 
-  // Clear();
+  // Modify the navigation bar at the top of the page
+  self.riotBar = $("#riotbar-bar");
+  if(self.riotBar)
+    $(self.riotBar).attr("z-index", "-5000 !important");
+
+  self.title = $("#breadcrumbs h2")[0].textContent;
+
+  // Get and save page data
+  if     ($("#discussions").length) self.page = "Index";  // Board Index
+  else if($("#comments").length)    self.page = "Thread"; // Inside a thread
+  else                              self.page = "NULL";   // Not on the index or in a thread
+  if(self.title == "My Updates")    self.page = "My Updates";
+
+  if     (self.page == "Thread" && $(".flat-comments").length)      self.threadMode = "Chrono";  // Chronological Mode
+  else if(self.page == "Thread" && $(".flat-comments").length == 0) self.threadMode = "Discuss"; // Discussion Mode
+  else                                                              self.threadMode = "NULL";    // We're not in a thread
+
+  // Get and save miscellaneous data
+  self.RPint          = 0;
+  // var self.RPint   = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
+  self.alertPopUp     = false;            // Only one alert can display at a time
+                                          // 1: Can't connect to FEK server
+                                          // 2: FEK needs to be updated
+                                          // 3: API Error
+                                          // 4: Account Management
+                                          // 5: Roleplaying Alert
+  //////////////////////////
+  // Variables: User Data //
+  //////////////////////////
+  if($(".riotbar-summoner-info").length){
+    self.myName   = $(".riotbar-summoner-name").first().text();
+    self.myRegion = $(".riotbar-summoner-region").first().text();
+
+    if     (self.myRegion == "North America")    self.myRegion = "NA";
+    else if(self.myRegion == "Oceania")          self.myRegion = "OCE";
+    else if(self.myRegion == "EU West")          self.myRegion = "EUW";
+    else if(self.myRegion == "EU Nordic & East") self.myRegion = "EUNE";
+  }
+
+  /////////////////////////////////
+  // Get Board's Platform Region //
+  /////////////////////////////////
+  var windowURL       = window.location.href;
+  var start           = windowURL.indexOf(".") + 1;
+  var end             = windowURL.indexOf(".", start);
+  self.platformRegion = windowURL.substring(start, end);
+
   Get(null, function(data){
     console.log(data);
     if($.isEmptyObject(data)){
       self.DefaultVariables();
     }else{
       self.data = data;
-      if(self.data["version"] != FEKversion)
+      if(self.data["version"] != self.FEKversion)
         self.HandleUpdate();
       else
         self.Main();
     }
-  });
-}
-
-/////////////////////////////////////////////
-// HandleUpdate: Initializes FEK variables //
-/////////////////////////////////////////////
-FEK.prototype.HandleUpdate = function(){
-  var self = this;
-  console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");
-  self.data["version"] = FEKversion;
-
-  Set(self.data, function(){
-    self.Main();
   });
 }
 
@@ -208,9 +126,22 @@ FEK.prototype.DefaultVariables = function(){
   var self = this;
 
   self.data = {
-    "version":   FEKversion,
+    "version":   self.FEKversion,
     "blacklist": {}
   };
+
+  Set(self.data, function(){
+    self.Main();
+  });
+}
+
+/////////////////////////////////////////////
+// HandleUpdate: Initializes FEK variables //
+/////////////////////////////////////////////
+FEK.prototype.HandleUpdate = function(){
+  var self = this;
+  console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");
+  self.data["version"] = self.FEKversion;
 
   Set(self.data, function(){
     self.Main();
@@ -221,8 +152,6 @@ FEK.prototype.DefaultVariables = function(){
 // Main: ????? //
 /////////////////
 FEK.prototype.Main = function(){
-  alert("Main shouldn't be called yet");
-  return;
   var self = this;
 
   self.CreateGUI();
@@ -230,8 +159,36 @@ FEK.prototype.Main = function(){
   Set(self.data); // Save any new default data that may have happened from CreateFeatures
   self.SettleGUI();
   self.KeyWatch();
+  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
+  self.QueryServer();
 
+  /////////////////////////////////////////////
+  // ========== MUTATION OBSERVER ========== //
+  /////////////////////////////////////////////
+  if(self.page == "Index" || self.page == "Thread"){
+    var target;
+    if     (self.page == "Index")                                  target = document.querySelector("#discussion-list");
+    else if(self.page == "Thread" && self.threadMode == "Chrono")  target = document.querySelector("#comments");
+    else if(self.page == "Thread" && self.threadMode == "Discuss") target = document.querySelector("#comments");
+
+    var observer = new MutationObserver(function(mutations){
+      if(self.page == "Index"){
+        self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex());
+      }
+      else if(self.page == "Thread"){
+        self.WaitAndRun(".riot-voting", self.QueryServer());
+      }
+    });
+
+    var config = {attributes: true, childList: true, characterData: true};
+
+    observer.observe(target, config);
+  }
+
+  // ---------------------------------------------------------------------------
   return;
+  // ---------------------------------------------------------------------------
 
   if(document.title == "Boards"){
     HideSubboards();
@@ -240,7 +197,7 @@ FEK.prototype.Main = function(){
   AddFEKNavBar();
   // AddBoardsNavBar();
 
-  if((page == "Thread" || page == "Index") && platformRegion == "na"){
+  if((self.page == "Thread" || self.page == "Index") && self.platformRegion == "na"){
     var markdownNav = document.getElementById("markdown-nav");
     var timeOut     = 2000, currentTime = 0;
 
@@ -258,7 +215,7 @@ FEK.prototype.Main = function(){
     }, 1);
   }
 
-  if(page == "Index"){
+  if(self.page == "Index"){
     if(emptyVoteReplacement != "off")
       EmptyVoteReplacement(); // For boards without voting
 
@@ -267,32 +224,32 @@ FEK.prototype.Main = function(){
     else{
       WaitAndRun(".total-votes", LoadIndex);
     }
-  }else if(page == "Thread"){
+  }else if(self.page == "Thread"){
     WaitAndRun(".profile-hover", LoadThread);
   }
 
-  if(page == "Thread" && favoriteIcons != "off")
+  if(self.page == "Thread" && favoriteIcons != "off")
     WaitAndRun(".button.gamedata.champion", FavoriteIcons);
 
   document.getElementById("fek-panel").style.setProperty("visibility", "visible", "important");
 
   // Put this back in later
-  // if(RPint < 15 && title == "Roleplaying" && alertPopUp === false) RoleplayingAlert();
+  // if(self.RPint < 15 && title == "Roleplaying" && self.alertPopUp === false) RoleplayingAlert();
 
   // ------------------------------------------
 
   /////////////////////////////////////////////
   // ========== MUTATION OBSERVER ========== //
   /////////////////////////////////////////////
-  if(page == "Index" || page == "Thread"){
-    var target; if     (page == "Index")                             target = document.querySelector("#discussion-list");
-                else if(page == "Thread" && threadMode == "Chrono")  target = document.querySelector("#comments");
-                else if(page == "Thread" && threadMode == "Discuss") target = document.querySelector("#comments");
+  if(self.page == "Index" || self.page == "Thread"){
+    var target; if     (self.page == "Index")                                 target = document.querySelector("#discussion-list");
+                else if(self.page == "Thread" && self.threadMode == "Chrono")  target = document.querySelector("#comments");
+                else if(self.page == "Thread" && self.threadMode == "Discuss") target = document.querySelector("#comments");
 
     var observer = new MutationObserver(function(mutations){
-      if(page == "Index")
+      if(self.page == "Index")
         WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
-      else if(page == "Thread")
+      else if(self.page == "Thread")
         WaitAndRun(".riot-voting", LoadThread);
     });
 
@@ -306,13 +263,12 @@ FEK.prototype.Main = function(){
 // CreateGUI: Creates the GUI for the FEK panel //
 //////////////////////////////////////////////////
 FEK.prototype.CreateGUI = function(){
-  var self = this;
-  var tooltipshtml = `<div id="fektooltip">tooltip test</div>`;
-
-  var panelhtml = `
+  var self        = this;
+  var tooltipHTML = `<div id="fektooltip">tooltip test</div>`;
+  var panelHTML   = `
   <div id="fek-panel">
     <div class="col-left">
-      <div class="version">v${FEKversion}</div>
+      <div class="version">v${self.FEKversion}</div>
       <div class="logo"></div>
       <div class="tabs"></div>
     </div>
@@ -323,11 +279,11 @@ FEK.prototype.CreateGUI = function(){
   </div>
   `;
 
-  var docbody = $("html").first().find("body:not(.wysiwyg)").first();
-  docbody.append(panelhtml);
-  docbody.append(tooltipshtml);
+  var documentBody = $("body:first-of-type").first();
+  documentBody.append(panelHTML);
+  documentBody.append(tooltipHTML);
 
-  // Hide FEK Panel so the user doesn't see a whole bunch of random text for the second while the webpage loads
+  // Hide FEK Panel so the user doesn't see a whole bunch of random text for the second while the page loads
   $("#fek-panel").hide();
 }
 
@@ -394,15 +350,15 @@ FEK.prototype.CreateFeatures = function(){
   };
 
   self.CreateFeature(featureMetaData, function(option){
-    if     (option == "1") fallbackAvatar = FEKgfx + "no-avatar-trident-dark.gif";
-    else if(option == "2") fallbackAvatar = FEKgfx + "no-avatar-trident-light.gif";
-    else if(option == "3") fallbackAvatar = FEKgfx + "no-avatar-trident-parchment.gif";
-    else if(option == "4") fallbackAvatar = FEKgfx + "no-avatar-poro-dark.gif";
-    else if(option == "5") fallbackAvatar = FEKgfx + "no-avatar-poro-light.gif";
-    else if(option == "6") fallbackAvatar = FEKgfx + "no-avatar-poro-parchment.gif";
-    else if(option == "7") fallbackAvatar = FEKgfx + "no-avatar-dark.gif";
-    else if(option == "8") fallbackAvatar = FEKgfx + "no-avatar-light.gif";
-    else if(option == "9") fallbackAvatar = FEKgfx + "no-avatar-parchment.gif";
+    if     (option == "1") fallbackAvatar = self.FEKgfx + "no-avatar-trident-dark.gif";
+    else if(option == "2") fallbackAvatar = self.FEKgfx + "no-avatar-trident-light.gif";
+    else if(option == "3") fallbackAvatar = self.FEKgfx + "no-avatar-trident-parchment.gif";
+    else if(option == "4") fallbackAvatar = self.FEKgfx + "no-avatar-poro-dark.gif";
+    else if(option == "5") fallbackAvatar = self.FEKgfx + "no-avatar-poro-light.gif";
+    else if(option == "6") fallbackAvatar = self.FEKgfx + "no-avatar-poro-parchment.gif";
+    else if(option == "7") fallbackAvatar = self.FEKgfx + "no-avatar-dark.gif";
+    else if(option == "8") fallbackAvatar = self.FEKgfx + "no-avatar-light.gif";
+    else if(option == "9") fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
   });
 
   ////////////
@@ -443,9 +399,17 @@ FEK.prototype.CreateFeatures = function(){
   self.CreateFeature(featureMetaData, function(option){});
 
   // Register the hotkey ~ to toggle the FEK panel on and off
-  hotkeys["192"] = function(state, event){
+  self.hotkeys["192"] = function(state, event){
     if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
-      PanelToggle();
+      self.PanelToggle();
+  };
+
+  // DEBUG: Clear all saved data when the "1" key is pressed
+  self.hotkeys["49"] = function(state, event){
+    if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus")){
+      Clear();
+      alert("Data cleared!");
+    }
   };
 
   return;
@@ -866,7 +830,7 @@ FEK.prototype.CreateFeatures = function(){
   /////////////////////////
   PanelCreateTab(tabgroup, "Fish Chips", function(contentview){
     $(`#tab[tab="core-mods-fish-chips"]`).click(function(){
-      LoadWebPanel("fishchips", contentview);
+      self.LoadWebPanel("fishchips", contentview);
     });
   });
 
@@ -875,19 +839,19 @@ FEK.prototype.CreateFeatures = function(){
 
   PanelCreateTab(tabgroup, "Friends", function(contentview){
     $(`#tab[tab="social-friends"]`).click(function(){
-      LoadWebPanel("friends", contentview);
+      self.LoadWebPanel("friends", contentview);
     });
   });
 
   PanelCreateTab(tabgroup, "Messages", function(contentview){
     $(`#tab[tab="social-messages"]`).click(function(){
-      LoadWebPanel("messages", contentview);
+      self.LoadWebPanel("messages", contentview);
     });
   });
 
   PanelCreateTab(tabgroup, "Send PM", function(contentview){
     $(`#tab[tab="social-send-pm"]`).click(function(){
-      LoadWebPanel("sendpm", contentview);
+      self.LoadWebPanel("sendpm", contentview);
     });
   });
 
@@ -906,18 +870,18 @@ FEK.prototype.CreateFeatures = function(){
 
     $(document).on("tweetsLoaded", function(){
       contentview.html("<h1>Announcements</h1>");
-      if(FEKtweets.length){
-        for(var i = 0; i < FEKtweets.length; i++){
+      if(self.FEKtweets.length){
+        for(var i = 0; i < self.FEKtweets.length; i++){
           contentview.append(`
           <div id="twitter_row">
             <div id="twitterlink">
-              <a href="https://twitter.com/${FEKtweets[i].user[0]}" target="_blank">
-                <img src="${FEKgfx}twittericon.png">
+              <a href="https://twitter.com/${self.FEKtweets[i].user[0]}" target="_blank">
+                <img src="${self.FEKgfx}twittericon.png">
               </a>
             </div>
-            <h2>${ParseTwitterDate(FEKtweets[i].created_at)}</h2>
-            <img id="twitter_img" src="${FEKtweets[i].user[2]}">
-            <span id="twitter_text">${ReplaceUrlWithHtmlLink(FEKtweets[i].text.replace("#FEK ", ""))}</span>
+            <h2>${ParseTwitterDate(self.FEKtweets[i].created_at)}</h2>
+            <img id="twitter_img" src="${self.FEKtweets[i].user[2]}">
+            <span id="twitter_text">${ReplaceUrlWithHtmlLink(self.FEKtweets[i].text.replace("#FEK ", ""))}</span>
             <span style="opacity:0; clear:both;">.</span>
             <div id="spike"></div>
           </div>
@@ -926,7 +890,7 @@ FEK.prototype.CreateFeatures = function(){
 
         //Compare last read announcement to current one
         if(false){
-        // if(GM_getValue("_lastReadTwitter", "") == FEKtweets[0].id){
+        // if(GM_getValue("_lastReadTwitter", "") == self.FEKtweets[0].id){
           // The latest announcement has been read
         }else{
           // The latest announcement has NOT been read yet
@@ -939,15 +903,15 @@ FEK.prototype.CreateFeatures = function(){
           $(`body #twitter_row.popup`).html(`
           <div id="twitterlink">
             <a href="https://twitter.com/Tundra_Fizz" target="_blank">
-              <img src="${FEKgfx}twittericon.png">
+              <img src="${self.FEKgfx}twittericon.png">
             </a>
           </div>
           <h2>
-            ${ParseTwitterDate(FEKtweets[0].created_at)}
+            ${ParseTwitterDate(self.FEKtweets[0].created_at)}
           </h2>
-          <img id="twitter_img" src="${FEKtweets[0].user[2]}">
+          <img id="twitter_img" src="${self.FEKtweets[0].user[2]}">
           <span id="twitter_text">
-            ${ReplaceUrlWithHtmlLink(FEKtweets[0].text.replace("#FEK ", ""))}
+            ${ReplaceUrlWithHtmlLink(self.FEKtweets[0].text.replace("#FEK ", ""))}
           </span>
           <div id="dismiss">
             Click here to dismiss the notification
@@ -964,8 +928,8 @@ FEK.prototype.CreateFeatures = function(){
 
       // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
       $("#dismiss").click(function(event){
-        if(FEKtweets[0])
-          GM_setValue("_lastReadTwitter", FEKtweets[0].id);
+        if(self.FEKtweets[0])
+          GM_setValue("_lastReadTwitter", self.FEKtweets[0].id);
         $("body #twitter_row.popup").fadeOut();
         $("body #fekalert").each(function(){
           $(this).fadeOut();
@@ -979,7 +943,7 @@ FEK.prototype.CreateFeatures = function(){
   ///////////////
   PanelCreateTab(tabgroup, "Changelog", function(contentview){
     $(`#tab[tab*="fek-changelog"]`).click(function(){
-      LoadWebPanel("changelog", contentview);
+      self.LoadWebPanel("changelog", contentview);
     });
   });
 
@@ -988,12 +952,12 @@ FEK.prototype.CreateFeatures = function(){
   ////////////
   PanelCreateTab(tabgroup, "Donate", function(contentview){
     $(`#tab[tab*="fek-donate"]`).click(function(){
-      LoadWebPanel("donate", contentview);
+      self.LoadWebPanel("donate", contentview);
     });
   });
 
   // // Register the hotkey ~ to toggle the FEK panel on and off
-  // hotkeys["192"] = function(state, event){
+  // self.hotkeys["192"] = function(state, event){
   //   if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
   //     PanelToggle();
   // };
@@ -1153,30 +1117,32 @@ FEK.prototype.SettleGUI = function(){
 // KeyWatch: Watches for keypresses //
 //////////////////////////////////////
 FEK.prototype.KeyWatch = function(){
+  var self = this;
+
   // Clear the active keys when the window is focused or when the text area is refocused
   $(window).focus(function(){
-    activeKeys = [];
+    self.activeKeys = [];
   });
 
   // Watch for key modifiers being held down
   $(document).keydown(function(event){
-    var i = activeKeys.indexOf(event.which);
+    var i = self.activeKeys.indexOf(event.which);
     if(i == -1)
-      activeKeys.push(event.which);
+      self.activeKeys.push(event.which);
 
-    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-      hotkeys[event.which]("keydown", event);
+    if(self.hotkeys[event.which] && typeof self.hotkeys[event.which] === "function")
+      self.hotkeys[event.which]("keydown", event);
   });
 
   // Watch for key modifiers being released
   $(document).keyup(function(event){
-    if(hotkeys[event.which] && typeof hotkeys[event.which] === "function")
-      hotkeys[event.which]("keyup", event);
+    if(self.hotkeys[event.which] && typeof self.hotkeys[event.which] === "function")
+      self.hotkeys[event.which]("keyup", event);
 
-    var i = activeKeys.indexOf(event.which);
+    var i = self.activeKeys.indexOf(event.which);
 
     if(i != -1)
-      activeKeys.splice(i, 1);
+      self.activeKeys.splice(i, 1);
   });
 
   // Setup the fek tooltip
@@ -1204,7 +1170,7 @@ FEK.prototype.KeyWatch = function(){
 
   // Allow clicking away from the panel to close the panel
   $("body").click(function(){
-    PanelHide();
+    self.PanelHide();
   });
 
   $("#fek-panel").click(function(event){
@@ -1218,13 +1184,13 @@ FEK.prototype.KeyWatch = function(){
     event.preventDefault();
     var tab = $(this).attr("href").replace("#fektab-","");
     $(`#tab[tab="${tab}"]`).trigger("click");
-    PanelShow();
+    self.PanelShow();
   });
 
   $(`a[href="#fek-panel"]`).click(function(event){
     event.stopPropagation();
     event.preventDefault();
-    PanelToggle();
+    self.PanelToggle();
   });
 
   $("#fek-panel .tab").click(function(){
@@ -1238,7 +1204,7 @@ FEK.prototype.KeyWatch = function(){
 
     $("#fek-panel .scroll-region").scrollTop(0);
     $(`#fek-panel [group-view="${thisTab}"]`).show();
-    InitScrollbar(".scroll-region");
+    self.InitScrollbar(".scroll-region");
     $(this).addClass("active");
   });
 
@@ -1260,7 +1226,7 @@ FEK.prototype.KeyWatch = function(){
         $("#fek-panel .setting").find("ul").hide();
         $(this).find("ul").show();
         $(this).find("ul").scrollTop(0);
-        InitScrollbar($(this).find("ul"));
+        self.InitScrollbar($(this).find("ul"));
       }
     }else{
       $("#refreshNotice").addClass("visible");
@@ -1341,8 +1307,8 @@ FEK.prototype.QueryServer = function(){
   // self.WaitAndRun(".total-votes", self.ColorVotes());
   // self.WaitAndRun(".total-votes", self.HoverVotes());
 
-  users   = [];
-  regions = [];
+  self.users   = [];
+  self.regions = [];
 
   $(".inline-profile").each(function(){
     var username = this.getElementsByClassName("username")[0].textContent;
@@ -1353,21 +1319,21 @@ FEK.prototype.QueryServer = function(){
     if(this.getElementsByClassName("pxg-set").length > 0)
       username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
-    users.push(username);
-    regions.push(region);
+    self.users.push(username);
+    self.regions.push(region);
   });
 
   var formData = new FormData();
-  formData.append("name",    myName);
-  formData.append("region",  myRegion);
-  formData.append("users",   users);
-  formData.append("regions", regions);
+  formData.append("name",    self.myName);
+  formData.append("region",  self.myRegion);
+  formData.append("users",   self.users);
+  formData.append("regions", self.regions);
 
   SendToServer(`${domain}/database`, formData, function(data){
-    results   = data.records;
-    FEKtweets = data.announcements;
-    FEKevent  = data.event;
-    var unixTime = Math.floor(Date.now() / 1000);
+    self.results        = data.records;
+    self.FEKtweets = data.announcements;
+    FEKevent       = data.event;
+    var unixTime   = Math.floor(Date.now() / 1000);
 
     // THIS FEATURE TEMPORARILY DISABLED!
     // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
@@ -1386,7 +1352,7 @@ FEK.prototype.QueryServer = function(){
       </div>
       `;
 
-      AddToNavBar(NavBarEvent, "touchpoint-event", html, RiotBar, 8);
+      AddToNavBar(NavBarEvent, "touchpoint-event", html, self.riotBar, 8);
 
       window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
 
@@ -1397,28 +1363,28 @@ FEK.prototype.QueryServer = function(){
 
     // SKIP CHECKING FOR VERSIONS (for now at least)
     if(0){
-      if(FEKversion != results.version && window.location.href != FEKpage){
+      if(self.FEKversion != self.results.version && window.location.href != self.FEKpage){
         var html = `
         There has been an update to FEK!<br><br>
-        <a href="${results.details}" style="color:#00C0FF;">Click here</a>
-        for the post detailing new changes and to download version ${results.version}
+        <a href="${self.results.details}" style="color:#00C0FF;">Click here</a>
+        for the post detailing new changes and to download version ${self.results.version}
         `;
 
         CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF", html);
       }else{
-        if(typeof results.apiStatusCode !== "undefined" && alertPopUp === false){
+        if(typeof self.results.apiStatusCode !== "undefined" && self.alertPopUp === false){
           CreateAlertBox("14px", "#990000", "#DD0000", "#FFFFFF",
-                         "Error " + results.apiStatusCode + ": " + results.apiMessage);
+                         "Error " + self.results.apiStatusCode + ": " + self.results.apiMessage);
         }
 
-        if(typeof results.alert !== "undefined" && alertPopUp === false){
-          CreateAlertBox(results.top, results.color1, results.color2, results.font,
-                         results.alert);
+        if(typeof self.results.alert !== "undefined" && self.alertPopUp === false){
+          CreateAlertBox(self.results.top, self.results.color1, self.results.color2, self.results.font,
+                         self.results.alert);
         }
       }
     } // SKIP CHECKING FOR VERSIONS (for now at least)
 
-    if(page == "Thread")
+    if(self.page == "Thread")
       self.FormatAllPosts(true);
 
     $.event.trigger({type: "tweetsLoaded"});
@@ -1635,7 +1601,7 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
         $("#prfle").click(function(event){
           event.preventDefault();
           event.stopPropagation();
-          var win = window.open("https://boards." + platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
+          var win = window.open("https://boards." + self.platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
           win.focus();
         });
 
@@ -1701,10 +1667,10 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
   }
 
   if(op === true){
-    originalPoster = usernameT;
-    opTitle        = obj.getElementsByClassName("title")[0];
-    authorInfo     = obj.getElementsByClassName("author-info")[0];
-    content        = document.getElementById("content");
+    self.originalPoster = usernameT;
+    opTitle             = obj.getElementsByClassName("title")[0];
+    authorInfo          = obj.getElementsByClassName("author-info")[0];
+    content             = document.getElementById("content");
   }
 
   if(op === true){
@@ -1821,7 +1787,7 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
 
   // Background of username for regular posts
   if(op === false){
-    if(usernameT == originalPoster)
+    if(usernameT == self.originalPoster)
     {
       if(OPStyle == "on")
       {
@@ -1888,7 +1854,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var regionT       = obj.getElementsByClassName("realm")[0].textContent;
   regionT           = regionT.substring(1, regionT.length - 1);
 
-  if(typeof results[usernameT] === "undefined")
+  if(typeof self.results[usernameT] === "undefined")
     return;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1923,10 +1889,10 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var footer;       // not op
 
   // Define user data variables
-  var avatar = results[usernameT][regionT].avatar;
-  var staff  = results[usernameT][regionT].staff;
-  var title  = results[usernameT][regionT].title;
-  var badge  = results[usernameT][regionT].badge;
+  var avatar = self.results[usernameT][regionT].avatar;
+  var staff  = self.results[usernameT][regionT].staff;
+  var title  = self.results[usernameT][regionT].title;
+  var badge  = self.results[usernameT][regionT].badge;
 
   var innerDiv;
 
@@ -1994,7 +1960,7 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
 FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge){
-  $.getJSON("https://boards." + platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
+  $.getJSON("https://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
       var data;
       var badges = [];
@@ -2039,7 +2005,7 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       }
 
       if(staff == "1")
-        badges.push(FEKgfx + "fekbadge.png");
+        badges.push(self.FEKgfx + "fekbadge.png");
 
       var collection = badge.split(",");
         for(var i = 0; i < collection.length; i++)
@@ -2253,6 +2219,138 @@ FEK.prototype.LoadIndex = function(){
   // self.QueryServer();
 }
 
+/////////////////////////////////////////////
+// ========== FEK CONTROL PANEL ========== //
+/////////////////////////////////////////////
+
+////////////////////////////////////////////
+// PanelShow: Shows the FEK control panel //
+////////////////////////////////////////////
+FEK.prototype.PanelShow = function(){
+  var self = this;
+
+  if($("#fek-panel").is(":visible")){
+    // If the panel is already visible when show is called, do nothing
+  }else{
+    // Hide all content views to speed up the .show animation
+    $(".scroll-region").hide();
+
+    // Show the panels off-screen so that we can perform pre-animation calculations
+    $("#fek-panel .col-left").css("left", "-200vw");
+    $("#fek-panel .col-right").css("left", "-200vw");
+
+    $("#fek-panel").show(); $("#fek-panel .col-right").show();
+
+    // Get current panel widths
+    var colLeftWidth  = $("#fek-panel .col-left").outerWidth();
+    var colRightWidth = $("#fek-panel .col-right").outerWidth();
+
+    // Set start points
+    $("#fek-panel .col-left").css("left", "-" + colLeftWidth + "px");
+    $("#fek-panel .col-right").css("left", "-" + colRightWidth + "px");
+
+    // Animate
+    $("#fek-panel .col-left" ).stop().animate({left: "0px"}, 200, function(){
+      $("#fek-panel .col-right").css("left","-" + (colRightWidth - colLeftWidth) + "px");
+      $( "#fek-panel .col-right" ).stop().animate({left: colLeftWidth + "px"}, 150, function(){
+        // Hide all content views to speed up the .show animation
+        $(".scroll-region").show();
+        self.InitScrollbar(".scroll-region");
+      });
+    });
+  }
+}
+
+////////////////////////////////////////////
+// PanelHide: Hides the FEK control panel //
+////////////////////////////////////////////
+FEK.prototype.PanelHide = function(){
+  var self = this;
+
+  // Get current panel widths
+  var colLeftWidth  = $("#fek-panel .col-left").outerWidth();
+  var colRightWidth = $("#fek-panel .col-right").outerWidth();
+
+  // Hide all content views to speed up the .show animation
+  $(".scroll-region").hide();
+
+  // Animate
+  $("#fek-panel .setting").find("ul").hide();
+  $("#fek-panel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
+    $("#fek-panel .col-right").hide();
+    $( "#fek-panel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
+      $("#fek-panel").hide();
+    });
+  });
+}
+
+////////////////////////////////////////////////
+// PanelToggle: Toggles the FEK control panel //
+////////////////////////////////////////////////
+FEK.prototype.PanelToggle = function(){
+  var self = this;
+
+  if($("#fek-panel").is(":visible"))
+    self.PanelHide();
+  else
+    self.PanelShow();
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// LoadWebPanel: Loads web panels such as Credits, Announcements, Events, etc. //
+/////////////////////////////////////////////////////////////////////////////////
+FEK.prototype.LoadWebPanel = function(page, container){
+  var self     = this;
+  var formData = new FormData();
+  formData.append("page", page);
+
+  SendToServer(`${domain}/webpanel`, formData, function(data){
+    container.html(data);
+    InitScrollbar(".scroll-region");
+  });
+}
+
+///////////////////////////////////////////////
+// InitScrollbar: Initializes the scroll bar //
+///////////////////////////////////////////////
+FEK.prototype.InitScrollbar = function(element){
+  var self     = this;
+  var supressx = false;
+  var supressy = false;
+  var elm;
+
+  // Turn the provided element into an object, whether it was a selector or dom object passed
+  elm = $(element);
+
+  // Check for overflow values
+  if(!elm.hasOverflowX()) {supressx = true;}
+  if(!elm.hasOverflowY()) {supressy = true;}
+
+  // Setup the css
+  elm.css("overflow", "hidden");
+
+  // Check if scrollbar exists already. if it does, update it's values
+  if(elm.hasClass("ps-container")){
+    // Update the scrollbar
+    elm.perfectScrollbar("destroy");
+    elm.perfectScrollbar({wheelSpeed: 30, useKeyboard: true, minScrollbarLength: 35, suppressScrollY: supressy, suppressScrollX: supressx});
+  }else{
+    // Create the scrollbar
+    elm.perfectScrollbar({wheelSpeed: 30, useKeyboard: true, minScrollbarLength: 35, suppressScrollY: supressy, suppressScrollX: supressx});
+
+    // Register our element's scrollbars to update on resize
+    $(window).resize(function(){
+      elm.perfectScrollbar("update");
+    });
+  }
+
+  // Destroy the scrollbar if it isn't needed and remove the class we reference
+  if(!elm.hasOverflow()){
+    elm.perfectScrollbar("destroy");
+    elm.removeClass("ps-container");
+  }
+}
+
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
 ///////////////////////////////////////
@@ -2267,18 +2365,6 @@ fek.Initialize();
 
 
 
-
-///////////////////////////////
-// LoadCSS: Loads a CSS file //
-///////////////////////////////
-function LoadCSS(url){
-  var head     = document.getElementsByTagName("head")[0];
-  var cssFile  = document.createElement("link");
-  cssFile.type = "text/css";
-  cssFile.rel  = "stylesheet";
-  cssFile.href = encodeURI(url);
-  head.appendChild(cssFile);
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // EmptyVoteReplacement: Fills things in the gutter on boards with no votes //
@@ -2299,21 +2385,21 @@ function EmptyVoteReplacement(){
       `);
     });
   }else if(emptyVoteReplacement == "bannersavatars"){
-    users   = [];
-    regions = [];
+    self.users   = [];
+    self.regions = [];
 
     $(".inline-profile").each(function(){
       var username = this.getElementsByClassName("username")[0].textContent;
       var region   = this.getElementsByClassName("realm")[0].textContent;
           region   = region.substring(1, region.length - 1);
 
-      users.push(username);
-      regions.push(region);
+      self.users.push(username);
+      self.regions.push(region);
     });
 
     var formData = new FormData();
-    formData.append("users",   users);
-    formData.append("regions", regions);
+    formData.append("users",   self.users);
+    formData.append("regions", self.regions);
 
     SendToServer(`${domain}/GetOnlyAvatars`, formData, function(data){
       $(".inline-profile").each(function(){
@@ -2365,7 +2451,7 @@ function HideSubboards(){
 //////////////////////////////////////////////////////////////////////////////
 function FavoriteIcons(){
   $(".button.gamedata.champion").each(function(){
-    var url = FEKgfxLargeChamp + favoriteChampion;
+    var url = self.FEKgfxLargeChamp + favoriteChampion;
     this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -2375,7 +2461,7 @@ function FavoriteIcons(){
   });
 
   $(".button.gamedata.summoner").each(function(){
-    var url = FEKgfxLargeSpell + favoriteSpell;
+    var url = self.FEKgfxLargeSpell + favoriteSpell;
     this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -2386,7 +2472,7 @@ function FavoriteIcons(){
 
   $(".button.gamedata.item").each(function()
   {
-    var url = FEKgfxLargeItem + favoriteItem;
+    var url = self.FEKgfxLargeItem + favoriteItem;
     this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -2440,8 +2526,8 @@ function LoadThread(){
 
   // Make sure that the users/regions arrays are empty, since they will have
   // left-over data from when people switch pages in chronological view
-  users   = [];
-  regions = [];
+  self.users   = [];
+  self.regions = [];
 
   // Get information on every person within the thread
   $(".inline-profile").each(function(){
@@ -2453,8 +2539,8 @@ function LoadThread(){
     if(this.getElementsByClassName("pxg-set").length > 0)
       username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
-    users.push(username);
-    regions.push(region);
+    self.users.push(username);
+    self.regions.push(region);
   });
 
   // Bring .toggle-minimized to the front so people can click on it
@@ -2640,130 +2726,6 @@ function FormatWebmAvatar(obj, avatar){
   }
 }
 
-/////////////////////////////////////////////
-// ========== FEK CONTROL PANEL ========== //
-/////////////////////////////////////////////
-
-////////////////////////////////////////////
-// PanelShow: Shows the FEK control panel //
-////////////////////////////////////////////
-function PanelShow(){
-  if($("#fek-panel").is(":visible")){
-    // If the panel is already visible when show is called, do nothing
-  }else{
-    // Hide all content views to speed up the .show animation
-    $(".scroll-region").hide();
-
-    // Show the panels off-screen so that we can perform pre-animation calculations
-    $("#fek-panel .col-left").css("left", "-200vw");
-    $("#fek-panel .col-right").css("left", "-200vw");
-
-    $("#fek-panel").show(); $("#fek-panel .col-right").show();
-
-    // Get current panel widths
-    var colLeftWidth  = $("#fek-panel .col-left").outerWidth();
-    var colRightWidth = $("#fek-panel .col-right").outerWidth();
-
-    // Set start points
-    $("#fek-panel .col-left").css("left", "-" + colLeftWidth + "px");
-    $("#fek-panel .col-right").css("left", "-" + colRightWidth + "px");
-
-    // Animate
-    $("#fek-panel .col-left" ).stop().animate({left: "0px"}, 200, function(){
-      $("#fek-panel .col-right").css("left","-" + (colRightWidth - colLeftWidth) + "px");
-      $( "#fek-panel .col-right" ).stop().animate({left: colLeftWidth + "px"}, 150, function(){
-        // Hide all content views to speed up the .show animation
-        $(".scroll-region").show();
-        InitScrollbar(".scroll-region");
-      });
-    });
-  }
-}
-
-////////////////////////////////////////////
-// PanelHide: Hides the FEK control panel //
-////////////////////////////////////////////
-function PanelHide(){
-  // Get current panel widths
-  var colLeftWidth = $("#fek-panel .col-left").outerWidth();
-  var colRightWidth = $("#fek-panel .col-right").outerWidth();
-
-  // Hide all content views to speed up the .show animation
-  $(".scroll-region").hide();
-
-  // Animate
-  $("#fek-panel .setting").find("ul").hide();
-  $("#fek-panel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
-    $("#fek-panel .col-right").hide();
-    $( "#fek-panel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
-      $("#fek-panel").hide();
-    });
-  });
-}
-
-////////////////////////////////////////////////
-// PanelToggle: Toggles the FEK control panel //
-////////////////////////////////////////////////
-function PanelToggle(){
-  if($("#fek-panel").is(":visible"))
-    PanelHide();
-  else
-    PanelShow();
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-// LoadWebPanel: Loads web panels such as Credits, Announcements, Events, etc. //
-/////////////////////////////////////////////////////////////////////////////////
-function LoadWebPanel(page, container){
-  var formData = new FormData();
-  formData.append("page", page);
-
-  SendToServer(`${domain}/webpanel`, formData, function(data){
-    container.html(data);
-    InitScrollbar(".scroll-region");
-  });
-}
-
-///////////////////////////////////////////////
-// InitScrollbar: Initializes the scroll bar //
-///////////////////////////////////////////////
-function InitScrollbar(element){
-  var elm;
-  var supressx = false;
-  var supressy = false;
-
-  // Turn the provided element into an object, whether it was a selector or dom object passed
-  elm = $(element);
-
-  // Check for overflow values
-  if(!elm.hasOverflowX()) {supressx = true;}
-  if(!elm.hasOverflowY()) {supressy = true;}
-
-  // Setup the css
-  elm.css("overflow", "hidden");
-
-  // Check if scrollbar exists already. if it does, update it's values
-  if(elm.hasClass("ps-container")){
-    // Update the scrollbar
-    elm.perfectScrollbar("destroy");
-    elm.perfectScrollbar({wheelSpeed: 30, useKeyboard: true, minScrollbarLength: 35, suppressScrollY: supressy, suppressScrollX: supressx});
-  }else{
-    // Create the scrollbar
-    elm.perfectScrollbar({wheelSpeed: 30, useKeyboard: true, minScrollbarLength: 35, suppressScrollY: supressy, suppressScrollX: supressx});
-
-    // Register our element's scrollbars to update on resize
-    $(window).resize(function(){
-      elm.perfectScrollbar("update");
-    });
-  }
-
-  // Destroy the scrollbar if it isn't needed and remove the class we reference
-  if(!elm.hasOverflow()){
-    elm.perfectScrollbar("destroy");
-    elm.removeClass("ps-container");
-  }
-}
-
 /////////////////////////////////////////
 // Extend jQuery for FEK control panel //
 /////////////////////////////////////////
@@ -2840,7 +2802,7 @@ function CreateAlertBox(top, background, border, color, innerHTML){
   alertBanner.style.setProperty("text-shadow",           "1px 1px rgba(0,0,0,.8)");
 
   alertBanner.innerHTML = innerHTML;
-  alertPopUp = true;
+  self.alertPopUp = true;
 }
 
 ///////////////////////////////////////////////
@@ -2955,13 +2917,13 @@ function RemoveThumbnailBackground(){
 // HighlightMyThreads: Highlights your threads as black on the index //
 ///////////////////////////////////////////////////////////////////////
 function HighlightMyThreads(){
-  if(page == "Index"){
+  if(self.page == "Index"){
     $(".discussion-list-item").each(function(){
       // We need to avoid any threads that don't have a name to them
       if(this.getElementsByClassName("username")[0]){
         var name = this.getElementsByClassName("username")[0].textContent;
 
-        if(name == myName)
+        if(name == self.myName)
           this.style.setProperty("background-color", highlightMyThreads, "important");
       }
     });
@@ -2972,7 +2934,7 @@ function HighlightMyThreads(){
 // EnhancedThreadPreview: Displays a fancier preview when you hover the mouse over a thread on the index //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 function EnhancedThreadPreview(){
-  if(page == "Index"){
+  if(self.page == "Index"){
     $(".title-span").each(function(){
       if($(this).attr("title")){
         $(this).attr("ttdata", $(this).attr("title"));
@@ -3003,7 +2965,7 @@ function MiniChampionIcons(x){
   var start = x.indexOf(":") + 1;
   var end   = x.indexOf("}", start);
   var icon  = "c" + x.substring(start, end);
-  return `<img src="${cIcons}${icon}.jpg">`;
+  return `<img src="${self.cIcons}${icon}.jpg">`;
 }
 
 //////////////////////////////////////////////////////////////
@@ -3135,17 +3097,17 @@ function AddFEKNavBar(){
 
   // Figure out why I decided to put a return here!
   return;
-  var NavBarFEK      = document.createElement("li"); AddToNavBar(NavBarFEK, "touchpoint-fek", `<a href="#">F.E.K.</a>`, RiotBar, 7);
-  var FEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(FEKNavBarGroup, "FEKNavBarGroup", RiotBar, 7, "120px", "60px", "27px", "100% 30px");
+  var NavBarFEK      = document.createElement("li"); AddToNavBar(NavBarFEK, "touchpoint-fek", `<a href="#">F.E.K.</a>`, self.riotBar, 7);
+  var FEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(FEKNavBarGroup, "FEKNavBarGroup", self.riotBar, 7, "120px", "60px", "27px", "100% 30px");
   var FEKPanel       = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKPanel,  "F.E.K. Panel",  "#"); FEKPanel.id = "FEKPanel";
-  var FEKThread      = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKThread, "F.E.K. Thread", FEKpage);
+  var FEKThread      = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKThread, "F.E.K. Thread", self.FEKpage);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // AddBoardsNavBarNA: Adds a Boards dropdown to the navigation bar for NA //
 ////////////////////////////////////////////////////////////////////////////
 function AddBoardsNavBarNA(){
-  var BoardsNavBarGroup        = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "250px", "480px", "27px", "100% 30px");
+  var BoardsNavBarGroup        = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.riotBar, 3, "250px", "480px", "27px", "100% 30px");
 
   var Gameplay                 = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Gameplay,                 "Gameplay",                     "https://boards.na.leagueoflegends.com/en/c/gameplay-balance");
   var StoryArtSound            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, StoryArtSound,            "Story, Art, & Sound",          "https://boards.na.leagueoflegends.com/en/c/story-art");
@@ -3169,7 +3131,7 @@ function AddBoardsNavBarNA(){
 // AddBoardsNavBarNA: Adds a Boards dropdown to the navigation bar for OCE //
 /////////////////////////////////////////////////////////////////////////////
 function AddBoardsNavBarOCE(){
-  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "300px", "27px", "100% 30px");
+  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.riotBar, 3, "225px", "300px", "27px", "100% 30px");
   var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "https://boards.oce.leagueoflegends.com/en/redtracker");
   var Miscellaneous         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Miscellaneous,         "Miscellaneous",             "https://boards.oce.leagueoflegends.com/en/c/miscellaneous");
   var PlayerCreations       = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, PlayerCreations,       "Player Creations",          "https://boards.oce.leagueoflegends.com/en/c/player-creations");
@@ -3186,7 +3148,7 @@ function AddBoardsNavBarOCE(){
 // AddBoardsNavBarEUW: Adds a Boards dropdown to the navigation bar for EUW //
 //////////////////////////////////////////////////////////////////////////////
 function AddBoardsNavBarEUW(){
-  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "480px", "27px", "100% 30px");
+  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.riotBar, 3, "225px", "480px", "27px", "100% 30px");
   var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "https://boards.eune.leagueoflegends.com/en/redtracker");
   var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "https://boards.euw.leagueoflegends.com/en/c/announcements-en");
   var CommunityCreations    = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, CommunityCreations,    "Community Creations",       "https://boards.euw.leagueoflegends.com/en/c/community-creations-en");
@@ -3209,7 +3171,7 @@ function AddBoardsNavBarEUW(){
 // AddBoardsNavBarEUNE: Adds a Boards dropdown to the navigation bar for EUNE //
 ////////////////////////////////////////////////////////////////////////////////
 function AddBoardsNavBarEUNE(){
-  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", RiotBar, 3, "225px", "480px", "27px", "100% 30px");
+  var BoardsNavBarGroup     = document.createElement("li"); CreateNavBarGroup(BoardsNavBarGroup, "BoardsNavBarGroup", self.riotBar, 3, "225px", "480px", "27px", "100% 30px");
   var RedTracker            = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, RedTracker,            "Red Tracker",               "https://boards.eune.leagueoflegends.com/en/redtracker");
   var Announcements         = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, Announcements,         "Announcements",             "https://boards.eune.leagueoflegends.com/en/c/announcements-en");
   var CommunityCreations    = document.createElement("a");  CreateNavBarButton(BoardsNavBarGroup, CommunityCreations,    "Community Creations",       "https://boards.eune.leagueoflegends.com/en/c/community-creations-en");
@@ -3232,10 +3194,10 @@ function AddBoardsNavBarEUNE(){
 // AddBoardsNavBar: Adds a Boards dropdown to the navigation bar //
 ///////////////////////////////////////////////////////////////////
 function AddBoardsNavBar(){
-  if     (platformRegion == "na")   AddBoardsNavBarNA();
-  else if(platformRegion == "oce")  AddBoardsNavBarOCE();
-  else if(platformRegion == "euw")  AddBoardsNavBarEUW();
-  else if(platformRegion == "eune") AddBoardsNavBarEUNE();
+  if     (self.platformRegion == "na")   AddBoardsNavBarNA();
+  else if(self.platformRegion == "oce")  AddBoardsNavBarOCE();
+  else if(self.platformRegion == "euw")  AddBoardsNavBarEUW();
+  else if(self.platformRegion == "eune") AddBoardsNavBarEUNE();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -3253,31 +3215,31 @@ function RoleplayingAlert(){
 
   var url = window.location.href;
   if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette"){
-    if(RPint === 0 || RPint == 2 || RPint == 4 || RPint == 6 || RPint == 8 || RPint == 10 || RPint == 12 || RPint == 14){
-      RPint = RPint + 1;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
+    if(self.RPint === 0 || self.RPint == 2 || self.RPint == 4 || self.RPint == 6 || self.RPint == 8 || self.RPint == 10 || self.RPint == 12 || self.RPint == 14){
+      self.RPint = self.RPint + 1;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
         alertBanner.remove();
     }
   }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers"){
-    if(RPint === 0 || RPint == 1 || RPint == 4 || RPint == 5 || RPint == 8 || RPint == 9 || RPint == 12 || RPint == 13){
-      RPint = RPint + 2;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
+    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 4 || self.RPint == 5 || self.RPint == 8 || self.RPint == 9 || self.RPint == 12 || self.RPint == 13){
+      self.RPint = self.RPint + 2;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
         alertBanner.remove();
     }
   }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at"){
-    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 8 || RPint == 9 || RPint == 10 || RPint == 11){
-      RPint = RPint + 4;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
+    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 8 || self.RPint == 9 || self.RPint == 10 || self.RPint == 11){
+      self.RPint = self.RPint + 4;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
         alertBanner.remove();
     }
   }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium"){
-    if(RPint === 0 || RPint == 1 || RPint == 2 || RPint == 3 || RPint == 4 || RPint == 5 || RPint == 6 || RPint == 7){
-      RPint = RPint + 8;
-      GM_setValue("_RP", RPint);
-      if(RPint == 15)
+    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 4 || self.RPint == 5 || self.RPint == 6 || self.RPint == 7){
+      self.RPint = self.RPint + 8;
+      GM_setValue("_RP", self.RPint);
+      if(self.RPint == 15)
         alertBanner.remove();
     }
   }
@@ -3304,7 +3266,7 @@ $(".box.show-more").click(function(event){
       if(oldLength != $("#discussion-list")[0].children.length){
         clearInterval(interval);
         HideSubboards();
-        if(page == "Index" && emptyVoteReplacement != "off") EmptyVoteReplacement();
+        if(self.page == "Index" && emptyVoteReplacement != "off") EmptyVoteReplacement();
       }
     }
   }, 1);
