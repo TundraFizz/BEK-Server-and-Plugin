@@ -1,9 +1,9 @@
 {
-  "applications": {
-    "gecko": {
-      "id": "{dfce9270-40a0-46bc-a0a8-e02cac587423}"
-    }
-  },
+  // "applications": {
+  //   "gecko": {
+  //     "id": "{dfce9270-40a0-46bc-a0a8-e02cac587423}"
+  //   }
+  // },
 
   "manifest_version": 2,
   "version": "5.2.0",
