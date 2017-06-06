@@ -1,16 +1,9 @@
 {
-  // "applications": {
-  //   "gecko": {
-  //     "id": "{dfce9270-40a0-46bc-a0a8-e02cac587423}"
-  //   }
-  // },
-
-  "manifest_version": 2,
-  "version": "5.2.0",
   "name": "Forum Enhancer Kit",
   "short_name": "FEK",
-  "description": "A plain text description",
   "author": "Tundra Fizz",
+  "description": "Enhances the League of Legends boards by providing additional features to it.",
+  "version": "5.2.0",
 
   "icons": {
     "16": "icon16.png",
@@ -40,5 +33,13 @@
     "webRequest",
     "*://*.leagueoflegends.com/*",
     "*://tundrafizz.space/*"
-  ]
+  ],
+
+  "manifest_version": 2,
+
+  "applications": {
+    "gecko": {
+      "id": "{dfce9270-40a0-46bc-a0a8-e02cac587423}"
+    }
+  }
 }
