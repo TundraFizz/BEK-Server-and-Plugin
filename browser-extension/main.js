@@ -78,12 +78,12 @@ FEK.prototype.Initialize = function(){
   // Get and save miscellaneous data
   self.RPint          = 0;
   // var self.RPint   = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
-  self.alertPopUp     = false;            // Only one alert can display at a time
-                                          // 1: Can't connect to FEK server
-                                          // 2: FEK needs to be updated
-                                          // 3: API Error
-                                          // 4: Account Management
-                                          // 5: Roleplaying Alert
+  self.alertPopUp     = false;                 // Only one alert can display at a time
+                                               // 1: Can't connect to FEK server
+                                               // 2: FEK needs to be updated
+                                               // 3: API Error
+                                               // 4: Account Management
+                                               // 5: Roleplaying Alert
   //////////////////////////
   // Variables: User Data //
   //////////////////////////
@@ -359,6 +359,30 @@ FEK.prototype.CreateFeatures = function(){
     else if(option == "7") fallbackAvatar = self.FEKgfx + "no-avatar-dark.gif";
     else if(option == "8") fallbackAvatar = self.FEKgfx + "no-avatar-light.gif";
     else if(option == "9") fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
+  });
+
+  ////////////////////////////////////////
+  // Feature: Diamond only, no backtalk //
+  ////////////////////////////////////////
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "User Identities",
+    "label":    "No Backtalk",
+    "tooltip":  "Diamond only, no backtalk",
+    "options":  [],
+    "defaultOption": "off"
+  };
+
+  self.CreateFeature(featureMetaData, function(option){
+    if(option == "on"){
+      $(".apollo-header").css("background-image",      "url(https://tundrafizz.space/fek/gfx/no-backtalk.png)");
+      $(".apollo-header").css("background-repeat",     "no-repeat");
+      $(".apollo-header").css("background-position-x", "64px");
+      $(".apollo-header").css("background-position-y", "30px");
+      $(".apollo-header").css("margin-bottom",         "0px");
+      $(".apollo-header").css("padding-bottom",        "40px");
+    }
   });
 
   // ////////////
@@ -1017,6 +1041,13 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   if(!validOption)
       currentKey = self.data[label] = defaultOption;
 
+  // Get the index of the current key and then get the value from that index
+  for(var i = 0; i < options.length; i++){
+    var option = options[i].split("|");
+    if(currentKey == option[0])
+    currentVal = option[1];
+  }
+
   // Create the tabGroup if we need to
   // Create the tab      if we need to
   // Create the category if we need to
@@ -1063,7 +1094,7 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   if(options.length){
     labelContent = `
     <p>${label}</p>
-    <p>${currentKey}</p>
+    <p>${currentVal}</p>
     `;
 
     var list = "";
@@ -1229,11 +1260,17 @@ FEK.prototype.KeyWatch = function(){
         self.InitScrollbar($(this).find("ul"));
       }
     }else{
+      var key = $(".data-container > .label > .content > p", this).text();
+      var val = $(this).attr("data");
       $("#refreshNotice").addClass("visible");
       if($(this).attr("data") == "off"){
         $(this).attr("data", "on");
+        self.data[key] = "on";
+        Set(self.data);
       }else{
         $(this).attr("data", "off");
+        self.data[key] = "off";
+        Set(self.data);
       }
     }
   });
@@ -1241,16 +1278,18 @@ FEK.prototype.KeyWatch = function(){
   $("#fek-panel .setting ul li").click(function(){
     var setting        = $(this).closest(".setting");
     var previousChoice = $(setting).attr("data");
-    var newKey         = $(this).attr("data");
-    var newVal         = $(this).text();
-    console.log(newKey);
-    console.log(newVal);
-    if(previousChoice !== newKey){
-      $(setting).attr("data", newKey);
-      $(".data-container .label .content p:nth-child(2)", $(setting)).html(newVal);
+    var key            = $(".data-container > .label > .content > p:nth-child(1)", setting).text()
+    var val            = $(this).attr("data");
+    var newText        = $(this).text();
+    if(previousChoice !== val){
+      $(setting).attr("data", val);
+      $(".data-container .label .content p:nth-child(2)", setting).html(newText);
 
       // SAVE THE SETTING HERE!
       $("#refreshNotice").addClass("visible");
+
+      self.data[key] = val;
+      Set(self.data);
     }
   });
 

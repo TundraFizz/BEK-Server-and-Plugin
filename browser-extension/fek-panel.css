@@ -4,87 +4,6 @@ html {
   padding: 0px;
 }
 
-/*
-  .clearfix .search {
-    right:172px !important;
-  } .clearfix .search .btn-input input {
-    width:170px !important;
-  }
-
-  .fekmqselect {
-    border: 2px solid #0088bb !important
-  } .fekmqselect-snip {
-    border: 2px dotted #0088bb !important
-  }
-  .post-col-left {
-    z-index:1000;
-  } .post-col-right {
-    z-index:999;
-  } #FEKquicklist {
-    padding-left:7px; padding-top:7px;
-  } #FEKquicklist #spike {
-    z-index:15;
-    display:none;
-    background: #ffffff;
-    position:absolute;
-    left:-7px; top:18px;
-    width:14px; height:14px;
-
-    -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
-    -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
-
-    transform: rotate(45deg);
-    -ms-transform: rotate(45deg); /* IE 9 *|/
-    -webkit-transform: rotate(45deg); /* Safari and Chrome *|/
-  } #FEKquicklist ul {
-    position:relative;
-    display:none;
-    white-space:nowrap;
-    padding:0px; padding-top:4px; padding-bottom:4px;
-    margin:0px;
-    background:#ffffff;
-    -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
-    -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.75);
-  } #FEKquicklist ul li {
-    position:relative;
-    z-index:20;
-    background:#ffffff;
-    list-style:none;
-    display:block;
-    padding:0px;
-    margin:0px;
-  } #FEKquicklist ul li a:link, #FEKquicklist ul li a:visited {
-    text-decoration:none;
-    display:block;
-    color:#000000 !important;
-    font:12px Arial, Helvetica, "Sans-Serif";
-    font-weight:bold;
-    padding:3px;
-    padding-left:6px;
-    padding-right:6px;
-    transition:color .3s;
-  } #FEKquicklist ul li a:hover {
-    color:#555555 !important;
-    text-decoration:underline;
-  } .post-avatar .white-stone #FEKquicklist {
-    z-index:1001;
-    position:absolute; top:0px; left:0px;
-    opacity:0;
-    width:0px;
-    transition:opacity .3s, width .3s;
-  } .post-avatar .white-stone:hover #FEKquicklist {
-    opacity:1;
-    width:135px;
-  } .post-avatar .white-stone:hover #FEKquicklist #spike {
-    display:block;
-  } .post-avatar .white-stone:hover #FEKquicklist ul {
-    z-index:6;
-    display:block;
-  }
-*/
-
 #fekReturnToTop {
   font-size: 11px;
 }
@@ -118,44 +37,6 @@ html {
   margin:0px; margin-top:4px;
   color:#aaaaaa;
 }
-
-/*
-#fekupdatepanel {
-  display:none;
-  position:absolute;
-  top:172px;
-  right:-5px;
-  max-width:300px;
-  min-width:300px;
-  padding:10px;
-  background:rgba(0,0,0,.75);
-  color:#888888;
-  font:12px Arial, Helvetica, "Sans-Serif";
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.9);
-  -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.9);
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.9);
-  text-shadow:1px 1px rgba(0,0,0,.8);
-  border:1px solid #888888;
-  font: 0.8em Arial, Helvetica, "Sans Serif";
-} #fekupdatepanel #updatelabel {
-  color:#00ccff;
-  font-weight:bold;
-} #fekupdatepanel #versions {
-  color:#ffffff;
-  font-size:10px;
-} #fekupdatepanel #sep {
-  color:#888888;
-  padding-left:8px; padding-right:8px;
-} #fekupdatepanel a:link, #fekupdatepanel a:visited {
-  color:#0099cc;
-  text-decoration:none;
-} #fekupdatepanel a:hover {
-  text-decoration:underline;
-}
-*/
 
 #fek-panel {
   z-index:  4000000;
@@ -207,7 +88,6 @@ html {
   width:79px;
   height:36px;
   margin:auto;
-  /*background-image: url("../gfx/logo.png");*/
   background-image: url("moz-extension://__MSG_@@extension_id__/img/logo.png");
 } #fek-panel .version {
   position:absolute;
@@ -321,26 +201,6 @@ html {
   background:#404040;
 }
 
-/*
-  #messageNotice {
-    z-index:3000;
-    cursor:pointer;
-    position:absolute; top:-50px; left:0px; right:0px;
-    background:#2C2C2C;
-    padding:10px;
-    font:.8em Arial, Helvetica, "Sans Serif";
-    font-weight:bold;
-    text-shadow:1px 1px rgba(0,0,0,.5);
-    text-align:center;
-    color:#ffffff;
-    transition: top .2s, background .2s;
-  }
-
-  #messageNotice.visible {
-    top:0px;
-  }
-*/
-
 #fek-panel .col-right .category-name {
   clear:both;
   font: 14px arial, helvetica, "sans-serif";
@@ -447,19 +307,19 @@ html {
 }
 
 #fek-panel .setting[data="off"] .data-container {
-  background: #7f7f7f;
+  background-color: #7f7f7f;
 }
 
 #fek-panel .setting[data="off"] .data-container:hover {
-  background: #a1a1a1;
+  background-color: #a1a1a1;
 }
 
 #fek-panel .data-container:hover {
-  z-index:8000;
+  z-index: 8000;
 }
 
 #fek-panel .data-container > .tooltip-data {
-  display:none;
+  display: none;
 }
 
 #fek-panel .data-container .indicator {
@@ -480,16 +340,27 @@ html {
 }
 
 #fek-panel .setting[data="off"] .data-container .indicator {
-  background:#a1a1a1;
+  background-image:    url("moz-extension://__MSG_@@extension_id__/img/feature-off.png");
+  background-color:    #a1a1a1;
+  background-repeat:   no-repeat;
+  background-position: center;
 }
 
-#fek-panel .setting[data="off"] .data-container .indicator-drop {
-  background:#7f7f7f;
+#fek-panel .setting[dropdown="true"] .data-container {
+  background-image:    url("moz-extension://__MSG_@@extension_id__/img/feature-drop.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-position-x: 155px;
+  background-origin: content-box;
 }
+
+/*#fek-panel .setting[data="off"] .data-container .indicator-drop {
+  background:#7f7f7f;
+}*/
 
 #fek-panel .option-list {
   position: relative;
-  /*top: -18px;*/
+  z-index:  305;
 }
 
 #fek-panel .option-list ul {
