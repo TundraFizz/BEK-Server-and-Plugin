@@ -1,5 +1,8 @@
-html {
-  width: 200px;
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-size:   75%;
+  width:       200px;
+  overflow:    hidden;
 }
 
 p {
@@ -7,13 +10,13 @@ p {
 }
 
 span {
-  color: blue;
+  color:  blue;
   cursor: pointer;
 }
 
 p, span {
  -webkit-user-select: none;
- -moz-user-select: none;
- -ms-user-select: none;
- user-select: none;
+ -moz-user-select:    none;
+ -ms-user-select:     none;
+ user-select:         none;
 }

@@ -44,12 +44,6 @@
     }
   },
 
-  "background": {
-    "scripts": [
-      "popup/background.js"
-    ]
-  },
-
   "permissions": [
     "tabs",
     "activeTab",
