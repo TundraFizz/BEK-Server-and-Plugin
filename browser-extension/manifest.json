@@ -6,39 +6,57 @@
   "version": "5.2.0",
 
   "icons": {
-    "16": "icon16.png",
-    "32": "icon32.png",
-    "48": "icon48.png",
-    "64": "icon64.png",
-    "96": "icon96.png",
-    "128": "icon128.png"
-  },
-
-  "browser_action": {
-    "default_popup": "popup.html",
-    "default_title": "Forum Enhancement Kit",
-    "default_icon": {"128": "icon128.png"}
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "64": "icons/icon64.png",
+    "96": "icons/icon96.png",
+    "128": "icons/icon128.png"
   },
 
   "content_scripts": [{
-    "matches": ["https://*.leagueoflegends.com/*"],
-    "css": ["fek-panel.css", "thread.css"],
-    "js": ["jquery.js", "perfect-scrollbar.js", "main.js"],
+    "matches": [
+      "https://*.leagueoflegends.com/*"
+    ],
+    "css": [
+      "css/fek-panel.css",
+      "css/thread.css"
+    ],
+    "js": [
+      "js/jquery.js",
+      "js/perfect-scrollbar.js",
+      "js/main.js"
+    ],
     "run_at": "document_end"
   }],
-
-  "permissions": [
-    "activeTab",
-    "storage",
-    "webRequest",
-    "*://*.leagueoflegends.com/*",
-    "*://tundrafizz.space/*"
-  ],
 
   "web_accessible_resources": [
     "img/*.gif",
     "img/logo.png",
     "img/*.png"
+  ],
+
+  "browser_action": {
+    "default_title": "Forum Enhancement Kit",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "scripts": [
+      "popup/background.js"
+    ]
+  },
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage",
+    "webRequest",
+    "*://*.leagueoflegends.com/*",
+    "*://tundrafizz.space/*"
   ],
 
   "manifest_version": 2

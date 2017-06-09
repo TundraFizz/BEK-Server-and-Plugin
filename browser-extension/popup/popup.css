@@ -1,0 +1,19 @@
+html {
+  width: 200px;
+}
+
+p {
+ cursor: default;
+}
+
+span {
+  color: blue;
+  cursor: pointer;
+}
+
+p, span {
+ -webkit-user-select: none;
+ -moz-user-select: none;
+ -ms-user-select: none;
+ user-select: none;
+}
