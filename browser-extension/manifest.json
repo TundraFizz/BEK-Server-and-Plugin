@@ -22,7 +22,7 @@
 
   "content_scripts": [{
     "matches": ["https://*.leagueoflegends.com/*"],
-    "csss": ["fek-panel.css", "thread.css"],
+    "css": ["fek-panel.css", "thread.css"],
     "js": ["jquery.js", "perfect-scrollbar.js", "main.js"],
     "run_at": "document_end"
   }],
@@ -35,11 +35,11 @@
     "*://tundrafizz.space/*"
   ],
 
-  "manifest_version": 2,
+  "web_accessible_resources": [
+    "img/*.gif",
+    "img/logo.png",
+    "img/*.png"
+  ],
 
-  "applications": {
-    "gecko": {
-      "id": "{dfce9270-40a0-46bc-a0a8-e02cac587423}"
-    }
-  }
+  "manifest_version": 2
 }

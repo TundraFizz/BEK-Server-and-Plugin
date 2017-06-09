@@ -53,7 +53,7 @@ FEK.prototype.Initialize = function(){
   self.results          = [];
 
   // CSS should only be loaded for development purposes
-  if(true){
+  if(false){
     LoadCSS(`${domain}/fek/css/fek-panel.css`);
     LoadCSS(`${domain}/fek/css/thread.css`);
   }
@@ -361,42 +361,42 @@ FEK.prototype.CreateFeatures = function(){
     else if(option == "9") fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
   });
 
-  ////////////
-  // SAMPLE //
-  ////////////
-  featureMetaData = {
-    "tabGroup": "Core Mods",
-    "tab":      "LoL Boards",
-    "category": "User Identities",
-    "label":    "Dropdown Test",
-    "tooltip":  "This is the tooltip for Dropdown Test",
-    "options":  [
-      "off|Disable",
-      "1|Option One",
-      "2|Second choice",
-      "3|Third is great",
-      "4|Numbah four",
-      "5|Fifth place",
-      "6|Six sticks",
-      "7|Probably seven",
-      "8|Eight is great",
-      "9|A fine nine",
-      "10|Final ten"
-    ],
-    "defaultOption": "off"
-  };
-  self.CreateFeature(featureMetaData, function(option){});
+  // ////////////
+  // // SAMPLE //
+  // ////////////
+  // featureMetaData = {
+  //   "tabGroup": "Core Mods",
+  //   "tab":      "LoL Boards",
+  //   "category": "User Identities",
+  //   "label":    "Dropdown Test",
+  //   "tooltip":  "This is the tooltip for Dropdown Test",
+  //   "options":  [
+  //     "off|Disable",
+  //     "1|Option One",
+  //     "2|Second choice",
+  //     "3|Third is great",
+  //     "4|Numbah four",
+  //     "5|Fifth place",
+  //     "6|Six sticks",
+  //     "7|Probably seven",
+  //     "8|Eight is great",
+  //     "9|A fine nine",
+  //     "10|Final ten"
+  //   ],
+  //   "defaultOption": "off"
+  // };
+  // self.CreateFeature(featureMetaData, function(option){});
 
-  featureMetaData = {
-    "tabGroup": "Core Mods",
-    "tab":      "LoL Boards",
-    "category": "User Identities",
-    "label":    "On Off Test",
-    "tooltip":  "This is the tooltip for On Off Test",
-    "options":  [],
-    "defaultOption": "off"
-  };
-  self.CreateFeature(featureMetaData, function(option){});
+  // featureMetaData = {
+  //   "tabGroup": "Core Mods",
+  //   "tab":      "LoL Boards",
+  //   "category": "User Identities",
+  //   "label":    "On Off Test",
+  //   "tooltip":  "This is the tooltip for On Off Test",
+  //   "options":  [],
+  //   "defaultOption": "off"
+  // };
+  // self.CreateFeature(featureMetaData, function(option){});
 
   // Register the hotkey ~ to toggle the FEK panel on and off
   self.hotkeys["192"] = function(state, event){
