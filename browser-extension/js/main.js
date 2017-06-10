@@ -305,61 +305,61 @@ FEK.prototype.CreateFeatures = function(){
   //////////////////////////
   // Feature: FEK Avatars //
   //////////////////////////
-  featureMetaData = {
-    "tabGroup": "Core Mods",
-    "tab":      "LoL Boards",
-    "category": "User Identities",
-    "label":    "FEK Avatars",
-    "tooltip":  "The size of FEK avatars.",
-    "options":  [
-      "100|100x100",
-      "125|125x125",
-      "150|150x150",
-      "175|175x175",
-      "200|200x200"
-    ],
-    "defaultOption": "100"
-  };
+  // featureMetaData = {
+  //   "tabGroup": "Core Mods",
+  //   "tab":      "LoL Boards",
+  //   "category": "User Identities",
+  //   "label":    "FEK Avatars",
+  //   "tooltip":  "The size of FEK avatars.",
+  //   "options":  [
+  //     "100|100x100",
+  //     "125|125x125",
+  //     "150|150x150",
+  //     "175|175x175",
+  //     "200|200x200"
+  //   ],
+  //   "defaultOption": "100"
+  // };
 
-  self.CreateFeature(featureMetaData, function(option){
-    avatarSize = parseInt(option);
-  });
+  // self.CreateFeature(featureMetaData, function(option){
+  //   avatarSize = parseInt(option);
+  // });
 
   ///////////////////////////////
   // Feature: Fallback Avatars //
   ///////////////////////////////
-  featureMetaData = {
-    "tabGroup": "Core Mods",
-    "tab":      "LoL Boards",
-    "category": "User Identities",
-    "label":    "Fallback Avatars",
-    "tooltip":  "The avatar to use when a person doesn't have a FEK avatar.",
-    "options":  [
-     "off|Disable",
-     "1|Trident (Dark)",
-     "2|Trident (Light)",
-     "3|Trident (Parchment)",
-     "4|Poro (Dark)",
-     "5|Poro (Light)",
-     "6|Poro (Parchment)",
-     "7|Happy Cloud (Dark)",
-     "8|Happy Cloud (Light)",
-     "9|Happy Cloud (Parchment)"
-    ],
-    "defaultOption": "off"
-  };
+  // featureMetaData = {
+  //   "tabGroup": "Core Mods",
+  //   "tab":      "LoL Boards",
+  //   "category": "User Identities",
+  //   "label":    "Fallback Avatars",
+  //   "tooltip":  "The avatar to use when a person doesn't have a FEK avatar.",
+  //   "options":  [
+  //    "off|Disable",
+  //    "1|Trident (Dark)",
+  //    "2|Trident (Light)",
+  //    "3|Trident (Parchment)",
+  //    "4|Poro (Dark)",
+  //    "5|Poro (Light)",
+  //    "6|Poro (Parchment)",
+  //    "7|Happy Cloud (Dark)",
+  //    "8|Happy Cloud (Light)",
+  //    "9|Happy Cloud (Parchment)"
+  //   ],
+  //   "defaultOption": "off"
+  // };
 
-  self.CreateFeature(featureMetaData, function(option){
-    if     (option == "1") fallbackAvatar = self.FEKgfx + "no-avatar-trident-dark.gif";
-    else if(option == "2") fallbackAvatar = self.FEKgfx + "no-avatar-trident-light.gif";
-    else if(option == "3") fallbackAvatar = self.FEKgfx + "no-avatar-trident-parchment.gif";
-    else if(option == "4") fallbackAvatar = self.FEKgfx + "no-avatar-poro-dark.gif";
-    else if(option == "5") fallbackAvatar = self.FEKgfx + "no-avatar-poro-light.gif";
-    else if(option == "6") fallbackAvatar = self.FEKgfx + "no-avatar-poro-parchment.gif";
-    else if(option == "7") fallbackAvatar = self.FEKgfx + "no-avatar-dark.gif";
-    else if(option == "8") fallbackAvatar = self.FEKgfx + "no-avatar-light.gif";
-    else if(option == "9") fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
-  });
+  // self.CreateFeature(featureMetaData, function(option){
+  //   if     (option == "1") fallbackAvatar = self.FEKgfx + "no-avatar-trident-dark.gif";
+  //   else if(option == "2") fallbackAvatar = self.FEKgfx + "no-avatar-trident-light.gif";
+  //   else if(option == "3") fallbackAvatar = self.FEKgfx + "no-avatar-trident-parchment.gif";
+  //   else if(option == "4") fallbackAvatar = self.FEKgfx + "no-avatar-poro-dark.gif";
+  //   else if(option == "5") fallbackAvatar = self.FEKgfx + "no-avatar-poro-light.gif";
+  //   else if(option == "6") fallbackAvatar = self.FEKgfx + "no-avatar-poro-parchment.gif";
+  //   else if(option == "7") fallbackAvatar = self.FEKgfx + "no-avatar-dark.gif";
+  //   else if(option == "8") fallbackAvatar = self.FEKgfx + "no-avatar-light.gif";
+  //   else if(option == "9") fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
+  // });
 
   ////////////////////////////////////////
   // Feature: Diamond only, no backtalk //
