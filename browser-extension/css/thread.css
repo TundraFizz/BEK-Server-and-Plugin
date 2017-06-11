@@ -87,12 +87,25 @@
 
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon          > img,
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .userGroupIcon > img {
-  width:  100px          !important;
-  height: 100px          !important;
-  border: solid 1px gray !important;
+  position: absolute       !important;
+  width:    100px          !important;
+  height:   100px          !important;
+  border:   solid 1px gray !important;
 }
 
-.header > .inline-profile > .profile-hover > .username {
+:not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon          > .fek-profile-popup,
+:not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .userGroupIcon > .fek-profile-popup {
+  position:         relative        !important;
+  border:           1px solid black !important;
+  width:            100px           !important;
+  height:           100px           !important;
+  left:             100px           !important;
+  background-color: white           !important;
+  padding-left:     4px             !important;
+  font-size:        14px            !important;
+}
+
+.body-container > .header > .inline-profile > .profile-hover > .username {
   position:         absolute    !important; /* Try with relative, it might be better! */
   background-color: transparent !important;
   letter-spacing:   0px         !important;

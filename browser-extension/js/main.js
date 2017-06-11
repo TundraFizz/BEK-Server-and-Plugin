@@ -38,7 +38,7 @@ FEK.prototype.Initialize = function(){
   if(typeof disableFEK !== "undefined" && disableFEK) return; // For Wuks
   var self = this;
 
-  self.FEKversion       = "5.2.0";
+  self.FEKversion       = "5.3.0";
   self.FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
   self.FEKgfx           = `${domain}/fek/gfx/misc/`;
   self.cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
@@ -383,6 +383,56 @@ FEK.prototype.CreateFeatures = function(){
       $(".apollo-header").css("margin-bottom",         "0px");
       $(".apollo-header").css("padding-bottom",        "40px");
     }
+  });
+
+  ////////////////////////
+  // Feature: Blacklist //
+  ////////////////////////
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "Blacklist"
+  };
+
+  self.CreateTab(featureMetaData, function(option){
+    $(`[tab="core-mods-blacklist"]`).click(function(){
+      var groupView = $(`[group-view="core-mods-blacklist"]`)[0];
+      var content   = "<h1>Blacklisted Users</h1><p>Click on a name to remove it from your blacklist</p>";
+      console.log("=====================================");
+      for(var user in self.data["blacklist"]){
+        content += `<a class="blacklist-remove" href="#">${user}<br></a>`;
+      }
+
+      $(groupView).html(content);
+
+      $(".blacklist-remove").click(function(){
+        event.preventDefault();
+        event.stopPropagation();
+        var user = $(this).text();
+        $(this).remove();
+        delete self.data["blacklist"][user];
+        Set(self.data);
+        // alert(user);
+      });
+
+      return;
+
+      var vals = GM_listValues();
+      for(var i = 0; i < vals.length; i++){
+        if(vals[i][0] != "_"){
+          myThing = document.createElement("div");
+          myThing.innerHTML = `<a href="#">${vals[i]}</a><br>`;
+
+          $(myThing).click(function(event){
+            event.preventDefault();
+            event.stopPropagation();
+            GM_deleteValue(this.textContent);
+            this.remove();
+          });
+
+          contentview[0].appendChild(myThing);
+        }
+      }
+    });
   });
 
   // ////////////
@@ -987,6 +1037,63 @@ FEK.prototype.CreateFeatures = function(){
   // };
 }
 
+///////////////////////////////////////////////////////
+// CreateTab: Creates a tab in the FEK control panel //
+///////////////////////////////////////////////////////
+FEK.prototype.CreateTab = function(featureMetaData, callback){
+  var self          = this;
+  var tabGroup      = featureMetaData["tabGroup"];
+  var tab           = featureMetaData["tab"];
+  // var tooltip       = featureMetaData["tooltip"];
+  // var options       = featureMetaData["options"];
+  // var defaultOption = featureMetaData["defaultOption"];
+  // var hasDropDown   = "false";
+  // var optionsType   = "binary";
+  // var optionsKeys   = [];
+  // var optionsVals   = [];
+  // var currentKey    = self.data[label];
+  // var currentVal    = null;
+  // var validOption   = false;
+  // var optionList    = "";
+  // var listhtml      = "";
+  // var labelContent  = "";
+
+  // Create the tabGroup if we need to
+  // Create the tab      if we need to
+  // Create the category if we need to
+  var tabGroup2 = tabGroup.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+  var tab2      = tab.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+
+  // Create the tabGroup if we need to
+  if($(`#fek-panel [tab-group="${tabGroup2}"]`).length == 0){
+    $(`#fek-panel .tabs`).append(`
+    <div class="tab-group" tab-group="${tabGroup2}">
+      <h1>${tabGroup}</h1>
+    </div>
+    `);
+  }
+
+  // Create the tab if we need to
+  if($(`#fek-panel [tab="${tabGroup2}-${tab2}"]`).length == 0){
+    $(`#fek-panel [tab-group="${tabGroup2}"]`).append(`
+    <div class="tab" tab="${tabGroup2}-${tab2}">
+      ${tab}
+      <div class="indicator"></div>
+    </div>
+    `);
+  }
+
+  // Create the groupview if we need to
+  if($(`#fek-panel [group-view="${tabGroup2}-${tab2}"]`).length == 0){
+    $("#fek-panel .scroll-region").append(`
+    <div class="group-view" group-view="${tabGroup2}-${tab2}"></div>
+    `);
+  }
+
+  // Execute the callback
+  callback();
+}
+
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
 ////////////////////////////////////////////////////////////
@@ -1567,7 +1674,8 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
     usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
-  var tinyIcon; if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
+  var tinyIcon;
+  if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
 
   // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
   tinyIcon.style.setProperty("z-index", "1");
@@ -1583,110 +1691,116 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
   var innerDiv;
 
   $(tinyIcon).each(function(){
-    if(this.id != "popupHook"){
-      this.id = "popupHook";
+    $(this).hover(function(){
+      var avatar = $($(this).find("img")[0]).attr("src");
 
-      $(this).hover(function(){
-        var avatar = $($(this).find("img")[0]).attr("src");
+      // Now create and append to innerDiv
+      innerDiv = document.createElement("div");
+      innerDiv.className = "popup";
+      innerDiv.style.setProperty("position", "relative");
+      innerDiv.style.setProperty("border", "solid 1px black");
+      innerDiv.style.setProperty("width", avatarSize + "px");
+      innerDiv.style.setProperty("height", avatarSize + "px");
+      innerDiv.style.setProperty("left", "99%");
+      innerDiv.style.setProperty("display", "none");
+      innerDiv.style.setProperty("background-color", "white");
+      innerDiv.style.setProperty("z-index", "-1");
+      innerDiv.style.setProperty("padding-top", "0px");
+      innerDiv.style.setProperty("padding-left", "5%");
 
-        // Now create and append to innerDiv
-        innerDiv = document.createElement("div");
-        innerDiv.className = "popup";
-        innerDiv.style.setProperty("position", "relative");
-        innerDiv.style.setProperty("border", "solid 1px black");
-        innerDiv.style.setProperty("width", avatarSize + "px");
-        innerDiv.style.setProperty("height", avatarSize + "px");
-        innerDiv.style.setProperty("left", "99%");
-        innerDiv.style.setProperty("display", "none");
-        innerDiv.style.setProperty("background-color", "white");
-        innerDiv.style.setProperty("z-index", "-1");
-        innerDiv.style.setProperty("padding-top", "0px");
-        innerDiv.style.setProperty("padding-left", "5%");
+      if(op) innerDiv.style.setProperty("top", -avatarSize - 8 + "px");
+      else   innerDiv.style.setProperty("top", -avatarSize - 5 + "px");
 
-        if(op) innerDiv.style.setProperty("top", -avatarSize - 8 + "px");
-        else   innerDiv.style.setProperty("top", -avatarSize - 5 + "px");
+      /*   font-size | line-height
+      100:    14     |     18
+      125:    18     |     23
+      150:    22     |     28
+      175:    26     |     33
+      200:    30     |     38
+      */
+      innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
+      innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
 
-        /*   font-size | line-height
-        100:    14     |     18
-        125:    18     |     23
-        150:    22     |     28
-        175:    26     |     33
-        200:    30     |     38
-        */
-        innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
-        innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
+      innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
+                            <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
+                            <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
+                            <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
+                            <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
 
-        innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
-                              <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
-                              <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
-                              <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
-                              <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
+      this.appendChild(innerDiv);
 
-        this.appendChild(innerDiv);
+      profHover.setAttribute("href", "#");
 
-        profHover.setAttribute("href", "#");
-
-        $(profHover).click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-        });
-
-        $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-        $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-
-        $("#prfle").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("https://boards." + self.platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#avatr").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open(avatar, "_blank");
-          win.focus();
-        });
-
-        $("#lolnx").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#opgg").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
-          win.focus();
-        });
-
-        $("#black").click(function(event){
-          event.preventDefault();
-          event.stopPropagation();
-
-          var target = usernameT + " (" + regionT + ")";
-
-          // Add the person to our blacklist, or remove them from if they're already on there
-          // if(GM_getValue(target, 0) === 0){
-          //   GM_setValue(target, 1);
-          //   alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
-          // }else{
-          //   GM_deleteValue(target);
-          //   alert(target + " has been removed from your blacklist");
-          // }
-        });
-
-        // Fade the FEK popup box in
-        $(innerDiv).fadeIn(200);
-      }, function(){
-        innerDiv.remove();
+      $(profHover).click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
       });
-    }
+
+      $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+
+      $("#prfle").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open("https://boards." + self.platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
+        win.focus();
+      });
+
+      $("#avatr").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open(avatar, "_blank");
+        win.focus();
+      });
+
+      $("#lolnx").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
+        win.focus();
+      });
+
+      $("#opgg").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
+        win.focus();
+      });
+
+      $("#black").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+
+        var target = usernameT + " (" + regionT + ")";
+        var blacklist = self["data"]["blacklist"]
+        console.log("========== My Blacklist ==========");
+        console.log(blacklist);
+        console.log("========== Target ==========");
+        console.log(target);
+        blacklist[target] = 1;
+        Set(self.data, function(){
+          console.log("BLACKLISTED! New data...");
+          console.log(self.data);
+        });
+
+        // Add the person to our blacklist, or remove them from if they're already on there
+        // if(GM_getValue(target, 0) === 0){
+        //   GM_setValue(target, 1);
+        //   alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
+        // }else{
+        //   GM_deleteValue(target);
+        //   alert(target + " has been removed from your blacklist");
+        // }
+      });
+
+      // Fade the FEK popup box in
+      $(innerDiv).fadeIn(200);
+    }, function(){
+      innerDiv.remove();
+    });
   });
 
   if(removeProfHovPop == "on"){
@@ -1909,15 +2023,109 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var username      = obj.getElementsByClassName("username")[0];
   var region        = obj.getElementsByClassName("realm")[0];
 
-  // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon; if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
+  var avatarSize = 100;
 
   // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
   tinyIcon.style.setProperty("z-index", "1");
+
+  // Pop-up thing that appears when you hover over a user
+  $(tinyIcon).each(function(){
+    $(this).hover(function(){
+      var avatar = $($(this).find("img")[0]).attr("src");
+
+      // Now create and append to innerDiv
+      innerDiv = document.createElement("div");
+      innerDiv.className = "fek-profile-popup";
+
+      // innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
+      // innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
+
+      innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
+                            <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
+                            <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
+                            <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
+                            <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
+
+      this.appendChild(innerDiv);
+
+      // profHover.setAttribute("href", "#");
+
+      $(profHover).click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+      });
+
+      $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+      $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
+
+      $("#prfle").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open("https://boards." + self.platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
+        win.focus();
+      });
+
+      $("#avatr").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open(avatar, "_blank");
+        win.focus();
+      });
+
+      $("#lolnx").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
+        win.focus();
+      });
+
+      $("#opgg").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
+        win.focus();
+      });
+
+      $("#black").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var target    = usernameT + " (" + regionT + ")";
+        var blacklist = self["data"]["blacklist"]
+        console.log("========== My Blacklist ==========");
+        console.log(blacklist);
+        console.log("========== Target ==========");
+        console.log(target);
+        blacklist[target] = 1;
+        Set(self.data, function(){
+          console.log("BLACKLISTED! New data...");
+          console.log(self.data);
+        });
+
+        // Add the person to our blacklist, or remove them from if they're already on there
+        // if(GM_getValue(target, 0) === 0){
+        //   GM_setValue(target, 1);
+        //   alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
+        // }else{
+        //   GM_deleteValue(target);
+        //   alert(target + " has been removed from your blacklist");
+        // }
+      });
+
+      // Fade the FEK popup box in
+      $(innerDiv).fadeIn(200);
+    }, function(){
+      innerDiv.remove();
+    });
+  });
+
+  // FEK staff have special gradient names, so I need to extract them using this method
+  if(obj.getElementsByClassName("pxg-set").length > 0)
+    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
   // Declare variables that will be used later
   var opTitle;      // op
@@ -2559,7 +2767,6 @@ function IndexBlacklist(){
 // LoadThread: Loads everything for the Thread page //
 //////////////////////////////////////////////////////
 function LoadThread(){
-  alert("NOOOOOOOOOOOOOOOOOOOOOOO");
   // Remove all "Posting as X" fields
   $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
 
