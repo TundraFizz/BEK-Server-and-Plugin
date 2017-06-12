@@ -1533,7 +1533,7 @@ FEK.prototype.QueryServer = function(){
     if(self.page == "Thread")
       self.FormatAllPosts(true);
 
-    $.event.trigger({type: "tweetsLoaded"});
+    // $.event.trigger({type: "tweetsLoaded"});
   });
 }
 
@@ -1628,387 +1628,32 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
   })
 }
 
-////////////////////////////////////////////////////////////////////////
-// FormatSinglePost1: Formats a single post before inserting FEK data //
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////
+// FormatSinglePost1: DELETE //
+///////////////////////////////
 FEK.prototype.FormatSinglePost1 = function(obj, op){
   alert("FormatSinglePost1");
-  if(op === false){
-    // Show downvoted posts
-    $(obj).parent().removeClass("isLowQuality");
-
-    // See if the post is deleted
-    var isThisDeleted = obj.children[0].children[1].getAttribute("style");
-
-    if(isThisDeleted === null)
-      return;
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  var usernameT = obj.getElementsByClassName("username")[0].textContent;
-  var regionT   = obj.getElementsByClassName("realm")[0].textContent;
-  regionT       = regionT.substring(1, regionT.length - 1);
-
-  // If it's a person you blacklisted, hide the post if it's not the op
-  if(blacklisting === "on"){
-    // if(GM_getValue(usernameT + " (" + regionT + ")", 0) == 1 && op === false)
-    //   $(obj).parent().remove();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // Define standard variables for this scope
-  var riotVoting    = $(obj).parent()[0].getElementsByClassName("riot-voting")[0];
-  var inlineProfile = obj.getElementsByClassName("inline-profile")[0];
-  var profHover     = obj.getElementsByClassName("profile-hover")[0];
-  var timeago       = obj.getElementsByClassName("timeago")[0];
-  var icon          = obj.getElementsByTagName("img")[0];
-  var body          = obj.getElementsByClassName("body")[0];
-  var isRioter      = obj.getElementsByClassName("isRioter")[0];
-  var username      = obj.getElementsByClassName("username")[0];
-  var region        = obj.getElementsByClassName("realm")[0];
-
-  // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
-
-  // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
-  var tinyIcon;
-  if((typeof(tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
-
-  // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
-  tinyIcon.style.setProperty("z-index", "1");
-
-  // Declare variables that will be used later
-  var opTitle;      // op
-  var authorInfo;   // op
-  var content;      // op
-  var controlLinks; // op
-  var attachments;  // not op
-  var footer;       // not op
-
-  var innerDiv;
-
-  $(tinyIcon).each(function(){
-    $(this).hover(function(){
-      var avatar = $($(this).find("img")[0]).attr("src");
-
-      // Now create and append to innerDiv
-      innerDiv = document.createElement("div");
-      innerDiv.className = "popup";
-      innerDiv.style.setProperty("position", "relative");
-      innerDiv.style.setProperty("border", "solid 1px black");
-      innerDiv.style.setProperty("width", avatarSize + "px");
-      innerDiv.style.setProperty("height", avatarSize + "px");
-      innerDiv.style.setProperty("left", "99%");
-      innerDiv.style.setProperty("display", "none");
-      innerDiv.style.setProperty("background-color", "white");
-      innerDiv.style.setProperty("z-index", "-1");
-      innerDiv.style.setProperty("padding-top", "0px");
-      innerDiv.style.setProperty("padding-left", "5%");
-
-      if(op) innerDiv.style.setProperty("top", -avatarSize - 8 + "px");
-      else   innerDiv.style.setProperty("top", -avatarSize - 5 + "px");
-
-      /*   font-size | line-height
-      100:    14     |     18
-      125:    18     |     23
-      150:    22     |     28
-      175:    26     |     33
-      200:    30     |     38
-      */
-      innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
-      innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
-
-      innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
-                            <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
-                            <a href="#" id="lolnx" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">LoLNexus</a><br>
-                            <a href="#" id="opgg"  style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">OP.GG</a><br>
-                            <a href="#" id="black" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">Blacklist</a>`;
-
-      this.appendChild(innerDiv);
-
-      profHover.setAttribute("href", "#");
-
-      $(profHover).click(function(event){
-        event.preventDefault();
-        event.stopPropagation();
-      });
-
-      $("#prfle").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-      $("#avatr").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-      $("#lolnx").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-      $("#opgg").hover(function()  {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-      $("#black").hover(function() {this.style.setProperty("text-decoration",  "underline");}, function() {this.style.setProperty("text-decoration",  "none");});
-
-      $("#prfle").click(function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        var win = window.open("https://boards." + self.platformRegion + ".leagueoflegends.com/en/player/" + regionT + "/" + usernameT, "_blank");
-        win.focus();
-      });
-
-      $("#avatr").click(function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        var win = window.open(avatar, "_blank");
-        win.focus();
-      });
-
-      $("#lolnx").click(function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        var win = window.open("http://www.lolnexus.com/" + regionT + "/search?name=" + usernameT, "_blank");
-        win.focus();
-      });
-
-      $("#opgg").click(function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        var win = window.open("http://" + regionT + ".op.gg/summoner/userName=" + usernameT, "_blank");
-        win.focus();
-      });
-
-      $("#black").click(function(event){
-        event.preventDefault();
-        event.stopPropagation();
-
-        var target = usernameT + " (" + regionT + ")";
-        var blacklist = self["data"]["blacklist"]
-        console.log("========== My Blacklist ==========");
-        console.log(blacklist);
-        console.log("========== Target ==========");
-        console.log(target);
-        blacklist[target] = 1;
-        Set(self.data, function(){
-          console.log("BLACKLISTED! New data...");
-          console.log(self.data);
-        });
-
-        // Add the person to our blacklist, or remove them from if they're already on there
-        // if(GM_getValue(target, 0) === 0){
-        //   GM_setValue(target, 1);
-        //   alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
-        // }else{
-        //   GM_deleteValue(target);
-        //   alert(target + " has been removed from your blacklist");
-        // }
-      });
-
-      // Fade the FEK popup box in
-      $(innerDiv).fadeIn(200);
-    }, function(){
-      innerDiv.remove();
-    });
-  });
-
-  if(removeProfHovPop == "on"){
-    // Removes Riot's profile hover popup
-    $(profHover).hover(function(){
-      WaitAndRunManual(1000, function(){
-        $(document.getElementsByClassName("information-container")).parent().parent().parent().remove();
-      });
-    });
-  }
-
-  // Modifying variables
-  if(typeof riotVoting == "undefined"){
-    var discussionTitle = obj.getElementsByClassName("discussion-title")[0];
-    discussionTitle.style.setProperty("position",    "relative", "important");
-    discussionTitle.style.setProperty("margin-left", "75px",     "important");
-  }
-
-  if(op === true){
-    self.originalPoster = usernameT;
-    opTitle             = obj.getElementsByClassName("title")[0];
-    authorInfo          = obj.getElementsByClassName("author-info")[0];
-    content             = document.getElementById("content");
-  }
-
-  if(op === true){
-    controlLinks = obj.getElementsByClassName("control-links")[0];
-    controlLinks.style.setProperty("padding-left", avatarSize + 85 + "px", "important");
-  }
-
-  if(op === false){
-    footer      = obj.getElementsByClassName("footer")[0];
-    attachments = obj.getElementsByClassName("attachments")[0];
-  }
-
-  //if(op === false || (op === true && (document.getElementById("opHook") === null)))
-  if(1){
-    // If they are a Rioter, do their avatars a bit differently
-    if(typeof isRioter !== "undefined")
-      FormatAvatar(obj, true, tinyIcon, icon);
-    else
-      FormatAvatar(obj, false, tinyIcon, icon);
-  }
-
-  //if(op === true)
-  if(op === true && (document.getElementById("opHook") === null)){
-    obj.getElementsByTagName("a")[1].remove(); // We want to remove the second anchor (link to name of sub-board it's in)
-    $(authorInfo).contents().filter(function(){return this.nodeType == 3;}).remove();
-
-    opTitle.style.setProperty("position", "relative", "important");
-    opTitle.style.setProperty("left",     "-70px",    "important");
-
-    var titleCreated    = obj.getElementsByTagName("span")[5];
-    var submitted       = document.createElement("div");
-    submitted.id        = "opHook";
-    submitted.innerHTML = "Submitted ";
-    submitted.style.setProperty("position",  "relative", "important");
-    submitted.style.setProperty("left",      "-234px",   "important");
-    submitted.style.setProperty("font-size", "18px",     "important");
-
-    submitted.appendChild(titleCreated);
-    authorInfo.appendChild(submitted);
-  }
-
-  if(op === false)
-    obj.style.setProperty("padding-left", "100px");
-
-  // Body: Original Post
-  if(op === true){
-    body.style.setProperty("min-height",  avatarSize + 20 + "px", "important");
-    body.style.setProperty("padding-top", "20px",  "important");
-  }
-
-  // Body: Regular Post
-  if(op === false){
-    body.style.setProperty("position",     "relative", "important");
-    body.style.setProperty("top",          "-12px",    "important");
-    body.style.setProperty("padding-left", avatarSize - 60 + "px", "important");
-    body.style.setProperty("min-height",   avatarSize + 10 + "px", "important");
-    body.style.setProperty("margin-top",   "0px",      "important");
-  }
-
-  if(op === true){
-    content.style.setProperty("padding-left", "0px",   "important");
-    content.style.setProperty("margin-left",  avatarSize + 90 + "px", "important");
-  }
-
-  // Inline Profile: Original Post
-  if(op === true){
-    inlineProfile.style.setProperty("position", "relative", "important");
-    inlineProfile.style.setProperty("top",      "70px",     "important");
-    inlineProfile.style.setProperty("left",     "-42px",    "important");
-    inlineProfile.style.setProperty("width",    "160px",    "important");
-    inlineProfile.style.setProperty("height",   "20px",     "important");
-  }
-
-  // Inline Profile: Regular Post
-  if(op === false){
-    inlineProfile.style.setProperty("position", "relative", "important");
-    inlineProfile.style.setProperty("left",     "-120px",   "important");
-    inlineProfile.style.setProperty("width",    "160px",    "important");
-    inlineProfile.style.setProperty("height",   "20px",     "important");
-  }
-
-  // Profile Hover: All Posts
-  if(1){
-    profHover.style.setProperty("position",  "absolute", "important");
-    profHover.style.setProperty("height",    "20px",     "important");
-  }
-
-  // Riot members get a red title
-  if(op === false){
-    if(isRioter)
-      profHover.style.setProperty("color", "#AE250F", "important");
-    else
-      profHover.style.setProperty("color", "#94724D", "important");
-  }
-
-  // Username: All Posts
-  if(1){
-    username.style.setProperty("position",       "relative",     "important");
-    username.style.setProperty("width",          avatarSize + 60 + "px", "important");
-    username.style.setProperty("height",         "20px",         "important");
-    username.style.setProperty("font-size",      "14px",         "important");
-    username.style.setProperty("text-align",     "center",       "important");
-    username.style.setProperty("overflow",       "hidden",       "important");
-    username.style.setProperty("display",        "block",        "important");
-    username.style.setProperty("letter-spacing", "1px",          "important");
-    username.style.setProperty("font-variant",   "normal",       "important");
-    username.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
-
-    if(op === true)
-      username.style.setProperty("top", -avatarSize - 16 + "px", "important");
-    else
-      username.style.setProperty("top", -avatarSize - 12 + "px", "important");
-  }
-
-  // Background of username for regular posts
-  if(op === false){
-    if(usernameT == self.originalPoster)
-    {
-      if(OPStyle == "on")
-      {
-        username.style.setProperty("background", "none", "important");
-        username.style.setProperty("border",     "none", "important");
-      }
-      else
-      {
-        username.style.setProperty("color", "white", "important");
-      }
-    }
-  }
-
-  if(op === true){
-    region.style.setProperty("position",       "relative",             "important");
-    region.style.setProperty("top",            "-20px",                "important");
-    region.style.setProperty("left",           avatarSize + 55 + "px", "important");
-    region.style.setProperty("letter-spacing", "1px",                  "important");
-    region.style.setProperty("font-size",      "16px",                 "important");
-    region.style.setProperty("font-variant",   "normal",               "important");
-    region.style.setProperty("font-family" ,   `"Constantia", "Palatino", "Georgia", serif`, "important");
-  }
-
-  if(op === false){
-    region.style.setProperty("position", "relative",             "important");
-    region.style.setProperty("top",      "-17px",                "important");
-    region.style.setProperty("left",     avatarSize + 65 + "px", "important");
-  }
-
-  // Voting: Original Post
-  if(op === true && typeof riotVoting != "undefined"){
-    riotVoting.style.setProperty("position", "absolute", "important");
-    riotVoting.style.setProperty("top",      "138px",    "important");
-    riotVoting.style.setProperty("left",     "10px",     "important");
-  }
-
-  // Voting: Regular Post
-  if(op === false && typeof riotVoting != "undefined"){
-    riotVoting.style.setProperty("position", "absolute", "important");
-    riotVoting.style.setProperty("top",      "50px",     "important");
-  }
-
-  // Miscellaneous: Regular Post
-  if(op === false){
-    timeago.style.setProperty("position", "relative", "important");
-    timeago.style.setProperty("top",      "-18px",    "important");
-    timeago.style.setProperty("left",     avatarSize - 160 + "px", "important");
-
-    footer.style.setProperty("padding-left", avatarSize - 65 + "px", "important");
-
-    if($(attachments).length)
-      attachments.style.setProperty("padding-left", avatarSize - 60 + "px", "important");
-  }
-
-  RollDice(obj);
+  alert("FormatSinglePost1");
 }
 
 /////////////////////////////////////////////////////////////////
 // FormatSinglePost2: Inserts FEK data into the formatted post //
 /////////////////////////////////////////////////////////////////
 FEK.prototype.FormatSinglePost2 = function(obj, op){
-  var self = this;
-  var usernameT     = obj.getElementsByClassName("username")[0].textContent;
-  var regionT       = obj.getElementsByClassName("realm")[0].textContent;
-  regionT           = regionT.substring(1, regionT.length - 1);
+  var self      = this;
+  var usernameT = obj.getElementsByClassName("username")[0].textContent;
+  var regionT   = obj.getElementsByClassName("realm")[0].textContent;
+  regionT       = regionT.substring(1, regionT.length - 1);
 
+  // I forget why this is important
   if(typeof self.results[usernameT] === "undefined")
     return;
+
+  // Hide blacklisted posts
+  if(`${usernameT} (${regionT})` in self.data["blacklist"]){
+    $(obj).parent()[0].remove();
+    return;
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2096,24 +1741,12 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
         event.stopPropagation();
         var target    = usernameT + " (" + regionT + ")";
         var blacklist = self["data"]["blacklist"]
-        console.log("========== My Blacklist ==========");
-        console.log(blacklist);
-        console.log("========== Target ==========");
-        console.log(target);
         blacklist[target] = 1;
         Set(self.data, function(){
-          console.log("BLACKLISTED! New data...");
-          console.log(self.data);
-        });
+          alert(target + " has been blacklisted");
 
-        // Add the person to our blacklist, or remove them from if they're already on there
-        // if(GM_getValue(target, 0) === 0){
-        //   GM_setValue(target, 1);
-        //   alert(target + " has been added to your blacklist, refresh your page for this to take effect. If you added them by accident, click on the blacklist link again to undo the action.");
-        // }else{
-        //   GM_deleteValue(target);
-        //   alert(target + " has been removed from your blacklist");
-        // }
+          // TODO: Update the blacklist if it's the current active tab
+        });
       });
 
       // Fade the FEK popup box in
