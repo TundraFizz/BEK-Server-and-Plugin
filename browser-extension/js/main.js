@@ -159,9 +159,10 @@ FEK.prototype.Main = function(){
   Set(self.data); // Save any new default data that may have happened from CreateFeatures
   self.SettleGUI();
   self.KeyWatch();
-  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
-  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
   self.QueryServer();
+
+  if(self.page == "Index")
+    self.LoadIndex();
 
   /////////////////////////////////////////////
   // ========== MUTATION OBSERVER ========== //
@@ -242,7 +243,7 @@ FEK.prototype.Main = function(){
   // ========== MUTATION OBSERVER ========== //
   /////////////////////////////////////////////
   if(self.page == "Index" || self.page == "Thread"){
-    var target; if     (self.page == "Index")                                 target = document.querySelector("#discussion-list");
+    var target; if     (self.page == "Index")                                  target = document.querySelector("#discussion-list");
                 else if(self.page == "Thread" && self.threadMode == "Chrono")  target = document.querySelector("#comments");
                 else if(self.page == "Thread" && self.threadMode == "Discuss") target = document.querySelector("#comments");
 
@@ -411,7 +412,6 @@ FEK.prototype.CreateFeatures = function(){
         $(this).remove();
         delete self.data["blacklist"][user];
         Set(self.data);
-        // alert(user);
       });
 
       return;
@@ -479,12 +479,12 @@ FEK.prototype.CreateFeatures = function(){
   };
 
   // DEBUG: Clear all saved data when the "1" key is pressed
-  self.hotkeys["49"] = function(state, event){
-    if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus")){
-      Clear();
-      alert("Data cleared!");
-    }
-  };
+  // self.hotkeys["49"] = function(state, event){
+  //   if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus")){
+  //     Clear();
+  //     alert("Data cleared!");
+  //   }
+  // };
 
   return;
 
@@ -1044,25 +1044,8 @@ FEK.prototype.CreateTab = function(featureMetaData, callback){
   var self          = this;
   var tabGroup      = featureMetaData["tabGroup"];
   var tab           = featureMetaData["tab"];
-  // var tooltip       = featureMetaData["tooltip"];
-  // var options       = featureMetaData["options"];
-  // var defaultOption = featureMetaData["defaultOption"];
-  // var hasDropDown   = "false";
-  // var optionsType   = "binary";
-  // var optionsKeys   = [];
-  // var optionsVals   = [];
-  // var currentKey    = self.data[label];
-  // var currentVal    = null;
-  // var validOption   = false;
-  // var optionList    = "";
-  // var listhtml      = "";
-  // var labelContent  = "";
-
-  // Create the tabGroup if we need to
-  // Create the tab      if we need to
-  // Create the category if we need to
-  var tabGroup2 = tabGroup.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
-  var tab2      = tab.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+  var tabGroup2     = tabGroup.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+  var tab2          = tab.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Create the tabGroup if we need to
   if($(`#fek-panel [tab-group="${tabGroup2}"]`).length == 0){
@@ -1116,6 +1099,10 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   var optionList    = "";
   var listhtml      = "";
   var labelContent  = "";
+  var tabGroup2     = tabGroup.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+  var tab2          = tab.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+  var category2     = category.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
+  var label2        = label.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   if(options.length){
     optionsType = "dropdown";
@@ -1154,14 +1141,6 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
     if(currentKey == option[0])
     currentVal = option[1];
   }
-
-  // Create the tabGroup if we need to
-  // Create the tab      if we need to
-  // Create the category if we need to
-  var tabGroup2 = tabGroup.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
-  var tab2      = tab.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
-  var category2 = category.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
-  var label2    = label.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Create the tabGroup if we need to
   if($(`#fek-panel [tab-group="${tabGroup2}"]`).length == 0){
@@ -1450,8 +1429,8 @@ FEK.prototype.QueryServer = function(){
   var self = this;
 
   // Features that can be done right away without needing data from the FEK server
-  // self.WaitAndRun(".total-votes", self.ColorVotes());
-  // self.WaitAndRun(".total-votes", self.HoverVotes());
+  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
 
   self.users   = [];
   self.regions = [];
@@ -1632,8 +1611,8 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
 // FormatSinglePost1: DELETE //
 ///////////////////////////////
 FEK.prototype.FormatSinglePost1 = function(obj, op){
-  alert("FormatSinglePost1");
-  alert("FormatSinglePost1");
+  // alert("FormatSinglePost1");
+  // alert("FormatSinglePost1");
 }
 
 /////////////////////////////////////////////////////////////////
@@ -1743,7 +1722,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
         var blacklist = self["data"]["blacklist"]
         blacklist[target] = 1;
         Set(self.data, function(){
-          alert(target + " has been blacklisted");
+          alert(target + " has been blacklisted. Refresh the page to update blacklisted users. To unblacklist somebody, open up the control panel by pressing the ~ key and click on the Blacklist tab.");
 
           // TODO: Update the blacklist if it's the current active tab
         });
@@ -2080,11 +2059,22 @@ FEK.prototype.ShowIndividualVotes = function(obj){
 ////////////////////////////////////////////////////
 FEK.prototype.LoadIndex = function(){
   var self = this;
-  alert("LOAD INDEX");
-  return;
 
-  // if(blacklisting)
-  //   IndexBlacklist();
+  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
+
+  // Blacklist
+  $(".discussion-list-item").each(function(){
+    // console.log(this);
+    var username = $(".username", this).text();
+    var realm    = $(".realm",    this).text();
+    console.log(`|${username} ${realm}|`);
+
+    if(`${username} ${realm}` in self.data["blacklist"])
+      $(this).remove();
+  });
+
+  return;
 
   // RemoveThumbnailBackground();
   // self.ColorVotes();
