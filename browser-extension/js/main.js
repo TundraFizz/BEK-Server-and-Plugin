@@ -38,7 +38,7 @@ FEK.prototype.Initialize = function(){
   if(typeof disableFEK !== "undefined" && disableFEK) return; // For Wuks
   var self = this;
 
-  self.FEKversion       = "5.3.0";
+  self.FEKversion       = "5.3.1";
   self.FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
   self.FEKgfx           = `${domain}/fek/gfx/misc/`;
   self.cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
@@ -372,6 +372,37 @@ FEK.prototype.CreateFeatures = function(){
     "label":    "No Backtalk",
     "tooltip":  "Diamond only, no backtalk",
     "options":  [],
+    "defaultOption": "off"
+  };
+
+  self.CreateFeature(featureMetaData, function(option){
+    if(option != "off"){
+      self.HighlightMyThreads();
+    }
+  });
+
+  //////////////////////////////////
+  // Feature: Thread highlighting //
+  //////////////////////////////////
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "Navigation Enhancements",
+    "label":    "Highlight My Threads",
+    "tooltip":  "Highlights your threads a specific color on a board's index",
+    "options":  [
+      "off|Disable",
+      "black|Black",
+      "red|Red",
+      "orange|Orange",
+      "yellow|Yellow",
+      "green|Green",
+      "blue|Blue",
+      "indigo|Indigo",
+      "violet|Violet",
+      "brown|Brown",
+      "gray|Gray"
+    ],
     "defaultOption": "off"
   };
 
@@ -1624,10 +1655,6 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var regionT   = obj.getElementsByClassName("realm")[0].textContent;
   regionT       = regionT.substring(1, regionT.length - 1);
 
-  // I forget why this is important
-  if(typeof self.results[usernameT] === "undefined")
-    return;
-
   // Hide blacklisted posts
   if(`${usernameT} (${regionT})` in self.data["blacklist"]){
     $(obj).parent()[0].remove();
@@ -1648,11 +1675,16 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var region        = obj.getElementsByClassName("realm")[0];
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
-  var tinyIcon; if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined") tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
+  var tinyIcon;
+  // if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined")
+  //   tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
+  // tinyIcon = $(".icon > img")[0];
+  tinyIcon = $(".icon", obj)[0];
+  console.log(tinyIcon);
   var avatarSize = 100;
 
   // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
-  tinyIcon.style.setProperty("z-index", "1");
+  $(tinyIcon).css("z-index", "1");
 
   // Pop-up thing that appears when you hover over a user
   $(tinyIcon).each(function(){
@@ -1734,6 +1766,10 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
       innerDiv.remove();
     });
   });
+
+  // If the current user isn't in the FEK database
+  if(typeof self.results[usernameT] === "undefined")
+    return;
 
   // FEK staff have special gradient names, so I need to extract them using this method
   if(obj.getElementsByClassName("pxg-set").length > 0)
@@ -2063,6 +2099,8 @@ FEK.prototype.LoadIndex = function(){
   self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
   self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
 
+  self.HighlightMyThreads();
+
   // Blacklist
   $(".discussion-list-item").each(function(){
     // console.log(this);
@@ -2087,6 +2125,27 @@ FEK.prototype.LoadIndex = function(){
   //   HighlightMyThreads();
 
   // self.QueryServer();
+}
+
+///////////////////////////////////////////////////////////////////////
+// HighlightMyThreads: Highlights your threads as black on the index //
+///////////////////////////////////////////////////////////////////////
+FEK.prototype.HighlightMyThreads = function(){
+  var self  = this;
+  var color = self.data["Highlight My Threads"];
+
+  if(self.page == "Index"){
+    $(".discussion-list-item").each(function(){
+      // We need to avoid any threads that don't have a name to them
+      if(this.getElementsByClassName("username")[0]){
+        var name = this.getElementsByClassName("username")[0].textContent;
+
+        if(name == self.myName)
+          this.style.setProperty("background-color", color, "important");
+          // this.style.setProperty("background-color", highlightMyThreads, "important");
+      }
+    });
+  }
 }
 
 /////////////////////////////////////////////
@@ -2778,23 +2837,6 @@ function RemoveThumbnailBackground(){
     $(".discussion-list-item td.thumbnail").css("max-width", "0px");
     $(document.getElementsByClassName("thumbnail-fallback")).each(function(){
       $(this).remove();
-    });
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-// HighlightMyThreads: Highlights your threads as black on the index //
-///////////////////////////////////////////////////////////////////////
-function HighlightMyThreads(){
-  if(self.page == "Index"){
-    $(".discussion-list-item").each(function(){
-      // We need to avoid any threads that don't have a name to them
-      if(this.getElementsByClassName("username")[0]){
-        var name = this.getElementsByClassName("username")[0].textContent;
-
-        if(name == self.myName)
-          this.style.setProperty("background-color", highlightMyThreads, "important");
-      }
     });
   }
 }
