@@ -3,7 +3,7 @@
   "short_name": "FEK",
   "author": "Tundra Fizz",
   "description": "Enhances the League of Legends boards by providing additional features to it.",
-  "version": "5.3.1",
+  "version": "5.4.0",
 
   "icons": {
     "16": "icons/icon16.png",
@@ -18,7 +18,7 @@
     "matches": [
       "https://*.leagueoflegends.com/*"
     ],
-    "css": [
+    "csss": [
       "css/fek-panel.css",
       "css/thread.css"
     ],

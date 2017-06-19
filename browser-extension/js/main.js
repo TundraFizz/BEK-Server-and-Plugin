@@ -53,7 +53,7 @@ FEK.prototype.Initialize = function(){
   self.results          = [];
 
   // CSS should only be loaded for development purposes
-  if(false){
+  if(true){
     LoadCSS(`${domain}/fek/css/fek-panel.css`);
     LoadCSS(`${domain}/fek/css/thread.css`);
   }
@@ -306,25 +306,25 @@ FEK.prototype.CreateFeatures = function(){
   //////////////////////////
   // Feature: FEK Avatars //
   //////////////////////////
-  // featureMetaData = {
-  //   "tabGroup": "Core Mods",
-  //   "tab":      "LoL Boards",
-  //   "category": "User Identities",
-  //   "label":    "FEK Avatars",
-  //   "tooltip":  "The size of FEK avatars.",
-  //   "options":  [
-  //     "100|100x100",
-  //     "125|125x125",
-  //     "150|150x150",
-  //     "175|175x175",
-  //     "200|200x200"
-  //   ],
-  //   "defaultOption": "100"
-  // };
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "User Identities",
+    "label":    "FEK Avatars",
+    "tooltip":  "The size of FEK avatars.",
+    "options":  [
+      "100|100x100",
+      "125|125x125",
+      "150|150x150",
+      "175|175x175",
+      "200|200x200"
+    ],
+    "defaultOption": "100"
+  };
 
-  // self.CreateFeature(featureMetaData, function(option){
-  //   avatarSize = parseInt(option);
-  // });
+  self.CreateFeature(featureMetaData, function(option){
+    // ?
+  });
 
   ///////////////////////////////
   // Feature: Fallback Avatars //
@@ -376,8 +376,13 @@ FEK.prototype.CreateFeatures = function(){
   };
 
   self.CreateFeature(featureMetaData, function(option){
-    if(option != "off"){
-      self.HighlightMyThreads();
+    if(option == "on"){
+      $(".apollo-header").css("background-image",      "url(https://tundrafizz.space/fek/gfx/no-backtalk.png)");
+      $(".apollo-header").css("background-repeat",     "no-repeat");
+      $(".apollo-header").css("background-position-x", "64px");
+      $(".apollo-header").css("background-position-y", "30px");
+      $(".apollo-header").css("margin-bottom",         "0px");
+      $(".apollo-header").css("padding-bottom",        "40px");
     }
   });
 
@@ -392,28 +397,24 @@ FEK.prototype.CreateFeatures = function(){
     "tooltip":  "Highlights your threads a specific color on a board's index",
     "options":  [
       "off|Disable",
-      "black|Black",
-      "red|Red",
-      "orange|Orange",
-      "yellow|Yellow",
-      "green|Green",
-      "blue|Blue",
-      "indigo|Indigo",
-      "violet|Violet",
-      "brown|Brown",
-      "gray|Gray"
+      "#000000|Black",
+      "#400000|Red",
+      "#442000|Orange",
+      "#303000|Yellow",
+      "#002800|Green",
+      "#000A50|Blue",
+      "#003737|Indigo",
+      "#3b066b|Purple",
+      "#9400D3|Violet",
+      "#2b1d0e|Brown",
+      "#2d2d2d|Gray"
     ],
     "defaultOption": "off"
   };
 
   self.CreateFeature(featureMetaData, function(option){
-    if(option == "on"){
-      $(".apollo-header").css("background-image",      "url(https://tundrafizz.space/fek/gfx/no-backtalk.png)");
-      $(".apollo-header").css("background-repeat",     "no-repeat");
-      $(".apollo-header").css("background-position-x", "64px");
-      $(".apollo-header").css("background-position-y", "30px");
-      $(".apollo-header").css("margin-bottom",         "0px");
-      $(".apollo-header").css("padding-bottom",        "40px");
+    if(option != "off"){
+      self.HighlightMyThreads();
     }
   });
 
@@ -1650,6 +1651,7 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
 // FormatSinglePost2: Inserts FEK data into the formatted post //
 /////////////////////////////////////////////////////////////////
 FEK.prototype.FormatSinglePost2 = function(obj, op){
+  console.log(obj);
   var self      = this;
   var usernameT = obj.getElementsByClassName("username")[0].textContent;
   var regionT   = obj.getElementsByClassName("realm")[0].textContent;
@@ -1680,11 +1682,28 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   //   tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
   // tinyIcon = $(".icon > img")[0];
   tinyIcon = $(".icon", obj)[0];
-  console.log(tinyIcon);
-  var avatarSize = 100;
+  // console.log(tinyIcon);
 
   // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
   $(tinyIcon).css("z-index", "1");
+
+  // Modify avatar size here
+  // alert(self.data["FEK Avatars"]);
+  var avatarSize = self.data["FEK Avatars"];
+  // $(icon).css("width",  avatarSize, "!important");
+  // $(icon).css("height", avatarSize, "!important");
+  $(icon).css("width",  avatarSize + "px", "!important");
+  $(icon).css("height", avatarSize + "px", "!important");
+
+  if(op){
+    // if OP, do #content
+    $("#content").css("padding-left", 75 + parseInt(avatarSize) + "px", "!important");
+    $("#content").css("min-height",   50 + parseInt(avatarSize) + "px", "!important");
+  }else{
+    // else, do .body    (20 + avatarSize)
+    $(".body", obj).css("padding-left", 20 + parseInt(avatarSize) + "px", "!important");
+    $(".body", obj).css("min-height",   avatarSize                + "px", "!important");
+  }
 
   // Pop-up thing that appears when you hover over a user
   $(tinyIcon).each(function(){
