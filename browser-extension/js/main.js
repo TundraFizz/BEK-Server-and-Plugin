@@ -106,7 +106,6 @@ FEK.prototype.Initialize = function(){
   self.platformRegion = windowURL.substring(start, end);
 
   Get(null, function(data){
-    console.log(data);
     if($.isEmptyObject(data)){
       self.DefaultVariables();
     }else{
@@ -140,7 +139,7 @@ FEK.prototype.DefaultVariables = function(){
 /////////////////////////////////////////////
 FEK.prototype.HandleUpdate = function(){
   var self = this;
-  console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");console.log("UPDATE!");
+  console.log("UPDATE!");
   self.data["version"] = self.FEKversion;
 
   Set(self.data, function(){
@@ -430,7 +429,7 @@ FEK.prototype.CreateFeatures = function(){
     $(`[tab="core-mods-blacklist"]`).click(function(){
       var groupView = $(`[group-view="core-mods-blacklist"]`)[0];
       var content   = "<h1>Blacklisted Users</h1><p>Click on a name to remove it from your blacklist</p>";
-      console.log("=====================================");
+
       for(var user in self.data["blacklist"]){
         content += `<a class="blacklist-remove" href="#">${user}<br></a>`;
       }
@@ -1651,7 +1650,6 @@ FEK.prototype.FormatSinglePost1 = function(obj, op){
 // FormatSinglePost2: Inserts FEK data into the formatted post //
 /////////////////////////////////////////////////////////////////
 FEK.prototype.FormatSinglePost2 = function(obj, op){
-  console.log(obj);
   var self      = this;
   var usernameT = obj.getElementsByClassName("username")[0].textContent;
   var regionT   = obj.getElementsByClassName("realm")[0].textContent;
@@ -1675,6 +1673,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var isRioter      = obj.getElementsByClassName("isRioter")[0];
   var username      = obj.getElementsByClassName("username")[0];
   var region        = obj.getElementsByClassName("realm")[0];
+  var myIcon        = $(".profile-hover > span:nth-child(1)", obj)[0];
 
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon;
@@ -1682,7 +1681,6 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   //   tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
   // tinyIcon = $(".icon > img")[0];
   tinyIcon = $(".icon", obj)[0];
-  // console.log(tinyIcon);
 
   // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
   $(tinyIcon).css("z-index", "1");
@@ -1694,6 +1692,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   // $(icon).css("height", avatarSize, "!important");
   $(icon).css("width",  avatarSize + "px", "!important");
   $(icon).css("height", avatarSize + "px", "!important");
+  $(myIcon).css("width", avatarSize + "px", "!important");
 
   if(op){
     // if OP, do #content
@@ -1843,7 +1842,8 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
     }
   }
 
-  // GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
+  // self.GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
+  self.GetBadgesAndTitle(usernameT, regionT, myIcon, staff, title, badge);
 }
 
 /////////////////////////////////////
@@ -1874,8 +1874,20 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
 FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge){
+  console.log("========== GetBadgesAndTitle ==========");
+  console.log(usernameT);
+  console.log(regionT);
+  console.log(profHover);
+  console.log(staff);
+  console.log(title);
+  console.log(badge);
+
+  var self       = this;
+  var avatarSize = self.data["FEK Avatars"];
+
   $.getJSON("https://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
+
       var data;
       var badges = [];
 
@@ -1929,14 +1941,16 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       var badgeContainer;
       var badgeSize = "36px"; // Badges are 36x36 and 4 badges per line
 
+      console.log(badges)
+
       if(badges.length > 0){
         badgeContainer = document.createElement("div");
         badgeContainer.className = "badge-container";
-        badgeContainer.style.setProperty("position",   "relative", "important");
-        badgeContainer.style.setProperty("top",        "-8px",     "important");
-        badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
-        badgeContainer.style.setProperty("height",     "36px",     "important");
-        badgeContainer.style.setProperty("text-align", "center",   "important");
+        // badgeContainer.style.setProperty("position",   "relative", "important");
+        // badgeContainer.style.setProperty("top",        "-8px",     "important");
+        // badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
+        // badgeContainer.style.setProperty("height",     "36px",     "important");
+        // badgeContainer.style.setProperty("text-align", "center",   "important");
         profHover.appendChild(badgeContainer);
       }
 
@@ -1957,17 +1971,17 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
         var divTitle = document.createElement("div");
 
         divTitle.className = "title";
-        divTitle.textContent = title;
+        divTitle.textContent = title;parseInt(avatarSize)
         divTitle.style.setProperty("position",       "relative",     "important");
         divTitle.style.setProperty("top",            "-8px",         "important");
-        divTitle.style.setProperty("width",          avatarSize + 60 + "px", "important");
-        divTitle.style.setProperty("max-width",      avatarSize + 60 + "px", "important");
-        divTitle.style.setProperty("max-height",     "52px",         "important");
-        divTitle.style.setProperty("text-align",     "center",       "important");
+        // divTitle.style.setProperty("width",          60 + parseInt(avatarSize) + "px", "important");
+        // divTitle.style.setProperty("max-width",      60 + parseInt(avatarSize) + "px", "important");
+        // divTitle.style.setProperty("max-height",     "52px",         "important");
+        // divTitle.style.setProperty("text-align",     "center",       "important");
         divTitle.style.setProperty("overflow",       "hidden",       "important");
-        divTitle.style.setProperty("letter-spacing", "0px",          "important");
-        divTitle.style.setProperty("display",        "inline-block", "important");
-        divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
+        // divTitle.style.setProperty("letter-spacing", "0px",          "important");
+        // divTitle.style.setProperty("display",        "inline-block", "important");
+        // divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
         divTitle.style.setProperty("font-variant",   "normal",       "important");
         divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
 
@@ -2122,10 +2136,8 @@ FEK.prototype.LoadIndex = function(){
 
   // Blacklist
   $(".discussion-list-item").each(function(){
-    // console.log(this);
     var username = $(".username", this).text();
     var realm    = $(".realm",    this).text();
-    console.log(`|${username} ${realm}|`);
 
     if(`${username} ${realm}` in self.data["blacklist"])
       $(this).remove();
