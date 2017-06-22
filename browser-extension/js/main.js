@@ -38,7 +38,7 @@ FEK.prototype.Initialize = function(){
   if(typeof disableFEK !== "undefined" && disableFEK) return; // For Wuks
   var self = this;
 
-  self.FEKversion       = "5.3.1";
+  self.FEKversion       = "5.4.0";
   self.FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
   self.FEKgfx           = `${domain}/fek/gfx/misc/`;
   self.cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
@@ -158,10 +158,11 @@ FEK.prototype.Main = function(){
   Set(self.data); // Save any new default data that may have happened from CreateFeatures
   self.SettleGUI();
   self.KeyWatch();
-  self.QueryServer();
 
   if(self.page == "Index")
     self.LoadIndex();
+  else if(self.page == "Thread")
+    self.WaitAndRun(".riot-voting", self.QueryServer());
 
   /////////////////////////////////////////////
   // ========== MUTATION OBSERVER ========== //
@@ -1698,6 +1699,15 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
     // if OP, do #content
     $("#content").css("padding-left", 75 + parseInt(avatarSize) + "px", "!important");
     $("#content").css("min-height",   50 + parseInt(avatarSize) + "px", "!important");
+
+    // Adjust length of username
+    // 100 =>  0.0
+    // 125 => 12.5
+    // 150 => 25.0
+    // 175 => 37.5
+    // 200 => 50.0
+    // Formula: (avatarSize - 100) / 2
+    $(".username", obj).css("left", parseInt((avatarSize - 100) / 2) + "px", "!important");
   }else{
     // else, do .body    (20 + avatarSize)
     $(".body", obj).css("padding-left", 20 + parseInt(avatarSize) + "px", "!important");
@@ -1712,9 +1722,6 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
       // Now create and append to innerDiv
       innerDiv = document.createElement("div");
       innerDiv.className = "fek-profile-popup";
-
-      // innerDiv.style.setProperty("font-size",   (avatarSize - 100) / 25 * 4 + 14 + "px");
-      // innerDiv.style.setProperty("line-height", (avatarSize - 100) / 25 * 5 + 18 + "px");
 
       innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
                             <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
@@ -1874,18 +1881,25 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
 FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge){
-  console.log("========== GetBadgesAndTitle ==========");
-  console.log(usernameT);
-  console.log(regionT);
-  console.log(profHover);
-  console.log(staff);
-  console.log(title);
-  console.log(badge);
+  // console.log("========== GetBadgesAndTitle ==========");
+  // console.log(usernameT);
+  // console.log(regionT);
+  // console.log(profHover);
+  // console.log(staff);
+  // console.log(title);
+  // console.log(badge);
 
   var self       = this;
   var avatarSize = self.data["FEK Avatars"];
 
   $.getJSON("https://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
+    console.log("========== REEEEEEEE ==========");
+    console.log(profHover);
+    var abc = $(".badge-container", profHover).length;
+    var def = $(".title", profHover).length;
+    console.log(abc);
+    console.log(def);
+
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
 
       var data;
@@ -1946,6 +1960,7 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       if(badges.length > 0){
         badgeContainer = document.createElement("div");
         badgeContainer.className = "badge-container";
+        badgeContainer.style.setProperty("display",   "inline-flex", "important");
         // badgeContainer.style.setProperty("position",   "relative", "important");
         // badgeContainer.style.setProperty("top",        "-8px",     "important");
         // badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
@@ -1956,14 +1971,18 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
 
       while(badges.length > 0){
         var badgeName = badges.shift();
-        var divBadge = document.createElement("img");
-        divBadge.className = "badge";
-        divBadge.setAttribute("src", badgeName);
 
-        divBadge.style.setProperty("width",  badgeSize, "important");
-        divBadge.style.setProperty("height", badgeSize, "important");
+        var reee = `<span class="badge" style="background-image: url(${badgeName}); width: ${badgeSize}; height: ${badgeSize};"></span>`;
+        $(badgeContainer).append(reee);
 
-        badgeContainer.appendChild(divBadge);
+        // var divBadge = document.createElement("img");
+        // divBadge.className = "badge";
+        // divBadge.setAttribute("src", badgeName);
+
+        // divBadge.style.setProperty("width",  badgeSize, "important");
+        // divBadge.style.setProperty("height", badgeSize, "important");
+
+        // badgeContainer.appendChild(divBadge);
       }
 
       // Apply a title if you have one
@@ -1974,25 +1993,25 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
         divTitle.textContent = title;parseInt(avatarSize)
         divTitle.style.setProperty("position",       "relative",     "important");
         divTitle.style.setProperty("top",            "-8px",         "important");
+        divTitle.style.setProperty("overflow",       "hidden",       "important");
+        divTitle.style.setProperty("font-variant",   "normal",       "important");
+        divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
         // divTitle.style.setProperty("width",          60 + parseInt(avatarSize) + "px", "important");
         // divTitle.style.setProperty("max-width",      60 + parseInt(avatarSize) + "px", "important");
         // divTitle.style.setProperty("max-height",     "52px",         "important");
         // divTitle.style.setProperty("text-align",     "center",       "important");
-        divTitle.style.setProperty("overflow",       "hidden",       "important");
         // divTitle.style.setProperty("letter-spacing", "0px",          "important");
         // divTitle.style.setProperty("display",        "inline-block", "important");
         // divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
-        divTitle.style.setProperty("font-variant",   "normal",       "important");
-        divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
 
         profHover.appendChild(divTitle);
 
         if(title.length < 24)
-          divTitle.style.setProperty("font-size", "14px", "important");
+          divTitle.style.setProperty("font-size", "16px", "important");
         else if(title.length < 28)
-          divTitle.style.setProperty("font-size", "12px", "important");
+          divTitle.style.setProperty("font-size", "15px", "important");
         else
-          divTitle.style.setProperty("font-size", "10px", "important");
+          divTitle.style.setProperty("font-size", "12px", "important");
 
         if(staff == "1"){
           divTitle.style.setProperty("font-size", "26px", "important");
