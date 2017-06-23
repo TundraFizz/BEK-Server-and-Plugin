@@ -1695,23 +1695,30 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   $(icon).css("height", avatarSize + "px", "!important");
   $(myIcon).css("width", avatarSize + "px", "!important");
 
-  if(op){
-    // if OP, do #content
-    $("#content").css("padding-left", 75 + parseInt(avatarSize) + "px", "!important");
-    $("#content").css("min-height",   50 + parseInt(avatarSize) + "px", "!important");
+  var REEEEEEEE = 0;
 
-    // Adjust length of username
-    // 100 =>  0.0
-    // 125 => 12.5
-    // 150 => 25.0
-    // 175 => 37.5
-    // 200 => 50.0
-    // Formula: (avatarSize - 100) / 2
-    $(".username", obj).css("left", parseInt((avatarSize - 100) / 2) + "px", "!important");
-  }else{
-    // else, do .body    (20 + avatarSize)
-    $(".body", obj).css("padding-left", 20 + parseInt(avatarSize) + "px", "!important");
-    $(".body", obj).css("min-height",   avatarSize                + "px", "!important");
+  // Do NOT do these if a badge-container already exists
+  if(!$(".badge-container", obj).length){
+    if(op){
+      // if OP, do #content
+      $("#content").css("padding-left", 75 + parseInt(avatarSize) + "px", "!important");
+      $("#content").css("min-height",   50 + parseInt(avatarSize) + "px", "!important");
+      REEEEEEEE = $("#content")[0];
+
+      // Adjust length of username
+      // 100 =>  0.0
+      // 125 => 12.5
+      // 150 => 25.0
+      // 175 => 37.5
+      // 200 => 50.0
+      // Formula: (avatarSize - 100) / 2
+      // $(".username", obj).css("left", parseInt((avatarSize - 100) / 2) + "px", "!important");
+    }else{
+      // else, do .body    (20 + avatarSize)
+      $(".body", obj).css("padding-left", 20 + parseInt(avatarSize) + "px", "!important");
+      $(".body", obj).css("min-height",   avatarSize                + "px", "!important");
+      REEEEEEEE = $(".body", obj)[0];
+    }
   }
 
   // Pop-up thing that appears when you hover over a user
@@ -1850,7 +1857,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   }
 
   // self.GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
-  self.GetBadgesAndTitle(usernameT, regionT, myIcon, staff, title, badge);
+  self.GetBadgesAndTitle(usernameT, regionT, myIcon, staff, title, badge, REEEEEEEE);
 }
 
 /////////////////////////////////////
@@ -1880,7 +1887,7 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
 ////////////////////////////////////////////////////////////////////////
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
-FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge){
+FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge, REEEEEEEE){
   // console.log("========== GetBadgesAndTitle ==========");
   // console.log(usernameT);
   // console.log(regionT);
@@ -1893,15 +1900,8 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
   var avatarSize = self.data["FEK Avatars"];
 
   $.getJSON("https://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
-    console.log("========== REEEEEEEE ==========");
-    console.log(profHover);
-    var abc = $(".badge-container", profHover).length;
-    var def = $(".title", profHover).length;
-    console.log(abc);
-    console.log(def);
-
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
-
+      console.log(REEEEEEEE);
       var data;
       var badges = [];
 
@@ -1955,12 +1955,14 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       var badgeContainer;
       var badgeSize = "36px"; // Badges are 36x36 and 4 badges per line
 
-      console.log(badges)
+      // console.log(badges);
 
       if(badges.length > 0){
         badgeContainer = document.createElement("div");
         badgeContainer.className = "badge-container";
-        badgeContainer.style.setProperty("display",   "inline-flex", "important");
+        // badgeContainer.style.setProperty("display",   "block", "important");
+        badgeContainer.style.setProperty("min-width",   "144px", "important");
+        badgeContainer.style.setProperty("line-height", "0",     "important");
         // badgeContainer.style.setProperty("position",   "relative", "important");
         // badgeContainer.style.setProperty("top",        "-8px",     "important");
         // badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
@@ -1969,10 +1971,14 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
         profHover.appendChild(badgeContainer);
       }
 
+      var wereThereBadges = false;
+      if(badges.length)
+        wereThereBadges = true;
+
       while(badges.length > 0){
         var badgeName = badges.shift();
 
-        var reee = `<span class="badge" style="background-image: url(${badgeName}); width: ${badgeSize}; height: ${badgeSize};"></span>`;
+        var reee = `<span class="badge" style="background-image: url(${badgeName}); display: inline-block; width: ${badgeSize}; height: ${badgeSize};"></span>`;
         $(badgeContainer).append(reee);
 
         // var divBadge = document.createElement("img");
@@ -1985,16 +1991,25 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
         // badgeContainer.appendChild(divBadge);
       }
 
+      // Check the height of the badge container
+      if(wereThereBadges){
+        // $()
+        var currentHeight = parseInt($(REEEEEEEE).css("min-height"));
+        currentHeight += 36;
+        console.log(currentHeight);
+        $(REEEEEEEE).css("min-height", currentHeight + "px", "important")
+      }
+
       // Apply a title if you have one
       if(title){
         var divTitle = document.createElement("div");
 
         divTitle.className = "title";
         divTitle.textContent = title;parseInt(avatarSize)
-        divTitle.style.setProperty("position",       "relative",     "important");
-        divTitle.style.setProperty("top",            "-8px",         "important");
+        // divTitle.style.setProperty("position",       "relative",     "important");
+        // divTitle.style.setProperty("top",            "-8px",         "important");
         divTitle.style.setProperty("overflow",       "hidden",       "important");
-        divTitle.style.setProperty("font-variant",   "normal",       "important");
+        // divTitle.style.setProperty("font-variant",   "normal",       "important");
         divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
         // divTitle.style.setProperty("width",          60 + parseInt(avatarSize) + "px", "important");
         // divTitle.style.setProperty("max-width",      60 + parseInt(avatarSize) + "px", "important");
