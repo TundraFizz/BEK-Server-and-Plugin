@@ -139,7 +139,6 @@ FEK.prototype.DefaultVariables = function(){
 /////////////////////////////////////////////
 FEK.prototype.HandleUpdate = function(){
   var self = this;
-  console.log("UPDATE!");
   self.data["version"] = self.FEKversion;
 
   Set(self.data, function(){
@@ -160,9 +159,23 @@ FEK.prototype.Main = function(){
   self.KeyWatch();
 
   if(self.page == "Index")
-    self.LoadIndex();
+    self.WaitAndRun(".total-votes", "LoadIndex");
+    // self.LoadIndex();
   else if(self.page == "Thread")
-    self.WaitAndRun(".riot-voting", self.QueryServer());
+    self.WaitAndRun(".profile-hover", "QueryServer");
+    // self.WaitAndRun(".profile-hover", self.QueryServer);
+
+  self.RunMutationObserver();
+
+  // Put this back in later
+  // if(self.RPint < 15 && title == "Roleplaying" && self.alertPopUp === false) RoleplayingAlert();
+}
+
+////////////////////////////////////
+// RunMutationObserver: Yolo Swag //
+////////////////////////////////////
+FEK.prototype.RunMutationObserver = function(){
+  var self = this;
 
   /////////////////////////////////////////////
   // ========== MUTATION OBSERVER ========== //
@@ -175,83 +188,12 @@ FEK.prototype.Main = function(){
 
     var observer = new MutationObserver(function(mutations){
       if(self.page == "Index"){
-        self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex());
+        self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex);
       }
       else if(self.page == "Thread"){
-        self.WaitAndRun(".riot-voting", self.QueryServer());
+        self.WaitAndRun(".profile-hover", "QueryServer");
+        // self.WaitAndRun(".profile-hover", self.QueryServer);
       }
-    });
-
-    var config = {attributes: true, childList: true, characterData: true};
-
-    observer.observe(target, config);
-  }
-
-  // ---------------------------------------------------------------------------
-  return;
-  // ---------------------------------------------------------------------------
-
-  if(document.title == "Boards"){
-    HideSubboards();
-  }
-
-  AddFEKNavBar();
-  // AddBoardsNavBar();
-
-  if((self.page == "Thread" || self.page == "Index") && self.platformRegion == "na"){
-    var markdownNav = document.getElementById("markdown-nav");
-    var timeOut     = 2000, currentTime = 0;
-
-    var interval = setInterval(function(){
-      currentTime = currentTime + 1;
-
-      if(currentTime >= timeOut){
-        clearInterval(interval);
-      }else{
-        if(markdownNav.children.length){
-          clearInterval(interval);
-          RemoveNavListLinks();
-        }
-      }
-    }, 1);
-  }
-
-  if(self.page == "Index"){
-    if(emptyVoteReplacement != "off")
-      EmptyVoteReplacement(); // For boards without voting
-
-    if($(".no-voting").length)
-      WaitAndRun(".no-voting", LoadIndex);
-    else{
-      WaitAndRun(".total-votes", LoadIndex);
-    }
-  }else if(self.page == "Thread"){
-    WaitAndRun(".profile-hover", LoadThread);
-  }
-
-  if(self.page == "Thread" && favoriteIcons != "off")
-    WaitAndRun(".button.gamedata.champion", FavoriteIcons);
-
-  document.getElementById("fek-panel").style.setProperty("visibility", "visible", "important");
-
-  // Put this back in later
-  // if(self.RPint < 15 && title == "Roleplaying" && self.alertPopUp === false) RoleplayingAlert();
-
-  // ------------------------------------------
-
-  /////////////////////////////////////////////
-  // ========== MUTATION OBSERVER ========== //
-  /////////////////////////////////////////////
-  if(self.page == "Index" || self.page == "Thread"){
-    var target; if     (self.page == "Index")                                  target = document.querySelector("#discussion-list");
-                else if(self.page == "Thread" && self.threadMode == "Chrono")  target = document.querySelector("#comments");
-                else if(self.page == "Thread" && self.threadMode == "Discuss") target = document.querySelector("#comments");
-
-    var observer = new MutationObserver(function(mutations){
-      if(self.page == "Index")
-        WaitAndRun(mutations[0].addedNodes[0].children[0], LoadIndex);
-      else if(self.page == "Thread")
-        WaitAndRun(".riot-voting", LoadThread);
     });
 
     var config = {attributes: true, childList: true, characterData: true};
@@ -1461,8 +1403,10 @@ FEK.prototype.QueryServer = function(){
   var self = this;
 
   // Features that can be done right away without needing data from the FEK server
-  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
-  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", "ColorVotes");
+  self.WaitAndRun(".riot-voting > .total-votes", "HoverVotes");
+  // self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  // self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
 
   self.users   = [];
   self.regions = [];
@@ -1554,6 +1498,9 @@ FEK.prototype.QueryServer = function(){
 FEK.prototype.FormatAllPosts = function(FEKData = false){
   var self = this;
 
+  // Remove all "isOP" classes from the page to prevent names in regular posts from being white
+  $("*").removeClass("isOP");
+
   // This removes the thing that mimimizes posts in Discussion View
   // This isn't desirable because it restricts freedom for Discussion View
   $(document).find(".toggle-minimized").remove();
@@ -1561,12 +1508,12 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
   if(!FEKData){
     if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
       $(".op-container").each(function(){
-        self.FormatSinglePost1(this, true);
+        self.FormatSinglePost2(this, true);
       });
     }
 
     $(".body-container").each(function(){
-      self.FormatSinglePost1(this, false);
+      self.FormatSinglePost2(this, false);
     });
   }else{
     if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
@@ -1584,6 +1531,7 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
 
   // isMinimized
   $(".toggle-minimized").click(function(){
+    alert("DO NOT MINIMIZE POSTS YET! FEK still needs to properly handle them...");
     // Put everything in a container and then hide it
 
     var post = $(this).parent()[0];
@@ -1676,6 +1624,8 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var region        = obj.getElementsByClassName("realm")[0];
   var myIcon        = $(".profile-hover > span:nth-child(1)", obj)[0];
 
+  var colorrr = $(username).css("color");
+
   // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
   var tinyIcon;
   // if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined")
@@ -1698,28 +1648,36 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   var REEEEEEEE = 0;
 
   // Do NOT do these if a badge-container already exists
-  if(!$(".badge-container", obj).length){
-    if(op){
-      // if OP, do #content
-      $("#content").css("padding-left", 75 + parseInt(avatarSize) + "px", "!important");
-      $("#content").css("min-height",   50 + parseInt(avatarSize) + "px", "!important");
-      REEEEEEEE = $("#content")[0];
+  // if(!$(".badge-container", obj).length){
+  if(op){
+    // if OP, do #content
+    $("#content").css("padding-left", 75 + parseInt(avatarSize) + "px", "!important");
+    $("#content").css("min-height",   50 + parseInt(avatarSize) + "px", "!important");
+    REEEEEEEE = $("#content")[0];
 
-      // Adjust length of username
-      // 100 =>  0.0
-      // 125 => 12.5
-      // 150 => 25.0
-      // 175 => 37.5
-      // 200 => 50.0
-      // Formula: (avatarSize - 100) / 2
-      // $(".username", obj).css("left", parseInt((avatarSize - 100) / 2) + "px", "!important");
-    }else{
-      // else, do .body    (20 + avatarSize)
-      $(".body", obj).css("padding-left", 20 + parseInt(avatarSize) + "px", "!important");
-      $(".body", obj).css("min-height",   avatarSize                + "px", "!important");
-      REEEEEEEE = $(".body", obj)[0];
-    }
+    // Adjust length of username
+    // 100 =>  0.0
+    // 125 => 12.5
+    // 150 => 25.0
+    // 175 => 37.5
+    // 200 => 50.0
+    // Formula: (avatarSize - 100) / 2
+    // $(".username", obj).css("left", parseInt((avatarSize - 100) / 2) + "px", "!important");
+  }else{
+    // else, do .body    (20 + avatarSize)
+
+    var testingStuff = parseInt(avatarSize);
+    if(testingStuff < 144)
+      testingStuff = 144;
+
+    // Set width of .profile-hover to testingStuff
+    $(".profile-hover", obj).css("width", testingStuff, "!important");
+
+    $(".body", obj).css("padding-left", 20 + testingStuff + "px", "!important");
+    $(".body", obj).css("min-height",   avatarSize        + "px", "!important");
+    REEEEEEEE = $(".body", obj)[0];
   }
+  // }
 
   // Pop-up thing that appears when you hover over a user
   $(tinyIcon).each(function(){
@@ -1799,64 +1757,63 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
     });
   });
 
-  // If the current user isn't in the FEK database
-  if(typeof self.results[usernameT] === "undefined")
-    return;
-
   // FEK staff have special gradient names, so I need to extract them using this method
-  if(obj.getElementsByClassName("pxg-set").length > 0)
-    usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
+  // if(obj.getElementsByClassName("pxg-set").length > 0)
+  //   usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
-  // Declare variables that will be used later
-  var opTitle;      // op
-  var authorInfo;   // op
-  var content;      // op
-  var controlLinks; // op
-  var attachments;  // not op
-  var footer;       // not op
+  // If the current user isn't in the FEK database, assign stuff
+  if(typeof self.results[usernameT] !== "undefined"){
+    // Declare variables that will be used later
+    var opTitle;      // op
+    var authorInfo;   // op
+    var content;      // op
+    var controlLinks; // op
+    var attachments;  // not op
+    var footer;       // not op
 
-  // Define user data variables
-  var avatar = self.results[usernameT][regionT].avatar;
-  var staff  = self.results[usernameT][regionT].staff;
-  var title  = self.results[usernameT][regionT].title;
-  var badge  = self.results[usernameT][regionT].badge;
+    // Define user data variables
+    var avatar = self.results[usernameT][regionT].avatar;
+    var staff  = self.results[usernameT][regionT].staff;
+    var title  = self.results[usernameT][regionT].title;
+    var badge  = self.results[usernameT][regionT].badge;
 
-  var innerDiv;
+    var innerDiv;
 
-  // Assign avatars
-  if(typeof isRioter !== "undefined")
-    self.AssignAvatar(obj, true, avatar, tinyIcon);
-  else
-    self.AssignAvatar(obj, false, avatar, tinyIcon);
+    // Assign avatars
+    if(typeof isRioter !== "undefined")
+      self.AssignAvatar(obj, true, avatar, tinyIcon);
+    else
+      self.AssignAvatar(obj, false, avatar, tinyIcon);
 
-  // Alter text colors for names and titles
-  // if(op === false){
-  //   if(isRioter)
-  //     profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
-  //   else if(staff == "1")
-  //     profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
-  //   else
-  //     profHover.style.setProperty("color", "#94724D", "important"); // Regular users
-  // }
+    // Alter text colors for names and titles
+    // if(op === false){
+    //   if(isRioter)
+    //     profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
+    //   else if(staff == "1")
+    //     profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
+    //   else
+    //     profHover.style.setProperty("color", "#94724D", "important"); // Regular users
+    // }
 
-  // Username: All Posts
-  if(1){
-    if(staff == "1"){
-      // Gradient names have problems where if they are too long and have a space, they will
-      // go on a second line. So if a name is a certain length (>= 14) and has at least one
-      // space in it, decrease the font size to 12
-      if(usernameT.length >= 12 && (usernameT.indexOf(" ") >= 0))
-        username.style.setProperty("font-size", "12px", "important");
+    // Username: All Posts
+    if(1){
+      if(staff == "1"){
+        // Gradient names have problems where if they are too long and have a space, they will
+        // go on a second line. So if a name is a certain length (>= 14) and has at least one
+        // space in it, decrease the font size to 12
+        if(usernameT.length >= 12 && (usernameT.indexOf(" ") >= 0))
+          username.style.setProperty("font-size", "12px", "important");
 
-      $(username).GradientText({
-        step:    10,
-        colors: ["#68BAFF", "#008AFF", "#68BAFF"],
-        dir:    "x"
-      });
+        $(username).GradientText({
+          step:    10,
+          colors: ["#68BAFF", "#008AFF", "#68BAFF"],
+          dir:    "x"
+        });
+      }
     }
   }
 
-  // self.GetBadgesAndTitle(usernameT, regionT, profHover, staff, title, badge);
+  self.RollDice(body);
   self.GetBadgesAndTitle(usernameT, regionT, myIcon, staff, title, badge, REEEEEEEE);
 }
 
@@ -1888,20 +1845,19 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
 FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge, REEEEEEEE){
-  // console.log("========== GetBadgesAndTitle ==========");
-  // console.log(usernameT);
-  // console.log(regionT);
-  // console.log(profHover);
-  // console.log(staff);
-  // console.log(title);
-  // console.log(badge);
-
   var self       = this;
   var avatarSize = self.data["FEK Avatars"];
 
   $.getJSON("https://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
-      console.log(REEEEEEEE);
+      var badgeContainer;
+      var badgeSize = "36px"; // Badges are 36x36 and 4 badges per line
+      badgeContainer = document.createElement("div");
+      badgeContainer.className = "badge-container";
+      badgeContainer.style.setProperty("min-width",   "144px", "important");
+      badgeContainer.style.setProperty("line-height", "0",     "important");
+      profHover.appendChild(badgeContainer);
+
       var data;
       var badges = [];
 
@@ -1952,25 +1908,6 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
           if(collection[i])
             badges.push(collection[i]);
 
-      var badgeContainer;
-      var badgeSize = "36px"; // Badges are 36x36 and 4 badges per line
-
-      // console.log(badges);
-
-      if(badges.length > 0){
-        badgeContainer = document.createElement("div");
-        badgeContainer.className = "badge-container";
-        // badgeContainer.style.setProperty("display",   "block", "important");
-        badgeContainer.style.setProperty("min-width",   "144px", "important");
-        badgeContainer.style.setProperty("line-height", "0",     "important");
-        // badgeContainer.style.setProperty("position",   "relative", "important");
-        // badgeContainer.style.setProperty("top",        "-8px",     "important");
-        // badgeContainer.style.setProperty("width",      avatarSize + 60 + "px", "important");
-        // badgeContainer.style.setProperty("height",     "36px",     "important");
-        // badgeContainer.style.setProperty("text-align", "center",   "important");
-        profHover.appendChild(badgeContainer);
-      }
-
       var wereThereBadges = false;
       if(badges.length)
         wereThereBadges = true;
@@ -1980,23 +1917,12 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
 
         var reee = `<span class="badge" style="background-image: url(${badgeName}); display: inline-block; width: ${badgeSize}; height: ${badgeSize};"></span>`;
         $(badgeContainer).append(reee);
-
-        // var divBadge = document.createElement("img");
-        // divBadge.className = "badge";
-        // divBadge.setAttribute("src", badgeName);
-
-        // divBadge.style.setProperty("width",  badgeSize, "important");
-        // divBadge.style.setProperty("height", badgeSize, "important");
-
-        // badgeContainer.appendChild(divBadge);
       }
 
       // Check the height of the badge container
       if(wereThereBadges){
-        // $()
         var currentHeight = parseInt($(REEEEEEEE).css("min-height"));
-        currentHeight += 36;
-        console.log(currentHeight);
+        currentHeight += parseInt($($(badgeContainer)[0]).css("height")); // Increase the min-height by height of badge container
         $(REEEEEEEE).css("min-height", currentHeight + "px", "important")
       }
 
@@ -2006,18 +1932,8 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
 
         divTitle.className = "title";
         divTitle.textContent = title;parseInt(avatarSize)
-        // divTitle.style.setProperty("position",       "relative",     "important");
-        // divTitle.style.setProperty("top",            "-8px",         "important");
-        divTitle.style.setProperty("overflow",       "hidden",       "important");
-        // divTitle.style.setProperty("font-variant",   "normal",       "important");
-        divTitle.style.setProperty("font-family",    `"Constantia", "Palatino", "Georgia", serif`, "important");
-        // divTitle.style.setProperty("width",          60 + parseInt(avatarSize) + "px", "important");
-        // divTitle.style.setProperty("max-width",      60 + parseInt(avatarSize) + "px", "important");
-        // divTitle.style.setProperty("max-height",     "52px",         "important");
-        // divTitle.style.setProperty("text-align",     "center",       "important");
-        // divTitle.style.setProperty("letter-spacing", "0px",          "important");
-        // divTitle.style.setProperty("display",        "inline-block", "important");
-        // divTitle.style.setProperty("font-size",      "36px",         "important"); // Artificially inflate size of textbox here
+        divTitle.style.setProperty("overflow",    "hidden",                                     "important");
+        divTitle.style.setProperty("font-family", `"Constantia", "Palatino", "Georgia", serif`, "important");
 
         profHover.appendChild(divTitle);
 
@@ -2062,7 +1978,19 @@ FEK.prototype.WaitAndRun = function(selector, callback){
       clearInterval(interval);
     else if($(selector).length > 0){
       clearInterval(interval);
-      callback(self);
+      // console.log("===== callback =====");
+      // console.log(callback);
+      if(callback == "QueryServer")
+        self.QueryServer();
+      else if(callback == "ColorVotes")
+        self.ColorVotes();
+      else if(callback == "HoverVotes")
+        self.HoverVotes();
+      else if(callback == "LoadIndex")
+        self.LoadIndex();
+
+      // console.log(selector);
+      // self.callback();
     }
   }, 10);
 }
@@ -2086,7 +2014,8 @@ FEK.prototype.WaitAndRunManual = function(time, callback){
 /////////////////////////////////////////////////////////////
 // ColorVotes: Colors upvotes green and downvotes negative //
 /////////////////////////////////////////////////////////////
-FEK.prototype.ColorVotes = function(self){
+FEK.prototype.ColorVotes = function(){
+  var self = this;
   var totalVotes = $(document).find(".total-votes");
 
   $(totalVotes).each(function(){
@@ -2102,9 +2031,11 @@ FEK.prototype.ColorVotes = function(self){
 //////////////////////////////////////////////////////////////////////////////////////////////
 // HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
 //////////////////////////////////////////////////////////////////////////////////////////////
-FEK.prototype.HoverVotes = function(self){
+FEK.prototype.HoverVotes = function(){
+  var self = this;
   var votingDisplay = "on"; // SAMPLE TEST SETTING, REMOVE LATER!
   if(votingDisplay != "off"){
+
     $(".riot-voting").each(function(){
       if(votingDisplay == "hide")
         this.style.setProperty("visibility", "hidden", "important");
@@ -2162,9 +2093,11 @@ FEK.prototype.ShowIndividualVotes = function(obj){
 ////////////////////////////////////////////////////
 FEK.prototype.LoadIndex = function(){
   var self = this;
+  self.ColorVotes();
+  self.HoverVotes();
 
-  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
-  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
+  // self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  // self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
 
   self.HighlightMyThreads();
 
@@ -2211,6 +2144,136 @@ FEK.prototype.HighlightMyThreads = function(){
       }
     });
   }
+}
+
+//////////////////////////////////
+// RollDice: Rolls virtual dice //
+//////////////////////////////////
+FEK.prototype.RollDice = function(obj){
+  var self = this;
+
+  // PRNG
+  !function(a,b,c,d,e,f,g,h,i){function j(a){var b,c=a.length,e=this,f=0,g=e.i=e.j=0,h=e.S=[];for(c||(a=[c++]);d>f;)h[f]=f++;for(f=0;d>f;f++)h[f]=h[g=s&g+a[f%c]+(b=h[f])],h[g]=b;(e.g=function(a){for(var b,c=0,f=e.i,g=e.j,h=e.S;a--;)b=h[f=s&f+1],c=c*d+h[s&(h[f]=h[g=s&g+b])+(h[g]=b)];return e.i=f,e.j=g,c})(d)}function k(a,b){var c,d=[],e=typeof a;if(b&&"object"==e)for(c in a)try{d.push(k(a[c],b-1))}catch(f){}return d.length?d:"string"==e?a:a+"\0"}function l(a,b){for(var c,d=a+"",e=0;e<d.length;)b[s&e]=s&(c^=19*b[s&e])+d.charCodeAt(e++);return n(b)}function m(c){try{return o?n(o.randomBytes(d)):(a.crypto.getRandomValues(c=new Uint8Array(d)),n(c))}catch(e){return[+new Date,a,(c=a.navigator)&&c.plugins,a.screen,n(b)]}}function n(a){return String.fromCharCode.apply(0,a)}var o,p=c.pow(d,e),q=c.pow(2,f),r=2*q,s=d-1,t=c["seed"+i]=function(a,f,g){var h=[];f=1==f?{entropy:!0}:f||{};var o=l(k(f.entropy?[a,n(b)]:null==a?m():a,3),h),s=new j(h);return l(n(s.S),b),(f.pass||g||function(a,b,d){return d?(c[i]=a,b):a})(function(){for(var a=s.g(e),b=p,c=0;q>a;)a=(a+c)*d,b*=d,c=s.g(1);for(;a>=r;)a/=2,b/=2,c>>>=1;return(a+c)/b},o,"global"in f?f.global:this==c)};if(l(c[i](),b),g&&g.exports){g.exports=t;try{o=require("crypto")}catch(u){}}else h&&h.amd&&h(function(){return t})}(this,[],Math,256,6,52,"object"==typeof module&&module,"function"==typeof define&&define,"random");
+
+  var TIME_THING = $(".timeago > span", $(obj).parent())[0];
+  var PARE_THING = $("p", $(obj).parent());
+
+  var timeStamp = String($(TIME_THING).attr("title"));
+  var seed      = parseInt(timeStamp.substring(timeStamp.length-8, timeStamp.length-5));
+  var rolled    = false;
+
+  // DICE ROLLING RULES!
+  // Only one roll per post. This is to prevent too many rolls to crash the browser.
+  // Don't do rolls in <blockquote>
+
+  // [roll]     = Die Result: 500 (1d1000)
+  // [roll:6]   = Die Result: 4 (1d6)
+  // [roll:2d6] = Die Result: 7 (1d6)
+  // [roll:100] = Die Result: 50 (1d100)
+
+  $(PARE_THING).each(function(){
+    // Extract text in between [roll and ]
+    var origText = $(this).text();
+    var regex   = /\[roll(.*?)\]/gi
+    // console.log(this);
+    // console.log(this.text);
+    // console.log($(this).text());
+    var command = regex.exec(origText);
+
+    if(command){
+      // Example of the Array command
+      // command[0] : "[roll:2d100]"
+      // command[1] : "2d100"
+
+      var result = 0;
+      var rolls  = 1;
+      var die    = 1000;
+
+      for(var j = 0; j < rolls; ++j){
+        Math.seedrandom(seed);
+        result += Math.ceil(Math.random() * die);
+        seed += 1;
+      }
+
+      // Replace the text
+      var rollResult = `
+      <font color="#ff0000">Die Result: </font>
+      <font color="#00ff00">${result}</font>
+      <font color="#00ffff">(${rolls}d${die})</font>
+      `;
+
+      var newText = origText.replace(command[0], rollResult);
+
+      $(this).html(newText);
+    }
+
+    // // Example of the Array command
+    // // command[0] : "[roll:2d100]"
+    // // command[1] : "2d100"
+
+    // if((rolled || rollDice == "off" || (paragraphs[i].parentElement.tagName == "BLOCKQUOTE")) && command !== null)
+    //   paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], "");
+    // else if(rollDice == "on" && command !== null){
+    //   var rolls    = 0;
+    //   var die      = 0;
+    //   var regex    = /([0-9]*)d([0-9]*)/gi
+    //   var extended = regex.exec(command[1]);
+
+    //   // Example of the Array extended (assuming it exists)
+    //   // extended[0] : "2d100"
+    //   // extended[1] : "2"
+    //   // extended[2] : "100"
+
+    //   // Check if it's something like 2d100, instead of having a single number
+    //   if(extended !== null){
+    //     if(extended[1]) rolls = extended[1];
+    //     else            rolls = 1;
+
+    //     if(extended[2]) die = extended[2];
+    //     else            die = 1;
+    //   }else{
+    //     var regex  = /([0-9]*)/g
+    //     var simple = regex.exec(command[1]);
+
+    //     if(command[1] == simple[1]){
+    //       rolls = 1;
+
+    //       if(command[1]) die = command[1];
+    //       else           die = 1;
+    //     }
+    //   }
+
+    //   var result = 0;
+
+    //   // Limit the die rolls and sides to 100
+    //   if(rolls > 100) rolls = 100;
+    //   if(die   > 100) die   = 100;
+
+    //   // [roll] is a special die roll of 1d1000
+    //   if(command[0] == "[roll]"){
+    //     rolls = 1;
+    //     die   = 1000;
+    //   }
+
+    //   if(rolls != 0){
+    //     for(var j = 0; j < rolls; ++j){
+    //       Math.seedrandom(seed);
+    //       result += Math.ceil(Math.random() * die);
+    //       seed += 1;
+    //     }
+
+    //     // Replace the text
+    //     var dieRoll = `
+    //     <font color="#ff0000">Die Result: </font>
+    //     <font color="#00ff00">${result}</font>
+    //     <font color="#00ffff">(${rolls}d${die})</font>
+    //     `;
+    //     paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], dieRoll);
+
+    //     rolled = true;
+    //   }
+    // }
+  });
 }
 
 /////////////////////////////////////////////
@@ -2514,6 +2577,8 @@ function IndexBlacklist(){
 // LoadThread: Loads everything for the Thread page //
 //////////////////////////////////////////////////////
 function LoadThread(){
+  alert("YOU SHOULD NOT BE SEEING THIS MESSAGE!");
+  return;
   // Remove all "Posting as X" fields
   $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
 
@@ -2563,113 +2628,6 @@ function FormatSomePosts(FEKData = false){
       if(!$($(this).find(".deleted")[0]).is(":visible"))
         FormatSinglePost2(this, false);
     });
-  }
-}
-
-//////////////////////////////////
-// RollDice: Rolls virtual dice //
-//////////////////////////////////
-function RollDice(obj){
-  // PRNG
-  !function(a,b,c,d,e,f,g,h,i){function j(a){var b,c=a.length,e=this,f=0,g=e.i=e.j=0,h=e.S=[];for(c||(a=[c++]);d>f;)h[f]=f++;for(f=0;d>f;f++)h[f]=h[g=s&g+a[f%c]+(b=h[f])],h[g]=b;(e.g=function(a){for(var b,c=0,f=e.i,g=e.j,h=e.S;a--;)b=h[f=s&f+1],c=c*d+h[s&(h[f]=h[g=s&g+b])+(h[g]=b)];return e.i=f,e.j=g,c})(d)}function k(a,b){var c,d=[],e=typeof a;if(b&&"object"==e)for(c in a)try{d.push(k(a[c],b-1))}catch(f){}return d.length?d:"string"==e?a:a+"\0"}function l(a,b){for(var c,d=a+"",e=0;e<d.length;)b[s&e]=s&(c^=19*b[s&e])+d.charCodeAt(e++);return n(b)}function m(c){try{return o?n(o.randomBytes(d)):(a.crypto.getRandomValues(c=new Uint8Array(d)),n(c))}catch(e){return[+new Date,a,(c=a.navigator)&&c.plugins,a.screen,n(b)]}}function n(a){return String.fromCharCode.apply(0,a)}var o,p=c.pow(d,e),q=c.pow(2,f),r=2*q,s=d-1,t=c["seed"+i]=function(a,f,g){var h=[];f=1==f?{entropy:!0}:f||{};var o=l(k(f.entropy?[a,n(b)]:null==a?m():a,3),h),s=new j(h);return l(n(s.S),b),(f.pass||g||function(a,b,d){return d?(c[i]=a,b):a})(function(){for(var a=s.g(e),b=p,c=0;q>a;)a=(a+c)*d,b*=d,c=s.g(1);for(;a>=r;)a/=2,b/=2,c>>>=1;return(a+c)/b},o,"global"in f?f.global:this==c)};if(l(c[i](),b),g&&g.exports){g.exports=t;try{o=require("crypto")}catch(u){}}else h&&h.amd&&h(function(){return t})}(this,[],Math,256,6,52,"object"==typeof module&&module,"function"==typeof define&&define,"random");
-
-  var spanElements = obj.getElementsByTagName("span");
-  var seed;
-
-  for(var i = 0; i < spanElements.length; ++i){
-    if(spanElements[i].getAttribute("title") !== null){
-      seed = spanElements[i].getAttribute("title");
-      i = spanElements.length;
-    }
-  }
-
-  // DICE ROLLING RULES!
-  // Only one roll per post. This is to prevent too many rolls to crash the browser.
-  // Don't do rolls in <blockquote>
-
-  // [roll]     = Die Result: 500 (1d1000)
-  // [roll:6]   = Die Result: 4 (1d6)
-  // [roll:2d6] = Die Result: 7 (1d6)
-  // [roll:100] = Die Result: 50 (1d100)
-
-  // Extract text in between [roll: and ]
-
-  // Convert the DateTime seed to a random number
-  seed = parseInt(seed.substr(seed.length - 8, 3)) + 1;
-
-  var paragraphs = obj.getElementsByTagName("p");
-  var rolled = false;
-
-  for(var i = 0; i < paragraphs.length; ++i){
-    var regex   = /\[roll(.*?)\]/gi
-    var command = regex.exec(paragraphs[i].innerHTML);
-
-    // Example of the Array command
-    // command[0] : "[roll:2d100]"
-    // command[1] : "2d100"
-
-    if((rolled || rollDice == "off" || (paragraphs[i].parentElement.tagName == "BLOCKQUOTE")) && command !== null)
-      paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], "");
-    else if(rollDice == "on" && command !== null){
-      var rolls    = 0;
-      var die      = 0;
-      var regex    = /([0-9]*)d([0-9]*)/gi
-      var extended = regex.exec(command[1]);
-
-      // Example of the Array extended (assuming it exists)
-      // extended[0] : "2d100"
-      // extended[1] : "2"
-      // extended[2] : "100"
-
-      // Check if it's something like 2d100, instead of having a single number
-      if(extended !== null){
-        if(extended[1]) rolls = extended[1];
-        else            rolls = 1;
-
-        if(extended[2]) die = extended[2];
-        else            die = 1;
-      }else{
-        var regex  = /([0-9]*)/g
-        var simple = regex.exec(command[1]);
-
-        if(command[1] == simple[1]){
-          rolls = 1;
-
-          if(command[1]) die = command[1];
-          else           die = 1;
-        }
-      }
-
-      var result = 0;
-
-      // Limit the die rolls and sides to 100
-      if(rolls > 100) rolls = 100;
-      if(die   > 100) die   = 100;
-
-      // [roll] is a special die roll of 1d1000
-      if(command[0] == "[roll]"){
-        rolls = 1;
-        die   = 1000;
-      }
-
-      if(rolls != 0){
-        for(var j = 0; j < rolls; ++j){
-          Math.seedrandom(seed);
-          result += Math.ceil(Math.random() * die);
-          seed += 1;
-        }
-
-        // Replace the text
-        var dieRoll = `
-        <font color="#ff0000">Die Result: </font>
-        <font color="#00ff00">${result}</font>
-        <font color="#00ffff">(${rolls}d${die})</font>
-        `;
-        paragraphs[i].innerHTML = paragraphs[i].innerHTML.replace(command[0], dieRoll);
-
-        rolled = true;
-      }
-    }
   }
 }
 
@@ -2857,7 +2815,8 @@ function EmbedMedia(){
   }
 
   // YouTube videos do not load immediately, so I have to wait a little bit
-  WaitAndRunManual(500, EmbedYouTube);
+  // Redo this and make it use WaitAndRun instead, because I'm going to delete WaitAndRunManual
+  // WaitAndRunManual(500, EmbedYouTube);
 }
 
 function EmbedYouTube(){
