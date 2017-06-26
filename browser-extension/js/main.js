@@ -2185,9 +2185,22 @@ FEK.prototype.RollDice = function(obj){
       // command[0] : "[roll:2d100]"
       // command[1] : "2d100"
 
+      var numbers = command[1].split("d");
+      console.log(numbers);
+
       var result = 0;
       var rolls  = 1;
       var die    = 1000;
+
+      if(numbers.length == 1){
+        die = parseInt(numbers[0]);
+      }else if(numbers.length == 2){
+        rolls = parseInt(numbers[0]);
+        die   = parseInt(numbers[1]);
+      }
+
+      if(isNaN(rolls)) rolls = 1;
+      if(isNaN(die))   die   = 1000;
 
       for(var j = 0; j < rolls; ++j){
         Math.seedrandom(seed);
