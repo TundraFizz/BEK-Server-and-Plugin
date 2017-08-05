@@ -1,6 +1,6 @@
 {
-  "name": "Forum Enhancer Kit",
-  "short_name": "FEK",
+  "name": "Boards Enhancement Kit",
+  "short_name": "BEK",
   "author": "Tundra Fizz",
   "description": "Enhances the League of Legends boards by providing additional features to it.",
   "version": "5.4.0",
@@ -36,7 +36,7 @@
   ],
 
   "browser_action": {
-    "default_title": "Forum Enhancement Kit",
+    "default_title": "Boards Enhancement Kit",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "128": "icons/icon128.png"
