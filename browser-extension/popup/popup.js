@@ -1,5 +1,5 @@
 $(document).ready(function(){
   $("span").click(function(){
-    chrome.tabs.create({url: "http://boards.na.leagueoflegends.com/en/f/mNBeEEkI"});
+    chrome.tabs.create({url: "https://boards.na.leagueoflegends.com/en/c/general-discussion"});
   });
 });
