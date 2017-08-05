@@ -1724,6 +1724,12 @@ BEK.prototype.FormatSinglePost2 = function(obj, op){
         win.focus();
       });
 
+      $("#cname").click(function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        alert("TO DO!");
+      });
+
       $("#lolnx").click(function(event){
         event.preventDefault();
         event.stopPropagation();
