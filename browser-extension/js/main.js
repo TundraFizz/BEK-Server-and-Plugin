@@ -5,7 +5,7 @@ var Remove = chrome.storage.local.remove; // Alias for removing data
 var Clear  = chrome.storage.local.clear;  // Alias for clearing data
 
 // This is used in the SendToServer function
-function cab(){/* CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the FEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`); */}
+function cab(){/* CreateAlertBox("14px","#990000","#DD0000","#FFFFFF",`Unable to connect to the BEK server, <a href="https://twitter.com/Tundra_Fizz" target="_blank">try checking Twitter</a> for possible status updates.`); */}
 
 // Minimized function I made which helps sending form POST data easily
 function SendToServer(u,f,c){$.ajax({url:u,type:"POST",data:f,contentType:false,processData:false}).done(function(d){c(d);}).fail(function(err, two){cab();});}
@@ -29,23 +29,23 @@ function LoadCSS(url){var head = document.getElementsByTagName("head")[0];var cs
 // formData.append("key2", "data2");
 // SendToServer("post-url-here", formData, function(data){});
 
-function FEK(){}
+function BEK(){}
 
 /////////////////////////////////////
-// Initialize: Entry point for FEK //
+// Initialize: Entry point for BEK //
 /////////////////////////////////////
-FEK.prototype.Initialize = function(){
-  if(typeof disableFEK !== "undefined" && disableFEK) return; // For Wuks
+BEK.prototype.Initialize = function(){
+  if(typeof disableBEK !== "undefined" && disableBEK) return; // For Wuks
   var self = this;
 
-  self.FEKversion       = "5.4.0";
-  self.FEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
-  self.FEKgfx           = `${domain}/fek/gfx/misc/`;
+  self.BEKversion       = "5.4.0";
+  self.BEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
+  self.BEKgfx           = `${domain}/fek/gfx/misc/`;
   self.cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
-  self.FEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
-  self.FEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
-  self.FEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
-  self.FEKtweets        = [];
+  self.BEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
+  self.BEKgfxLargeSpell = `${domain}/fek/gfx/iconlargespell/`;
+  self.BEKgfxLargeItem  = `${domain}/fek/gfx/iconlargeitem/`;
+  self.BEKtweets        = [];
   self.activeKeys       = [];
   self.hotkeys          = [];
   self.users            = [];
@@ -79,8 +79,8 @@ FEK.prototype.Initialize = function(){
   self.RPint          = 0;
   // var self.RPint   = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
   self.alertPopUp     = false;                 // Only one alert can display at a time
-                                               // 1: Can't connect to FEK server
-                                               // 2: FEK needs to be updated
+                                               // 1: Can't connect to BEK server
+                                               // 2: BEK needs to be updated
                                                // 3: API Error
                                                // 4: Account Management
                                                // 5: Roleplaying Alert
@@ -111,7 +111,7 @@ FEK.prototype.Initialize = function(){
       self.DefaultVariables();
     }else{
       self.data = data;
-      if(self.data["version"] != self.FEKversion)
+      if(self.data["version"] != self.BEKversion)
         self.HandleUpdate();
       else
         self.Main();
@@ -120,13 +120,13 @@ FEK.prototype.Initialize = function(){
 }
 
 /////////////////////////////////////////////////
-// DefaultVariables: Initializes FEK variables //
+// DefaultVariables: Initializes BEK variables //
 /////////////////////////////////////////////////
-FEK.prototype.DefaultVariables = function(){
+BEK.prototype.DefaultVariables = function(){
   var self = this;
 
   self.data = {
-    "version":   self.FEKversion,
+    "version":   self.BEKversion,
     "blacklist": {}
   };
 
@@ -136,11 +136,11 @@ FEK.prototype.DefaultVariables = function(){
 }
 
 /////////////////////////////////////////////
-// HandleUpdate: Initializes FEK variables //
+// HandleUpdate: Initializes BEK variables //
 /////////////////////////////////////////////
-FEK.prototype.HandleUpdate = function(){
+BEK.prototype.HandleUpdate = function(){
   var self = this;
-  self.data["version"] = self.FEKversion;
+  self.data["version"] = self.BEKversion;
 
   Set(self.data, function(){
     self.Main();
@@ -150,7 +150,7 @@ FEK.prototype.HandleUpdate = function(){
 /////////////////
 // Main: ????? //
 /////////////////
-FEK.prototype.Main = function(){
+BEK.prototype.Main = function(){
   var self = this;
 
   self.CreateGUI();
@@ -175,7 +175,7 @@ FEK.prototype.Main = function(){
 ////////////////////////////////////
 // RunMutationObserver: Yolo Swag //
 ////////////////////////////////////
-FEK.prototype.RunMutationObserver = function(){
+BEK.prototype.RunMutationObserver = function(){
   var self = this;
 
   /////////////////////////////////////////////
@@ -204,15 +204,15 @@ FEK.prototype.RunMutationObserver = function(){
 }
 
 //////////////////////////////////////////////////
-// CreateGUI: Creates the GUI for the FEK panel //
+// CreateGUI: Creates the GUI for the BEK panel //
 //////////////////////////////////////////////////
-FEK.prototype.CreateGUI = function(){
+BEK.prototype.CreateGUI = function(){
   var self        = this;
-  var tooltipHTML = `<div id="fektooltip">tooltip test</div>`;
+  var tooltipHTML = `<div id="bektooltip">tooltip test</div>`;
   var panelHTML   = `
-  <div id="fek-panel">
+  <div id="bek-panel">
     <div class="col-left">
-      <div class="version">v${self.FEKversion}</div>
+      <div class="version">v${self.BEKversion}</div>
       <div class="logo"></div>
       <div class="tabs"></div>
     </div>
@@ -227,14 +227,14 @@ FEK.prototype.CreateGUI = function(){
   documentBody.append(panelHTML);
   documentBody.append(tooltipHTML);
 
-  // Hide FEK Panel so the user doesn't see a whole bunch of random text for the second while the page loads
-  $("#fek-panel").hide();
+  // Hide BEK Panel so the user doesn't see a whole bunch of random text for the second while the page loads
+  $("#bek-panel").hide();
 }
 
 ////////////////////////////////////////////////////////////
-// CreateFeatures: This is where all FEK features are set //
+// CreateFeatures: This is where all BEK features are set //
 ////////////////////////////////////////////////////////////
-FEK.prototype.CreateFeatures = function(){
+BEK.prototype.CreateFeatures = function(){
   var self = this;
   var tabMetaData = {
     "tabGroup":      null,
@@ -247,14 +247,14 @@ FEK.prototype.CreateFeatures = function(){
   };
 
   //////////////////////////
-  // Feature: FEK Avatars //
+  // Feature: BEK Avatars //
   //////////////////////////
   featureMetaData = {
     "tabGroup": "Core Mods",
     "tab":      "LoL Boards",
     "category": "User Identities",
-    "label":    "FEK Avatars",
-    "tooltip":  "The size of FEK avatars.",
+    "label":    "BEK Avatars",
+    "tooltip":  "The size of BEK avatars.",
     "options":  [
       "100|100x100",
       "125|125x125",
@@ -277,7 +277,7 @@ FEK.prototype.CreateFeatures = function(){
   //   "tab":      "LoL Boards",
   //   "category": "User Identities",
   //   "label":    "Fallback Avatars",
-  //   "tooltip":  "The avatar to use when a person doesn't have a FEK avatar.",
+  //   "tooltip":  "The avatar to use when a person doesn't have a BEK avatar.",
   //   "options":  [
   //    "off|Disable",
   //    "1|Trident (Dark)",
@@ -294,15 +294,15 @@ FEK.prototype.CreateFeatures = function(){
   // };
 
   // self.CreateFeature(featureMetaData, function(option){
-  //   if     (option == "1") fallbackAvatar = self.FEKgfx + "no-avatar-trident-dark.gif";
-  //   else if(option == "2") fallbackAvatar = self.FEKgfx + "no-avatar-trident-light.gif";
-  //   else if(option == "3") fallbackAvatar = self.FEKgfx + "no-avatar-trident-parchment.gif";
-  //   else if(option == "4") fallbackAvatar = self.FEKgfx + "no-avatar-poro-dark.gif";
-  //   else if(option == "5") fallbackAvatar = self.FEKgfx + "no-avatar-poro-light.gif";
-  //   else if(option == "6") fallbackAvatar = self.FEKgfx + "no-avatar-poro-parchment.gif";
-  //   else if(option == "7") fallbackAvatar = self.FEKgfx + "no-avatar-dark.gif";
-  //   else if(option == "8") fallbackAvatar = self.FEKgfx + "no-avatar-light.gif";
-  //   else if(option == "9") fallbackAvatar = self.FEKgfx + "no-avatar-parchment.gif";
+  //   if     (option == "1") fallbackAvatar = self.BEKgfx + "no-avatar-trident-dark.gif";
+  //   else if(option == "2") fallbackAvatar = self.BEKgfx + "no-avatar-trident-light.gif";
+  //   else if(option == "3") fallbackAvatar = self.BEKgfx + "no-avatar-trident-parchment.gif";
+  //   else if(option == "4") fallbackAvatar = self.BEKgfx + "no-avatar-poro-dark.gif";
+  //   else if(option == "5") fallbackAvatar = self.BEKgfx + "no-avatar-poro-light.gif";
+  //   else if(option == "6") fallbackAvatar = self.BEKgfx + "no-avatar-poro-parchment.gif";
+  //   else if(option == "7") fallbackAvatar = self.BEKgfx + "no-avatar-dark.gif";
+  //   else if(option == "8") fallbackAvatar = self.BEKgfx + "no-avatar-light.gif";
+  //   else if(option == "9") fallbackAvatar = self.BEKgfx + "no-avatar-parchment.gif";
   // });
 
   ////////////////////////////////////////
@@ -447,7 +447,7 @@ FEK.prototype.CreateFeatures = function(){
   // };
   // self.CreateFeature(featureMetaData, function(option){});
 
-  // Register the hotkey ~ to toggle the FEK panel on and off
+  // Register the hotkey ~ to toggle the BEK panel on and off
   self.hotkeys["192"] = function(state, event){
     if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
       self.PanelToggle();
@@ -904,8 +904,8 @@ FEK.prototype.CreateFeatures = function(){
     });
   });
 
-  // New Tabgroup: FEK
-  tabgroup = "FEK";
+  // New Tabgroup: BEK
+  tabgroup = "BEK";
 
   ///////////////////////////
   // Twitter Announcements //
@@ -919,18 +919,18 @@ FEK.prototype.CreateFeatures = function(){
 
     $(document).on("tweetsLoaded", function(){
       contentview.html("<h1>Announcements</h1>");
-      if(self.FEKtweets.length){
-        for(var i = 0; i < self.FEKtweets.length; i++){
+      if(self.BEKtweets.length){
+        for(var i = 0; i < self.BEKtweets.length; i++){
           contentview.append(`
           <div id="twitter_row">
             <div id="twitterlink">
-              <a href="https://twitter.com/${self.FEKtweets[i].user[0]}" target="_blank">
-                <img src="${self.FEKgfx}twittericon.png">
+              <a href="https://twitter.com/${self.BEKtweets[i].user[0]}" target="_blank">
+                <img src="${self.BEKgfx}twittericon.png">
               </a>
             </div>
-            <h2>${ParseTwitterDate(self.FEKtweets[i].created_at)}</h2>
-            <img id="twitter_img" src="${self.FEKtweets[i].user[2]}">
-            <span id="twitter_text">${ReplaceUrlWithHtmlLink(self.FEKtweets[i].text.replace("#FEK ", ""))}</span>
+            <h2>${ParseTwitterDate(self.BEKtweets[i].created_at)}</h2>
+            <img id="twitter_img" src="${self.BEKtweets[i].user[2]}">
+            <span id="twitter_text">${ReplaceUrlWithHtmlLink(self.BEKtweets[i].text.replace("#BEK ", ""))}</span>
             <span style="opacity:0; clear:both;">.</span>
             <div id="spike"></div>
           </div>
@@ -939,28 +939,28 @@ FEK.prototype.CreateFeatures = function(){
 
         //Compare last read announcement to current one
         if(false){
-        // if(GM_getValue("_lastReadTwitter", "") == self.FEKtweets[0].id){
+        // if(GM_getValue("_lastReadTwitter", "") == self.BEKtweets[0].id){
           // The latest announcement has been read
         }else{
           // The latest announcement has NOT been read yet
           // Append alert icons for unread announcements
-          alertHTML = `<span id="fekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
+          alertHTML = `<span id="bekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
 
-          $(`a[href="#fek-panel"]`).eq(0).append(alertHTML);
-          $(`a[href="#fek-panel"]`).eq(1).append(alertHTML);
-          $(`#fek-panel #tab[tab="misc-announcements"]`).append(alertHTML);
+          $(`a[href="#bek-panel"]`).eq(0).append(alertHTML);
+          $(`a[href="#bek-panel"]`).eq(1).append(alertHTML);
+          $(`#bek-panel #tab[tab="misc-announcements"]`).append(alertHTML);
           $(`body #twitter_row.popup`).html(`
           <div id="twitterlink">
             <a href="https://twitter.com/Tundra_Fizz" target="_blank">
-              <img src="${self.FEKgfx}twittericon.png">
+              <img src="${self.BEKgfx}twittericon.png">
             </a>
           </div>
           <h2>
-            ${ParseTwitterDate(self.FEKtweets[0].created_at)}
+            ${ParseTwitterDate(self.BEKtweets[0].created_at)}
           </h2>
-          <img id="twitter_img" src="${self.FEKtweets[0].user[2]}">
+          <img id="twitter_img" src="${self.BEKtweets[0].user[2]}">
           <span id="twitter_text">
-            ${ReplaceUrlWithHtmlLink(self.FEKtweets[0].text.replace("#FEK ", ""))}
+            ${ReplaceUrlWithHtmlLink(self.BEKtweets[0].text.replace("#BEK ", ""))}
           </span>
           <div id="dismiss">
             Click here to dismiss the notification
@@ -977,10 +977,10 @@ FEK.prototype.CreateFeatures = function(){
 
       // Now we need to have it mark announcements as read when dismissed or announcement tab is clicked
       $("#dismiss").click(function(event){
-        if(self.FEKtweets[0])
-          GM_setValue("_lastReadTwitter", self.FEKtweets[0].id);
+        if(self.BEKtweets[0])
+          GM_setValue("_lastReadTwitter", self.BEKtweets[0].id);
         $("body #twitter_row.popup").fadeOut();
-        $("body #fekalert").each(function(){
+        $("body #bekalert").each(function(){
           $(this).fadeOut();
         });
       });
@@ -991,7 +991,7 @@ FEK.prototype.CreateFeatures = function(){
   // Changelog //
   ///////////////
   PanelCreateTab(tabgroup, "Changelog", function(contentview){
-    $(`#tab[tab*="fek-changelog"]`).click(function(){
+    $(`#tab[tab*="bek-changelog"]`).click(function(){
       self.LoadWebPanel("changelog", contentview);
     });
   });
@@ -1000,12 +1000,12 @@ FEK.prototype.CreateFeatures = function(){
   // Donate //
   ////////////
   PanelCreateTab(tabgroup, "Donate", function(contentview){
-    $(`#tab[tab*="fek-donate"]`).click(function(){
+    $(`#tab[tab*="bek-donate"]`).click(function(){
       self.LoadWebPanel("donate", contentview);
     });
   });
 
-  // // Register the hotkey ~ to toggle the FEK panel on and off
+  // // Register the hotkey ~ to toggle the BEK panel on and off
   // self.hotkeys["192"] = function(state, event){
   //   if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
   //     PanelToggle();
@@ -1013,9 +1013,9 @@ FEK.prototype.CreateFeatures = function(){
 }
 
 ///////////////////////////////////////////////////////
-// CreateTab: Creates a tab in the FEK control panel //
+// CreateTab: Creates a tab in the BEK control panel //
 ///////////////////////////////////////////////////////
-FEK.prototype.CreateTab = function(featureMetaData, callback){
+BEK.prototype.CreateTab = function(featureMetaData, callback){
   var self          = this;
   var tabGroup      = featureMetaData["tabGroup"];
   var tab           = featureMetaData["tab"];
@@ -1023,8 +1023,8 @@ FEK.prototype.CreateTab = function(featureMetaData, callback){
   var tab2          = tab.replace(/[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Create the tabGroup if we need to
-  if($(`#fek-panel [tab-group="${tabGroup2}"]`).length == 0){
-    $(`#fek-panel .tabs`).append(`
+  if($(`#bek-panel [tab-group="${tabGroup2}"]`).length == 0){
+    $(`#bek-panel .tabs`).append(`
     <div class="tab-group" tab-group="${tabGroup2}">
       <h1>${tabGroup}</h1>
     </div>
@@ -1032,8 +1032,8 @@ FEK.prototype.CreateTab = function(featureMetaData, callback){
   }
 
   // Create the tab if we need to
-  if($(`#fek-panel [tab="${tabGroup2}-${tab2}"]`).length == 0){
-    $(`#fek-panel [tab-group="${tabGroup2}"]`).append(`
+  if($(`#bek-panel [tab="${tabGroup2}-${tab2}"]`).length == 0){
+    $(`#bek-panel [tab-group="${tabGroup2}"]`).append(`
     <div class="tab" tab="${tabGroup2}-${tab2}">
       ${tab}
       <div class="indicator"></div>
@@ -1042,8 +1042,8 @@ FEK.prototype.CreateTab = function(featureMetaData, callback){
   }
 
   // Create the groupview if we need to
-  if($(`#fek-panel [group-view="${tabGroup2}-${tab2}"]`).length == 0){
-    $("#fek-panel .scroll-region").append(`
+  if($(`#bek-panel [group-view="${tabGroup2}-${tab2}"]`).length == 0){
+    $("#bek-panel .scroll-region").append(`
     <div class="group-view" group-view="${tabGroup2}-${tab2}"></div>
     `);
   }
@@ -1055,7 +1055,7 @@ FEK.prototype.CreateTab = function(featureMetaData, callback){
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
 ////////////////////////////////////////////////////////////
-FEK.prototype.CreateFeature = function(featureMetaData, callback){
+BEK.prototype.CreateFeature = function(featureMetaData, callback){
   var self          = this;
   var tabGroup      = featureMetaData["tabGroup"];
   var tab           = featureMetaData["tab"];
@@ -1118,8 +1118,8 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   }
 
   // Create the tabGroup if we need to
-  if($(`#fek-panel [tab-group="${tabGroup2}"]`).length == 0){
-    $(`#fek-panel .tabs`).append(`
+  if($(`#bek-panel [tab-group="${tabGroup2}"]`).length == 0){
+    $(`#bek-panel .tabs`).append(`
     <div class="tab-group" tab-group="${tabGroup2}">
       <h1>${tabGroup}</h1>
     </div>
@@ -1127,8 +1127,8 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   }
 
   // Create the tab if we need to
-  if($(`#fek-panel [tab="${tabGroup2}-${tab2}"]`).length == 0){
-    $(`#fek-panel [tab-group="${tabGroup2}"]`).append(`
+  if($(`#bek-panel [tab="${tabGroup2}-${tab2}"]`).length == 0){
+    $(`#bek-panel [tab-group="${tabGroup2}"]`).append(`
     <div class="tab" tab="${tabGroup2}-${tab2}">
       ${tab}
       <div class="indicator"></div>
@@ -1137,15 +1137,15 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   }
 
   // Create the groupview if we need to
-  if($(`#fek-panel [group-view="${tabGroup2}-${tab2}"]`).length == 0){
-    $("#fek-panel .scroll-region").append(`
+  if($(`#bek-panel [group-view="${tabGroup2}-${tab2}"]`).length == 0){
+    $("#bek-panel .scroll-region").append(`
     <div class="group-view" group-view="${tabGroup2}-${tab2}"></div>
     `);
   }
 
   // Create the category if we need to
-  if($(`#fek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).length == 0){
-    $(`#fek-panel [group-view="${tabGroup2}-${tab2}"]`).append(`
+  if($(`#bek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).length == 0){
+    $(`#bek-panel [group-view="${tabGroup2}-${tab2}"]`).append(`
       <div class="category" category="${tabGroup2}-${tab2}-${category2}">
         <div class="category-name">${category}</div>
       </div>
@@ -1190,7 +1190,7 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
   </div>
   `;
 
-  $(`#fek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).append(yoloSwag);
+  $(`#bek-panel [category="${tabGroup2}-${tab2}-${category2}"]`).append(yoloSwag);
 
   // Run the feature by callback if it isn't disabled
   if(currentKey !== "off")
@@ -1198,17 +1198,17 @@ FEK.prototype.CreateFeature = function(featureMetaData, callback){
 }
 
 ////////////////////////////////////////////////////////////
-// SettleGUI: Sets the FEK panel to the default first tab //
+// SettleGUI: Sets the BEK panel to the default first tab //
 ////////////////////////////////////////////////////////////
-FEK.prototype.SettleGUI = function(){
-  $("#fek-panel .tab:first").addClass("active");
-  $("#fek-panel .group-view:first-child").css("display", "block");
+BEK.prototype.SettleGUI = function(){
+  $("#bek-panel .tab:first").addClass("active");
+  $("#bek-panel .group-view:first-child").css("display", "block");
 }
 
 //////////////////////////////////////
 // KeyWatch: Watches for keypresses //
 //////////////////////////////////////
-FEK.prototype.KeyWatch = function(){
+BEK.prototype.KeyWatch = function(){
   var self = this;
 
   // Clear the active keys when the window is focused or when the text area is refocused
@@ -1237,27 +1237,27 @@ FEK.prototype.KeyWatch = function(){
       self.activeKeys.splice(i, 1);
   });
 
-  // Setup the fek tooltip
+  // Setup the bek tooltip
   $(document).on("mousemove", function(e){
-    if($("#fektooltip").css("opacity") > 0){
-      $("#fektooltip").css({
+    if($("#bektooltip").css("opacity") > 0){
+      $("#bektooltip").css({
         left: e.pageX + 20,
         top:  e.pageY - 20
       });
     }else{
-      $("#fektooltip").css({
+      $("#bektooltip").css({
         left: -10000
       });
     }
   });
 
-  $("#fek-panel .setting").mouseenter(function(){
-    $("#fektooltip").html($(this).find(".tooltip-data").html());
-    $("#fektooltip").css("opacity", 1);
+  $("#bek-panel .setting").mouseenter(function(){
+    $("#bektooltip").html($(this).find(".tooltip-data").html());
+    $("#bektooltip").css("opacity", 1);
   });
 
-  $("#fek-panel .setting").mouseleave(function(){
-    $("#fektooltip").css("opacity", 0);
+  $("#bek-panel .setting").mouseleave(function(){
+    $("#bektooltip").css("opacity", 0);
   });
 
   // Allow clicking away from the panel to close the panel
@@ -1265,57 +1265,57 @@ FEK.prototype.KeyWatch = function(){
     self.PanelHide();
   });
 
-  $("#fek-panel").click(function(event){
+  $("#bek-panel").click(function(event){
     event.stopPropagation();
-    $("#fek-panel .setting").find("ul").hide();
+    $("#bek-panel .setting").find("ul").hide();
   });
 
-  // Register click events and activates the feklink tabs
-  $("body").on("click", `a[href*="#fektab"]`, function(event){
+  // Register click events and activates the beklink tabs
+  $("body").on("click", `a[href*="#bektab"]`, function(event){
     event.stopPropagation();
     event.preventDefault();
-    var tab = $(this).attr("href").replace("#fektab-","");
+    var tab = $(this).attr("href").replace("#bektab-","");
     $(`#tab[tab="${tab}"]`).trigger("click");
     self.PanelShow();
   });
 
-  $(`a[href="#fek-panel"]`).click(function(event){
+  $(`a[href="#bek-panel"]`).click(function(event){
     event.stopPropagation();
     event.preventDefault();
     self.PanelToggle();
   });
 
-  $("#fek-panel .tab").click(function(){
-    $("#fek-panel .tab").each(function(){
+  $("#bek-panel .tab").click(function(){
+    $("#bek-panel .tab").each(function(){
       // Remove all contentviews and active tabs
       $(this).removeClass("active");
-      $("#fek-panel .group-view").hide();
+      $("#bek-panel .group-view").hide();
     });
 
     var thisTab = $(this).attr("tab");
 
-    $("#fek-panel .scroll-region").scrollTop(0);
-    $(`#fek-panel [group-view="${thisTab}"]`).show();
+    $("#bek-panel .scroll-region").scrollTop(0);
+    $(`#bek-panel [group-view="${thisTab}"]`).show();
     self.InitScrollbar(".scroll-region");
     $(this).addClass("active");
   });
 
-  $("#fek-panel").on("mousewheel", function(event){
+  $("#bek-panel").on("mousewheel", function(event){
     event.preventDefault();
   });
 
-  $("#fek-panel .setting").find("ul").on("mousewheel", function(event){
+  $("#bek-panel .setting").find("ul").on("mousewheel", function(event){
     event.stopPropagation();
     event.preventDefault();
   });
 
-  $("#fek-panel .setting").click(function(event){
+  $("#bek-panel .setting").click(function(event){
     event.stopPropagation();
     if($(this).attr("dropdown") == "true"){
       if($(this).find("ul").is(":visible"))
         $(this).find("ul").hide();
       else{
-        $("#fek-panel .setting").find("ul").hide();
+        $("#bek-panel .setting").find("ul").hide();
         $(this).find("ul").show();
         $(this).find("ul").scrollTop(0);
         self.InitScrollbar($(this).find("ul"));
@@ -1336,7 +1336,7 @@ FEK.prototype.KeyWatch = function(){
     }
   });
 
-  $("#fek-panel .setting ul li").click(function(){
+  $("#bek-panel .setting ul li").click(function(){
     var setting        = $(this).closest(".setting");
     var previousChoice = $(setting).attr("data");
     var key            = $(".data-container > .label > .content > p:nth-child(1)", setting).text()
@@ -1360,18 +1360,18 @@ FEK.prototype.KeyWatch = function(){
 }
 
 ////////////////////////////////////////////////////////////////
-// PanelCreateTab: Creates a new tab on the FEK control panel //
+// PanelCreateTab: Creates a new tab on the BEK control panel //
 ////////////////////////////////////////////////////////////////
-FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
+BEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
   // This will create a tab and content view with the supplied paramaters and send the contentview element back to the calling function
   // Prepare special compatible/safe tag names by replacing characters and casing
   var stabgroup = tabgroup.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
   var stab      = tab.replace( /[^a-z0-9\s]/gi, "").replace(/[_\s]/g, "-").toLowerCase();
 
   // Check if the tabgroup exists
-  if($(`#fek-panel .col-left .tabgroup[tabgroup="${stabgroup}"]`).length <= 0){
+  if($(`#bek-panel .col-left .tabgroup[tabgroup="${stabgroup}"]`).length <= 0){
     // Create the tabgroup
-    $(`#fek-panel .col-left .tabs`).append(`
+    $(`#bek-panel .col-left .tabs`).append(`
     <div class="tabgroup" tabgroup="${stabgroup}">
       <h1>${tabgroup}</h1>
     </div>
@@ -1388,8 +1388,8 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
     `);
 
   // Create the contentview if it doesn't exist
-  if($(`#fek-panel .col-right .scroll-region .contentview[tablink="${stabgroup}-${stab}"]`).length == 0)
-    $("#fek-panel .col-right .scroll-region").append(`
+  if($(`#bek-panel .col-right .scroll-region .contentview[tablink="${stabgroup}-${stab}"]`).length == 0)
+    $("#bek-panel .col-right .scroll-region").append(`
     <div id="contentview" tablink="${stabgroup}-${stab}"></div>
     `);
 
@@ -1398,12 +1398,12 @@ FEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
 }
 
 ///////////////////////////////////////////////////////////////////////
-// QueryServer: Makes a connection to the FEK server for information //
+// QueryServer: Makes a connection to the BEK server for information //
 ///////////////////////////////////////////////////////////////////////
-FEK.prototype.QueryServer = function(){
+BEK.prototype.QueryServer = function(){
   var self = this;
 
-  // Features that can be done right away without needing data from the FEK server
+  // Features that can be done right away without needing data from the BEK server
   self.WaitAndRun(".riot-voting > .total-votes", "ColorVotes");
   self.WaitAndRun(".riot-voting > .total-votes", "HoverVotes");
   // self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
@@ -1417,7 +1417,7 @@ FEK.prototype.QueryServer = function(){
     var region   = this.getElementsByClassName("realm")[0].textContent;
         region   = region.substring(1, region.length - 1);
 
-    // FEK staff have special gradient names, so I need to extract them using this method
+    // BEK staff have special gradient names, so I need to extract them using this method
     if(this.getElementsByClassName("pxg-set").length > 0)
       username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
@@ -1433,23 +1433,23 @@ FEK.prototype.QueryServer = function(){
 
   SendToServer(`${domain}/database`, formData, function(data){
     self.results        = data.records;
-    self.FEKtweets = data.announcements;
-    FEKevent       = data.event;
+    self.BEKtweets = data.announcements;
+    BEKevent       = data.event;
     var unixTime   = Math.floor(Date.now() / 1000);
 
     // THIS FEATURE TEMPORARILY DISABLED!
-    // if((unixTime > FEKevent.start) && (unixTime < FEKevent.end))
+    // if((unixTime > BEKevent.start) && (unixTime < BEKevent.end))
     if(0){
       var NavBarEvent = document.createElement("li");
       var html = `
       <a href="#">Event</a>
-      <div id="fek-event">
-        <div id="fek-event-top">${FEKevent.message}</div>
-        <div id="fek-event-bottom-left">
-          <a href="${FEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
+      <div id="bek-event">
+        <div id="bek-event-top">${BEKevent.message}</div>
+        <div id="bek-event-bottom-left">
+          <a href="${BEKevent.stream}" target="_blank" style="padding: 2px;">Twitch Stream</a>
         </div>
-        <div id="fek-event-bottom-right">
-          <a href="${FEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
+        <div id="bek-event-bottom-right">
+          <a href="${BEKevent.thread}" target="_blank" style="padding: 2px;">Boards Thread</a>
         </div>
       </div>
       `;
@@ -1459,15 +1459,15 @@ FEK.prototype.QueryServer = function(){
       window.setInterval(function(){$(".touchpoint-event").toggleClass("pulse");}, 1000);
 
       // Hides dropdown event information by default, and displays it with mouse hover
-      $("#fek-event").hide();
-      $(".touchpoint-event").hover(function() {$("#fek-event").show();}, function(){$("#fek-event").hide();});
+      $("#bek-event").hide();
+      $(".touchpoint-event").hover(function() {$("#bek-event").show();}, function(){$("#bek-event").hide();});
     }
 
     // SKIP CHECKING FOR VERSIONS (for now at least)
     if(0){
-      if(self.FEKversion != self.results.version && window.location.href != self.FEKpage){
+      if(self.BEKversion != self.results.version && window.location.href != self.BEKpage){
         var html = `
-        There has been an update to FEK!<br><br>
+        There has been an update to BEK!<br><br>
         <a href="${self.results.details}" style="color:#00C0FF;">Click here</a>
         for the post detailing new changes and to download version ${self.results.version}
         `;
@@ -1496,7 +1496,7 @@ FEK.prototype.QueryServer = function(){
 //////////////////////////////////////////////////////////////////////
 // FormatAllPosts: Calls FormatSinglePost on every post that exists //
 //////////////////////////////////////////////////////////////////////
-FEK.prototype.FormatAllPosts = function(FEKData = false){
+BEK.prototype.FormatAllPosts = function(BEKData = false){
   var self = this;
 
   // Remove all "isOP" classes from the page to prevent names in regular posts from being white
@@ -1506,7 +1506,7 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
   // This isn't desirable because it restricts freedom for Discussion View
   $(document).find(".toggle-minimized").remove();
 
-  if(!FEKData){
+  if(!BEKData){
     if(document.getElementsByClassName("op-container")[0].getElementsByClassName("inline-profile").length){
       $(".op-container").each(function(){
         self.FormatSinglePost2(this, true);
@@ -1532,7 +1532,7 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
 
   // isMinimized
   $(".toggle-minimized").click(function(){
-    alert("DO NOT MINIMIZE POSTS YET! FEK still needs to properly handle them...");
+    alert("DO NOT MINIMIZE POSTS YET! BEK still needs to properly handle them...");
     // Put everything in a container and then hide it
 
     var post = $(this).parent()[0];
@@ -1572,7 +1572,7 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
       // Maximizing the post
       $($(post).find(".hide-post")[0]).css("display", "");
 
-      // Load FEK stuff for posts
+      // Load BEK stuff for posts
       var list = $(post).find(".list")[0];
 
       $(list).each(function(){
@@ -1591,15 +1591,15 @@ FEK.prototype.FormatAllPosts = function(FEKData = false){
 ///////////////////////////////
 // FormatSinglePost1: DELETE //
 ///////////////////////////////
-FEK.prototype.FormatSinglePost1 = function(obj, op){
+BEK.prototype.FormatSinglePost1 = function(obj, op){
   // alert("FormatSinglePost1");
   // alert("FormatSinglePost1");
 }
 
 /////////////////////////////////////////////////////////////////
-// FormatSinglePost2: Inserts FEK data into the formatted post //
+// FormatSinglePost2: Inserts BEK data into the formatted post //
 /////////////////////////////////////////////////////////////////
-FEK.prototype.FormatSinglePost2 = function(obj, op){
+BEK.prototype.FormatSinglePost2 = function(obj, op){
   var self      = this;
   var usernameT = obj.getElementsByClassName("username")[0].textContent;
   var regionT   = obj.getElementsByClassName("realm")[0].textContent;
@@ -1638,8 +1638,8 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
   $(tinyIcon).css("z-index", "1");
 
   // Modify avatar size here
-  // alert(self.data["FEK Avatars"]);
-  var avatarSize = self.data["FEK Avatars"];
+  // alert(self.data["BEK Avatars"]);
+  var avatarSize = self.data["BEK Avatars"];
   // $(icon).css("width",  avatarSize, "!important");
   // $(icon).css("height", avatarSize, "!important");
   $(icon).css("width",  avatarSize + "px", "!important");
@@ -1687,7 +1687,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
 
       // Now create and append to innerDiv
       innerDiv = document.createElement("div");
-      innerDiv.className = "fek-profile-popup";
+      innerDiv.className = "bek-profile-popup";
 
       innerDiv.innerHTML = `<a href="#" id="prfle" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Profile</a><br>
                             <a href="#" id="avatr" style="color: black; letter-spacing: 0px; font-weight: bold; font-variant: normal; font-family: Spiegel-Regular, sans-serif">View Avatar</a><br>
@@ -1751,18 +1751,18 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
         });
       });
 
-      // Fade the FEK popup box in
+      // Fade the BEK popup box in
       $(innerDiv).fadeIn(200);
     }, function(){
       innerDiv.remove();
     });
   });
 
-  // FEK staff have special gradient names, so I need to extract them using this method
+  // BEK staff have special gradient names, so I need to extract them using this method
   // if(obj.getElementsByClassName("pxg-set").length > 0)
   //   usernameT = inlineProfile.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
-  // If the current user isn't in the FEK database, assign stuff
+  // If the current user isn't in the BEK database, assign stuff
   if(typeof self.results[usernameT] !== "undefined"){
     // Declare variables that will be used later
     var opTitle;      // op
@@ -1791,7 +1791,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
     //   if(isRioter)
     //     profHover.style.setProperty("color", "#AE250F", "important"); // Makes sure that Rioter's titles are red
     //   else if(staff == "1")
-    //     profHover.style.setProperty("color", "#0000FF", "important"); // FEK staff
+    //     profHover.style.setProperty("color", "#0000FF", "important"); // BEK staff
     //   else
     //     profHover.style.setProperty("color", "#94724D", "important"); // Regular users
     // }
@@ -1821,7 +1821,7 @@ FEK.prototype.FormatSinglePost2 = function(obj, op){
 /////////////////////////////////////
 // AssignAvatar: Assigns an avatar //
 /////////////////////////////////////
-FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
+BEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
   if(isRioter){
      if(typeof avatar !== "undefined"){
        if(avatar.slice(-5) == ".webm"){
@@ -1845,9 +1845,9 @@ FEK.prototype.AssignAvatar = function(obj, isRioter, avatar, tinyIcon){
 ////////////////////////////////////////////////////////////////////////
 // GetBadgesAndTitle: Gets a user's badges and title using Riot's API //
 ////////////////////////////////////////////////////////////////////////
-FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge, REEEEEEEE){
+BEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff, title, badge, REEEEEEEE){
   var self       = this;
-  var avatarSize = self.data["FEK Avatars"];
+  var avatarSize = self.data["BEK Avatars"];
 
   $.getJSON("https://boards." + self.platformRegion + ".leagueoflegends.com/api/users/" + regionT + "/" + usernameT + "?include_profile=true", function(api){
     if(!profHover.getElementsByClassName("badge-container")[0] && !profHover.getElementsByClassName("title")[0]){
@@ -1902,7 +1902,7 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       }
 
       if(staff == "1")
-        badges.push(self.FEKgfx + "fekbadge.png");
+        badges.push(self.BEKgfx + "fekbadge.png");
 
       var collection = badge.split(",");
         for(var i = 0; i < collection.length; i++)
@@ -1967,7 +1967,7 @@ FEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // WaitAndRun: Waits for a certain element on the page to load and then executes the callback //
 ////////////////////////////////////////////////////////////////////////////////////////////////
-FEK.prototype.WaitAndRun = function(selector, callback){
+BEK.prototype.WaitAndRun = function(selector, callback){
   var self        = this;
   var timeOut     = 200
   var currentTime = 0;
@@ -1999,7 +1999,7 @@ FEK.prototype.WaitAndRun = function(selector, callback){
 //////////////////////////////////////////////////////////////////////////////////////////
 // WaitAndRunManual: Waits for a specified amount of time before executing the callback //
 //////////////////////////////////////////////////////////////////////////////////////////
-FEK.prototype.WaitAndRunManual = function(time, callback){
+BEK.prototype.WaitAndRunManual = function(time, callback){
   var timeOut = time, currentTime = 0;
 
   var interval = setInterval(function(){
@@ -2015,7 +2015,7 @@ FEK.prototype.WaitAndRunManual = function(time, callback){
 /////////////////////////////////////////////////////////////
 // ColorVotes: Colors upvotes green and downvotes negative //
 /////////////////////////////////////////////////////////////
-FEK.prototype.ColorVotes = function(){
+BEK.prototype.ColorVotes = function(){
   var self = this;
   var totalVotes = $(document).find(".total-votes");
 
@@ -2032,7 +2032,7 @@ FEK.prototype.ColorVotes = function(){
 //////////////////////////////////////////////////////////////////////////////////////////////
 // HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
 //////////////////////////////////////////////////////////////////////////////////////////////
-FEK.prototype.HoverVotes = function(){
+BEK.prototype.HoverVotes = function(){
   var self = this;
   var votingDisplay = "on"; // SAMPLE TEST SETTING, REMOVE LATER!
   if(votingDisplay != "off"){
@@ -2056,7 +2056,7 @@ FEK.prototype.HoverVotes = function(){
 //////////////////////////////////////////////////////////////////////////////////////////
 // ShowIndividualVotes: Shows how many upvotes and downvotes a specific thread/post has //
 //////////////////////////////////////////////////////////////////////////////////////////
-FEK.prototype.ShowIndividualVotes = function(obj){
+BEK.prototype.ShowIndividualVotes = function(obj){
   var votingDisplay = "individual"; // TESTING TEMP DEFAULT VARIABLE, REMOVE LATER!
   var self          = this;
   var voteFinder    = obj.parentElement;
@@ -2092,7 +2092,7 @@ FEK.prototype.ShowIndividualVotes = function(obj){
 ////////////////////////////////////////////////////
 // LoadIndex: Loads everything for the Index page //
 ////////////////////////////////////////////////////
-FEK.prototype.LoadIndex = function(){
+BEK.prototype.LoadIndex = function(){
   var self = this;
   self.ColorVotes();
   self.HoverVotes();
@@ -2129,7 +2129,7 @@ FEK.prototype.LoadIndex = function(){
 ///////////////////////////////////////////////////////////////////////
 // HighlightMyThreads: Highlights your threads as black on the index //
 ///////////////////////////////////////////////////////////////////////
-FEK.prototype.HighlightMyThreads = function(){
+BEK.prototype.HighlightMyThreads = function(){
   var self  = this;
   var color = self.data["Highlight My Threads"];
 
@@ -2150,7 +2150,7 @@ FEK.prototype.HighlightMyThreads = function(){
 //////////////////////////////////
 // RollDice: Rolls virtual dice //
 //////////////////////////////////
-FEK.prototype.RollDice = function(obj){
+BEK.prototype.RollDice = function(obj){
   var self = this;
 
   // PRNG
@@ -2291,39 +2291,39 @@ FEK.prototype.RollDice = function(obj){
 }
 
 /////////////////////////////////////////////
-// ========== FEK CONTROL PANEL ========== //
+// ========== BEK CONTROL PANEL ========== //
 /////////////////////////////////////////////
 
 ////////////////////////////////////////////
-// PanelShow: Shows the FEK control panel //
+// PanelShow: Shows the BEK control panel //
 ////////////////////////////////////////////
-FEK.prototype.PanelShow = function(){
+BEK.prototype.PanelShow = function(){
   var self = this;
 
-  if($("#fek-panel").is(":visible")){
+  if($("#bek-panel").is(":visible")){
     // If the panel is already visible when show is called, do nothing
   }else{
     // Hide all content views to speed up the .show animation
     $(".scroll-region").hide();
 
     // Show the panels off-screen so that we can perform pre-animation calculations
-    $("#fek-panel .col-left").css("left", "-200vw");
-    $("#fek-panel .col-right").css("left", "-200vw");
+    $("#bek-panel .col-left").css("left", "-200vw");
+    $("#bek-panel .col-right").css("left", "-200vw");
 
-    $("#fek-panel").show(); $("#fek-panel .col-right").show();
+    $("#bek-panel").show(); $("#bek-panel .col-right").show();
 
     // Get current panel widths
-    var colLeftWidth  = $("#fek-panel .col-left").outerWidth();
-    var colRightWidth = $("#fek-panel .col-right").outerWidth();
+    var colLeftWidth  = $("#bek-panel .col-left").outerWidth();
+    var colRightWidth = $("#bek-panel .col-right").outerWidth();
 
     // Set start points
-    $("#fek-panel .col-left").css("left", "-" + colLeftWidth + "px");
-    $("#fek-panel .col-right").css("left", "-" + colRightWidth + "px");
+    $("#bek-panel .col-left").css("left", "-" + colLeftWidth + "px");
+    $("#bek-panel .col-right").css("left", "-" + colRightWidth + "px");
 
     // Animate
-    $("#fek-panel .col-left" ).stop().animate({left: "0px"}, 200, function(){
-      $("#fek-panel .col-right").css("left","-" + (colRightWidth - colLeftWidth) + "px");
-      $( "#fek-panel .col-right" ).stop().animate({left: colLeftWidth + "px"}, 150, function(){
+    $("#bek-panel .col-left" ).stop().animate({left: "0px"}, 200, function(){
+      $("#bek-panel .col-right").css("left","-" + (colRightWidth - colLeftWidth) + "px");
+      $( "#bek-panel .col-right" ).stop().animate({left: colLeftWidth + "px"}, 150, function(){
         // Hide all content views to speed up the .show animation
         $(".scroll-region").show();
         self.InitScrollbar(".scroll-region");
@@ -2333,35 +2333,35 @@ FEK.prototype.PanelShow = function(){
 }
 
 ////////////////////////////////////////////
-// PanelHide: Hides the FEK control panel //
+// PanelHide: Hides the BEK control panel //
 ////////////////////////////////////////////
-FEK.prototype.PanelHide = function(){
+BEK.prototype.PanelHide = function(){
   var self = this;
 
   // Get current panel widths
-  var colLeftWidth  = $("#fek-panel .col-left").outerWidth();
-  var colRightWidth = $("#fek-panel .col-right").outerWidth();
+  var colLeftWidth  = $("#bek-panel .col-left").outerWidth();
+  var colRightWidth = $("#bek-panel .col-right").outerWidth();
 
   // Hide all content views to speed up the .show animation
   $(".scroll-region").hide();
 
   // Animate
-  $("#fek-panel .setting").find("ul").hide();
-  $("#fek-panel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
-    $("#fek-panel .col-right").hide();
-    $( "#fek-panel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
-      $("#fek-panel").hide();
+  $("#bek-panel .setting").find("ul").hide();
+  $("#bek-panel .col-right" ).stop().animate({left: "-" + (colRightWidth - colLeftWidth) + "px"}, 150, function(){
+    $("#bek-panel .col-right").hide();
+    $( "#bek-panel .col-left" ).stop().animate({left: "-" + (colLeftWidth) + "px"}, 200, function(){
+      $("#bek-panel").hide();
     });
   });
 }
 
 ////////////////////////////////////////////////
-// PanelToggle: Toggles the FEK control panel //
+// PanelToggle: Toggles the BEK control panel //
 ////////////////////////////////////////////////
-FEK.prototype.PanelToggle = function(){
+BEK.prototype.PanelToggle = function(){
   var self = this;
 
-  if($("#fek-panel").is(":visible"))
+  if($("#bek-panel").is(":visible"))
     self.PanelHide();
   else
     self.PanelShow();
@@ -2370,7 +2370,7 @@ FEK.prototype.PanelToggle = function(){
 /////////////////////////////////////////////////////////////////////////////////
 // LoadWebPanel: Loads web panels such as Credits, Announcements, Events, etc. //
 /////////////////////////////////////////////////////////////////////////////////
-FEK.prototype.LoadWebPanel = function(page, container){
+BEK.prototype.LoadWebPanel = function(page, container){
   var self     = this;
   var formData = new FormData();
   formData.append("page", page);
@@ -2384,7 +2384,7 @@ FEK.prototype.LoadWebPanel = function(page, container){
 ///////////////////////////////////////////////
 // InitScrollbar: Initializes the scroll bar //
 ///////////////////////////////////////////////
-FEK.prototype.InitScrollbar = function(element){
+BEK.prototype.InitScrollbar = function(element){
   var self     = this;
   var supressx = false;
   var supressy = false;
@@ -2425,8 +2425,8 @@ FEK.prototype.InitScrollbar = function(element){
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
 ///////////////////////////////////////
-var fek = new FEK();
-fek.Initialize();
+var bek = new BEK();
+bek.Initialize();
 
 
 
@@ -2522,7 +2522,7 @@ function HideSubboards(){
 //////////////////////////////////////////////////////////////////////////////
 function FavoriteIcons(){
   $(".button.gamedata.champion").each(function(){
-    var url = self.FEKgfxLargeChamp + favoriteChampion;
+    var url = self.BEKgfxLargeChamp + favoriteChampion;
     this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -2532,7 +2532,7 @@ function FavoriteIcons(){
   });
 
   $(".button.gamedata.summoner").each(function(){
-    var url = self.FEKgfxLargeSpell + favoriteSpell;
+    var url = self.BEKgfxLargeSpell + favoriteSpell;
     this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -2543,7 +2543,7 @@ function FavoriteIcons(){
 
   $(".button.gamedata.item").each(function()
   {
-    var url = self.FEKgfxLargeItem + favoriteItem;
+    var url = self.BEKgfxLargeItem + favoriteItem;
     this.style.setProperty("background-image", `url("${url}.png")`, "important");
     this.style.setProperty("background-position", "-3px -3px", "important");
     this.style.setProperty("background-size", "120% auto", "important");
@@ -2607,7 +2607,7 @@ function LoadThread(){
     var region   = this.getElementsByClassName("realm")[0].textContent;
         region   = region.substring(1, region.length - 1);
 
-    // FEK staff have special gradient names, so I need to extract them using this method
+    // BEK staff have special gradient names, so I need to extract them using this method
     if(this.getElementsByClassName("pxg-set").length > 0)
       username = this.getElementsByClassName("pxg-set")[0].childNodes[0].textContent;
 
@@ -2622,7 +2622,7 @@ function LoadThread(){
 
   ColorVotes();
   HoverVotes();
-  QueryFEKServer();
+  QueryBEKServer();
 
   if(embedMedia == "on")
     EmbedMedia();
@@ -2631,8 +2631,8 @@ function LoadThread(){
 ////////////////////////////////////////////////////////////////
 // FormatSomePosts: Calls FormatSinglePost on only some posts //
 ////////////////////////////////////////////////////////////////
-function FormatSomePosts(FEKData = false){
-  if(!FEKData){
+function FormatSomePosts(BEKData = false){
+  if(!BEKData){
     $(".body-container").each(function(){
       FormatSinglePost1(this, false);
     });
@@ -2692,7 +2692,7 @@ function FormatWebmAvatar(obj, avatar){
 }
 
 /////////////////////////////////////////
-// Extend jQuery for FEK control panel //
+// Extend jQuery for BEK control panel //
 /////////////////////////////////////////
 $.fn.hasOverflow = function(){
   var leeway = 0;
@@ -2794,7 +2794,7 @@ function ReplaceUrlWithHtmlLink(text){
 }
 
 ////////////////////////////////////////
-// ========== FEK FEATURES ========== //
+// ========== BEK FEATURES ========== //
 ////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -2891,16 +2891,16 @@ function EnhancedThreadPreview(){
         $(this).parent().parent().parent().mouseenter(function(){
           var replaceThing = $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons);
 
-          $("#fektooltip").html(`
+          $("#bektooltip").html(`
             <div id="ttlabel"> ${$(this).find(".username").text()}  </div>
             <div id="loadtime">${$(this).find(".title-span").text()}</div>
             <p>${replaceThing}</p>
             `);
 
-          $("#fektooltip").css({"opacity" : "1"});
+          $("#bektooltip").css({"opacity" : "1"});
         });
 
-        $(this).parent().parent().parent().mouseleave(function() {$("#fektooltip").css({"opacity":"0"});});
+        $(this).parent().parent().parent().mouseleave(function() {$("#bektooltip").css({"opacity":"0"});});
         this.removeAttribute("title");
       }
     });
@@ -3028,16 +3028,16 @@ function RemoveNavListLinks(){
 }
 
 /////////////////////////////////////////////////////////////
-// AddFEKNavBar: Adds a FEK dropdown to the navigation bar //
+// AddBEKNavBar: Adds a BEK dropdown to the navigation bar //
 /////////////////////////////////////////////////////////////
-function AddFEKNavBar(){
+function AddBEKNavBar(){
   WaitAndRun("#riotbar-navbar", function(){
     $("#riotbar-navbar").append(`
     <span class="riotbar-navbar-separator"></span>
-    <a class="touchpoint-fek" href="#">F.E.K.</a>
+    <a class="touchpoint-bek" href="#">F.E.K.</a>
     `);
 
-    $(".touchpoint-fek").click(function(event){
+    $(".touchpoint-bek").click(function(event){
       event.preventDefault();
       event.stopPropagation();
       PanelToggle();
@@ -3046,10 +3046,10 @@ function AddFEKNavBar(){
 
   // Figure out why I decided to put a return here!
   return;
-  var NavBarFEK      = document.createElement("li"); AddToNavBar(NavBarFEK, "touchpoint-fek", `<a href="#">F.E.K.</a>`, self.riotBar, 7);
-  var FEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(FEKNavBarGroup, "FEKNavBarGroup", self.riotBar, 7, "120px", "60px", "27px", "100% 30px");
-  var FEKPanel       = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKPanel,  "F.E.K. Panel",  "#"); FEKPanel.id = "FEKPanel";
-  var FEKThread      = document.createElement("a");  CreateNavBarButton(FEKNavBarGroup, FEKThread, "F.E.K. Thread", self.FEKpage);
+  var NavBarBEK      = document.createElement("li"); AddToNavBar(NavBarBEK, "touchpoint-bek", `<a href="#">B.E.K.</a>`, self.riotBar, 7);
+  var BEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(BEKNavBarGroup, "BEKNavBarGroup", self.riotBar, 7, "120px", "60px", "27px", "100% 30px");
+  var BEKPanel       = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKPanel,  "B.E.K. Panel",  "#"); BEKPanel.id = "BEKPanel";
+  var BEKThread      = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKThread, "B.E.K. Thread", self.BEKpage);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -3288,9 +3288,9 @@ $(".paging.right").click(function(event){
 });
 
 //////////////////////////////////////
-// Toggles the FEK panel on and off //
+// Toggles the BEK panel on and off //
 //////////////////////////////////////
-$("#FEKPanel").click(function(event){
+$("#BEKPanel").click(function(event){
   event.preventDefault();
   event.stopPropagation();
   PanelToggle();
@@ -3308,11 +3308,11 @@ $(".toggle-reply-form").click(function(event){
 ////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Hides the dropdown menu for Boards and FEK by default, and displays them with mouse hover //
+// Hides the dropdown menu for Boards and BEK by default, and displays them with mouse hover //
 ///////////////////////////////////////////////////////////////////////////////////////////////
-$("#BoardsNavBarGroup").hide(); $("#FEKNavBarGroup").hide();
+$("#BoardsNavBarGroup").hide(); $("#BEKNavBarGroup").hide();
 $(".touchpoint-boards").hover(function() {$("#BoardsNavBarGroup").show();}, function(){$("#BoardsNavBarGroup").hide();});
-$(".touchpoint-fek").hover(function()    {$("#FEKNavBarGroup").show();},    function() {$("#FEKNavBarGroup").hide();});
+$(".touchpoint-bek").hover(function()    {$("#BEKNavBarGroup").show();},    function() {$("#BEKNavBarGroup").hide();});
 
 //////////////////////////////////////////////////////////////////
 // Changes the color of a link when you mouse over/away from it //
