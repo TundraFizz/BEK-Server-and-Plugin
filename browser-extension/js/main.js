@@ -53,7 +53,7 @@ BEK.prototype.Initialize = function(){
   self.results          = [];
 
   // CSS should only be loaded for development purposes
-  if(true){
+  if(false){
     LoadCSS(`${domain}/fek/css/fek-panel.css`);
     LoadCSS(`${domain}/fek/css/thread.css`);
   }
@@ -437,6 +437,31 @@ BEK.prototype.CreateFeatures = function(){
           contentview[0].appendChild(myThing);
         }
       }
+    });
+  });
+
+  /////////////////////////////
+  // Feature: Reset Settings //
+  /////////////////////////////
+  featureMetaData = {
+    "tabGroup": "Miscellaneous",
+    "tab":      "Reset"
+  };
+
+  self.CreateTab(featureMetaData, function(option){
+    $(`[tab="miscellaneous-reset"]`).click(function(){
+      var groupView = $(`[group-view="miscellaneous-reset"]`)[0];
+
+      var content = `<input id="ResetSettings" type="button" value="Click this to reset all settings">`;
+
+      $(groupView).html(content);
+
+      $("#ResetSettings").click(function(){
+        if(confirm("Are you sure that you want to reset all settings?")){
+          Clear();
+          location.reload();
+        }
+      });
     });
   });
 
