@@ -53,7 +53,7 @@ BEK.prototype.Initialize = function(){
   self.results          = [];
 
   // CSS should only be loaded for development purposes
-  if(true){
+  if(false){
     LoadCSS(`${domain}/fek/css/fek-panel.css`);
     LoadCSS(`${domain}/fek/css/thread.css`);
   }
