@@ -246,15 +246,15 @@ BEK.prototype.CreateFeatures = function(){
     "defaultOption": null
   };
 
-  //////////////////////////
-  // Feature: BEK Avatars //
-  //////////////////////////
+  //////////////////////
+  // Feature: Avatars //
+  //////////////////////
   featureMetaData = {
     "tabGroup": "Core Mods",
     "tab":      "LoL Boards",
     "category": "User Identities",
-    "label":    "BEK Avatars",
-    "tooltip":  "The size of BEK avatars.",
+    "label":    "Avatars",
+    "tooltip":  "The size of avatars.",
     "options":  [
       "100|100x100",
       "125|125x125",
