@@ -53,7 +53,7 @@ BEK.prototype.Initialize = function(){
   self.results          = [];
 
   // CSS should only be loaded for development purposes
-  if(false){
+  if(true){
     LoadCSS(`${domain}/fek/css/fek-panel.css`);
     LoadCSS(`${domain}/fek/css/thread.css`);
   }
@@ -106,15 +106,16 @@ BEK.prototype.Initialize = function(){
   self.platformRegion = windowURL.substring(start, end);
 
   Get(null, function(data){
-    console.log(data);
     if($.isEmptyObject(data)){
       self.DefaultVariables();
     }else{
       self.data = data;
-      if(self.data["version"] != self.BEKversion)
+      if(self.data["version"] != self.BEKversion){
         self.HandleUpdate();
-      else
+      }
+      else{
         self.Main();
+      }
     }
   });
 }
@@ -153,6 +154,7 @@ BEK.prototype.HandleUpdate = function(){
 BEK.prototype.Main = function(){
   var self = this;
 
+  // self.AddBEKNavBar();
   self.CreateGUI();
   self.CreateFeatures();
   Set(self.data); // Save any new default data that may have happened from CreateFeatures
@@ -170,6 +172,34 @@ BEK.prototype.Main = function(){
 
   // Put this back in later
   // if(self.RPint < 15 && title == "Roleplaying" && self.alertPopUp === false) RoleplayingAlert();
+}
+
+/////////////////////////////////////////////////////////////
+// AddBEKNavBar: Adds a BEK dropdown to the navigation bar //
+/////////////////////////////////////////////////////////////
+BEK.prototype.AddBEKNavBar = function(){
+  var self = this;
+
+  self.WaitAndRun("#riotbar-navbar", function(){
+    alert("sdkljfjklskljdf");
+    $("#riotbar-navbar").append(`
+    <span class="riotbar-navbar-separator"></span>
+    <a class="touchpoint-bek" href="#">F.E.K.</a>
+    `);
+
+    $(".touchpoint-bek").click(function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      PanelToggle();
+    });
+  });
+
+  // Figure out why I decided to put a return here!
+  return;
+  var NavBarBEK      = document.createElement("li"); AddToNavBar(NavBarBEK, "touchpoint-bek", `<a href="#">B.E.K.</a>`, self.riotBar, 7);
+  var BEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(BEKNavBarGroup, "BEKNavBarGroup", self.riotBar, 7, "120px", "60px", "27px", "100% 30px");
+  var BEKPanel       = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKPanel,  "B.E.K. Panel",  "#"); BEKPanel.id = "BEKPanel";
+  var BEKThread      = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKThread, "B.E.K. Thread", self.BEKpage);
 }
 
 ////////////////////////////////////
@@ -1727,7 +1757,26 @@ BEK.prototype.FormatSinglePost2 = function(obj, op){
       $("#cname").click(function(event){
         event.preventDefault();
         event.stopPropagation();
-        alert("TO DO!");
+
+        var tempElement = document.createElement("div");
+        tempElement.textContent = $(this).parent().parent().parent().find(".username").text();
+        document.body.appendChild(tempElement);
+
+        if(document.selection){
+          var range = document.body.createTextRange();
+          range.moveToElementText(tempElement);
+          range.select();
+        }else if(window.getSelection){
+          var range = document.createRange();
+          range.selectNode(tempElement);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        }
+
+        document.execCommand("copy");
+        tempElement.remove();
+        innerDiv.remove();
+        alert("Name copied");
       });
 
       $("#lolnx").click(function(event){
@@ -3031,31 +3080,6 @@ function RemoveNavListLinks(){
       }
     }
   }
-}
-
-/////////////////////////////////////////////////////////////
-// AddBEKNavBar: Adds a BEK dropdown to the navigation bar //
-/////////////////////////////////////////////////////////////
-function AddBEKNavBar(){
-  WaitAndRun("#riotbar-navbar", function(){
-    $("#riotbar-navbar").append(`
-    <span class="riotbar-navbar-separator"></span>
-    <a class="touchpoint-bek" href="#">F.E.K.</a>
-    `);
-
-    $(".touchpoint-bek").click(function(event){
-      event.preventDefault();
-      event.stopPropagation();
-      PanelToggle();
-    });
-  });
-
-  // Figure out why I decided to put a return here!
-  return;
-  var NavBarBEK      = document.createElement("li"); AddToNavBar(NavBarBEK, "touchpoint-bek", `<a href="#">B.E.K.</a>`, self.riotBar, 7);
-  var BEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(BEKNavBarGroup, "BEKNavBarGroup", self.riotBar, 7, "120px", "60px", "27px", "100% 30px");
-  var BEKPanel       = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKPanel,  "B.E.K. Panel",  "#"); BEKPanel.id = "BEKPanel";
-  var BEKThread      = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKThread, "B.E.K. Thread", self.BEKpage);
 }
 
 ////////////////////////////////////////////////////////////////////////////
