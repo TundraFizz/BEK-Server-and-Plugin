@@ -1668,8 +1668,7 @@ BEK.prototype.FormatSinglePost2 = function(obj, op){
   $(tinyIcon).css("z-index", "1");
 
   // Modify avatar size here
-  // alert(self.data["BEK Avatars"]);
-  var avatarSize = self.data["BEK Avatars"];
+  var avatarSize = self.data["Avatars"];
   // $(icon).css("width",  avatarSize, "!important");
   // $(icon).css("height", avatarSize, "!important");
   $(icon).css("width",  avatarSize + "px", "!important");
