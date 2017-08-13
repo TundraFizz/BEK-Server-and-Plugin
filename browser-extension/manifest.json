@@ -3,7 +3,7 @@
   "short_name": "BEK",
   "author": "Tundra Fizz",
   "description": "Enhances the League of Legends boards by providing additional features to it.",
-  "version": "5.4.2",
+  "version": "0.1.0",
 
   "icons": {
     "16": "icons/icon16.png",
@@ -48,7 +48,8 @@
     "storage",
     "webRequest",
     "*://*.leagueoflegends.com/*",
-    "*://tundrafizz.space/*"
+    "*://tundrafizz.space/*",
+    "*://fizzic.al/*"
   ],
 
   "manifest_version": 2

@@ -23,16 +23,19 @@
   min-width: 144px    !important;
   position:  absolute !important;
   left:      29px     !important;
+  top:       50px !important;
 }
 
 .op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .icon,
 .op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .userGroupIcon {
-  position: relative !important;
-  display:  table    !important;
-  top:      70px     !important;
-  width:    100px;               /* Not important because this can change depending on user settings */
-  height:   100px;               /* Not important because this can change depending on user settings */
-  margin:   0        !important;
+  position:       relative !important;
+  display:        table    !important;
+  top:            30px     !important;
+  width:          100px;               /* Not important because this can change depending on user settings */
+  height:         100px;               /* Not important because this can change depending on user settings */
+  margin:         0        !important;
+  font-variant:   none     !important;
+  letter-spacing: 0px      !important;
 }
 
 .op-container > .masthead > .discussion-title > .author-info > .inline-profile > .profile-hover > .icon          > img,
@@ -48,11 +51,11 @@
   position:       relative                                !important;
   position:       absolute                                !important;
   left:           0px;                                                /* Not important because this can change depending on user settings */
-  top:            45px                                    !important;
+  /*top:            45px                                    !important;*/
   width:          100%                                    !important;
   font-size:      16px                                    !important;
   font-family:    "Constantia","Palatino","Georgia",serif !important;
-  letter-spacing: 1px                                     !important;
+  letter-spacing: 0px                                     !important;
   text-align:     center                                  !important;
   z-index:        1                                       !important;
   overflow:       hidden                                  !important;
@@ -98,9 +101,11 @@
 
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon,
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .userGroupIcon {
-  position: absolute !important;
-  display:  table    !important;
-  top:      32px     !important;
+  position:       absolute !important;
+  display:        table    !important;
+  top:            32px     !important;
+  font-variant:   none     !important;
+  letter-spacing: 0px      !important;
 }
 
 :not(.isDeleted) > .body-container > .header > .inline-profile > .profile-hover > .icon          > img,

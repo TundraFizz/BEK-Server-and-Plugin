@@ -1,4 +1,5 @@
-var domain = "https://tundrafizz.space";  // The domain of course
+// var domain = "https://tundrafizz.space";  // The domain of course
+var domain = "https://fizzic.al";      // The domain of course
 var Get    = chrome.storage.local.get;    // Alias for getting data
 var Set    = chrome.storage.local.set;    // Alias for setting data
 var Remove = chrome.storage.local.remove; // Alias for removing data
@@ -36,10 +37,12 @@ function BEK(){}
 /////////////////////////////////////
 BEK.prototype.Initialize = function(){
   if(typeof disableBEK !== "undefined" && disableBEK) return; // For Wuks
+  // LoadCSS(`${domain}/fek/css/fek-panel.css`);LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
+
   var self = this;
 
-  self.BEKversion       = "5.4.0";
-  self.BEKpage          = "https://boards.na.leagueoflegends.com/en/c/miscellaneous/3V6I7JvK";
+  self.BEKversion       = "0.1.0";
+  self.BEKpage          = "https://boards.na.leagueoflegends.com/en/c/general-discussion/U8uw8k1l";
   self.BEKgfx           = `${domain}/fek/gfx/misc/`;
   self.cIcons           = `${domain}/fek/gfx/iconsmallchampion/`;
   self.BEKgfxLargeChamp = `${domain}/fek/gfx/iconlargechampion/`;
@@ -51,17 +54,6 @@ BEK.prototype.Initialize = function(){
   self.users            = [];
   self.regions          = [];
   self.results          = [];
-
-  // CSS should only be loaded for development purposes
-  if(false){
-    LoadCSS(`${domain}/fek/css/fek-panel.css`);
-    LoadCSS(`${domain}/fek/css/thread.css`);
-  }
-
-  // Modify the navigation bar at the top of the page
-  self.riotBar = $("#riotbar-bar");
-  if(self.riotBar)
-    $(self.riotBar).attr("z-index", "-5000 !important");
 
   self.title = $("#breadcrumbs h2")[0].textContent;
 
@@ -75,15 +67,12 @@ BEK.prototype.Initialize = function(){
   else if(self.page == "Thread" && $(".flat-comments").length == 0) self.threadMode = "Discuss"; // Discussion Mode
   else                                                              self.threadMode = "NULL";    // We're not in a thread
 
-  // Get and save miscellaneous data
-  self.RPint          = 0;
-  // var self.RPint   = GM_getValue("_RP", 0); // Keeps track of which pinned threads the user has visited in the Roleplaying board
-  self.alertPopUp     = false;                 // Only one alert can display at a time
-                                               // 1: Can't connect to BEK server
-                                               // 2: BEK needs to be updated
-                                               // 3: API Error
-                                               // 4: Account Management
-                                               // 5: Roleplaying Alert
+  self.alertPopUp = false; // Only one alert can display at a time
+                           // 1: Can't connect to BEK server
+                           // 2: BEK needs to be updated
+                           // 3: API Error
+                           // 4: Account Management
+
   //////////////////////////
   // Variables: User Data //
   //////////////////////////
@@ -106,16 +95,11 @@ BEK.prototype.Initialize = function(){
   self.platformRegion = windowURL.substring(start, end);
 
   Get(null, function(data){
-    if($.isEmptyObject(data)){
+    if($.isEmptyObject(data))
       self.DefaultVariables();
-    }else{
+    else{
       self.data = data;
-      if(self.data["version"] != self.BEKversion){
-        self.HandleUpdate();
-      }
-      else{
-        self.Main();
-      }
+      self.Main();
     }
   });
 }
@@ -124,11 +108,13 @@ BEK.prototype.Initialize = function(){
 // DefaultVariables: Initializes BEK variables //
 /////////////////////////////////////////////////
 BEK.prototype.DefaultVariables = function(){
+  alert("DEFAULT");
   var self = this;
 
   self.data = {
-    "version":   self.BEKversion,
-    "blacklist": {}
+    "version":      self.BEKversion,
+    "blacklist":    {},
+    "hiddenBoards": {}
   };
 
   Set(self.data, function(){
@@ -136,25 +122,14 @@ BEK.prototype.DefaultVariables = function(){
   });
 }
 
-/////////////////////////////////////////////
-// HandleUpdate: Initializes BEK variables //
-/////////////////////////////////////////////
-BEK.prototype.HandleUpdate = function(){
-  var self = this;
-  self.data["version"] = self.BEKversion;
-
-  Set(self.data, function(){
-    self.Main();
-  });
-}
-
-/////////////////
-// Main: ????? //
-/////////////////
+///////////////////////////////////////////////
+// Main: Entry point after getting variables //
+///////////////////////////////////////////////
 BEK.prototype.Main = function(){
   var self = this;
+  // console.log(self["data"]);
 
-  // self.AddBEKNavBar();
+  self.AddBEKNavBar();
   self.CreateGUI();
   self.CreateFeatures();
   Set(self.data); // Save any new default data that may have happened from CreateFeatures
@@ -162,16 +137,11 @@ BEK.prototype.Main = function(){
   self.KeyWatch();
 
   if(self.page == "Index")
-    self.WaitAndRun(".total-votes", "LoadIndex");
-    // self.LoadIndex();
+    self.WaitAndRun(".total-votes", self.LoadIndex);
   else if(self.page == "Thread")
-    self.WaitAndRun(".profile-hover", "QueryServer");
-    // self.WaitAndRun(".profile-hover", self.QueryServer);
+    self.WaitAndRun(".profile-hover", self.QueryServer);
 
   self.RunMutationObserver();
-
-  // Put this back in later
-  // if(self.RPint < 15 && title == "Roleplaying" && self.alertPopUp === false) RoleplayingAlert();
 }
 
 /////////////////////////////////////////////////////////////
@@ -181,25 +151,17 @@ BEK.prototype.AddBEKNavBar = function(){
   var self = this;
 
   self.WaitAndRun("#riotbar-navbar", function(){
-    alert("sdkljfjklskljdf");
     $("#riotbar-navbar").append(`
     <span class="riotbar-navbar-separator"></span>
-    <a class="touchpoint-bek" href="#">F.E.K.</a>
+    <a class="touchpoint-bek" href="#">B.E.K.</a>
     `);
 
     $(".touchpoint-bek").click(function(event){
       event.preventDefault();
       event.stopPropagation();
-      PanelToggle();
+      self.PanelToggle();
     });
   });
-
-  // Figure out why I decided to put a return here!
-  return;
-  var NavBarBEK      = document.createElement("li"); AddToNavBar(NavBarBEK, "touchpoint-bek", `<a href="#">B.E.K.</a>`, self.riotBar, 7);
-  var BEKNavBarGroup = document.createElement("li"); CreateNavBarGroup(BEKNavBarGroup, "BEKNavBarGroup", self.riotBar, 7, "120px", "60px", "27px", "100% 30px");
-  var BEKPanel       = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKPanel,  "B.E.K. Panel",  "#"); BEKPanel.id = "BEKPanel";
-  var BEKThread      = document.createElement("a");  CreateNavBarButton(BEKNavBarGroup, BEKThread, "B.E.K. Thread", self.BEKpage);
 }
 
 ////////////////////////////////////
@@ -222,8 +184,8 @@ BEK.prototype.RunMutationObserver = function(){
         self.WaitAndRun(mutations[0].addedNodes[0].children[0], self.LoadIndex);
       }
       else if(self.page == "Thread"){
-        self.WaitAndRun(".profile-hover", "QueryServer");
-        // self.WaitAndRun(".profile-hover", self.QueryServer);
+        // self.WaitAndRun(".profile-hover", "QueryServer");
+        self.WaitAndRun(".profile-hover", self.QueryServer);
       }
     });
 
@@ -284,7 +246,7 @@ BEK.prototype.CreateFeatures = function(){
     "tab":      "LoL Boards",
     "category": "User Identities",
     "label":    "Avatars",
-    "tooltip":  "The size of avatars.",
+    "tooltip":  "The size of avatars",
     "options":  [
       "100|100x100",
       "125|125x125",
@@ -350,7 +312,7 @@ BEK.prototype.CreateFeatures = function(){
 
   self.CreateFeature(featureMetaData, function(option){
     if(option == "on"){
-      $(".apollo-header").css("background-image",      "url(https://tundrafizz.space/fek/gfx/no-backtalk.png)");
+      $(".apollo-header").css("background-image",      `url(${domain}/fek/gfx/no-backtalk.png)`);
       $(".apollo-header").css("background-repeat",     "no-repeat");
       $(".apollo-header").css("background-position-x", "64px");
       $(".apollo-header").css("background-position-y", "30px");
@@ -386,8 +348,25 @@ BEK.prototype.CreateFeatures = function(){
   };
 
   self.CreateFeature(featureMetaData, function(option){
+    // if(option != "off"){}
+  });
+
+  ///////////////////////////////
+  // Feature: Enhanced Preview //
+  ///////////////////////////////
+  featureMetaData = {
+    "tabGroup": "Core Mods",
+    "tab":      "LoL Boards",
+    "category": "Navigation Enhancements",
+    "label":    "Enhanced Preview",
+    "tooltip":  "Improves the preview of threads when you hover your mouse over them",
+    "options":  [],
+    "defaultOption": "on"
+  };
+
+  self.CreateFeature(featureMetaData, function(option){
     if(option != "off"){
-      self.HighlightMyThreads();
+      // self.enhanced();
     }
   });
 
@@ -439,6 +418,41 @@ BEK.prototype.CreateFeatures = function(){
       }
     });
   });
+
+
+  ////////////////////////////
+  // Feature: Hidden Boards //
+  ////////////////////////////
+  var naBoards = [
+    "Gameplay",
+    "Player Behavior",
+    "Story, Art, & Sound",
+    "Player Recruitment",
+    "Concepts & Creations",
+    "Memes & Games",
+    "Let's Talk: Boards",
+    "General Discussion",
+    "Esports",
+    "Roleplay",
+    "Mechs vs Minions",
+    "Report a Bug"
+  ];
+
+  for(var i = 0; i < naBoards.length; i++){
+    var boardName = naBoards[i];
+
+    featureMetaData = {
+      "tabGroup": "Core Mods",
+      "tab":      "Hidden Boards",
+      "category": "Hidden Boards",
+      "label":    `${boardName}`,
+      "tooltip":  `Turn this on to hide ${boardName} from the main page`,
+      "options":  [],
+      "defaultOption": "off"
+    };
+
+    self.CreateFeature(featureMetaData, function(option){}, self.data["hiddenBoards"]);
+  }
 
   /////////////////////////////
   // Feature: Reset Settings //
@@ -1110,8 +1124,13 @@ BEK.prototype.CreateTab = function(featureMetaData, callback){
 ////////////////////////////////////////////////////////////
 // CreateFeature: Used within the CreateFeatures function //
 ////////////////////////////////////////////////////////////
-BEK.prototype.CreateFeature = function(featureMetaData, callback){
+BEK.prototype.CreateFeature = function(featureMetaData, callback, mod = null){
   var self          = this;
+
+  var storage = self.data;
+  if(mod)
+    storage = mod;
+
   var tabGroup      = featureMetaData["tabGroup"];
   var tab           = featureMetaData["tab"];
   var category      = featureMetaData["category"];
@@ -1123,7 +1142,7 @@ BEK.prototype.CreateFeature = function(featureMetaData, callback){
   var optionsType   = "binary";
   var optionsKeys   = [];
   var optionsVals   = [];
-  var currentKey    = self.data[label];
+  var currentKey    = storage[label];
   var currentVal    = null;
   var validOption   = false;
   var optionList    = "";
@@ -1163,7 +1182,7 @@ BEK.prototype.CreateFeature = function(featureMetaData, callback){
     validOption = true;
 
   if(!validOption)
-      currentKey = self.data[label] = defaultOption;
+      currentKey = storage[label] = defaultOption;
 
   // Get the index of the current key and then get the value from that index
   for(var i = 0; i < options.length; i++){
@@ -1296,8 +1315,8 @@ BEK.prototype.KeyWatch = function(){
   $(document).on("mousemove", function(e){
     if($("#bektooltip").css("opacity") > 0){
       $("#bektooltip").css({
-        left: e.pageX + 20,
-        top:  e.pageY - 20
+        left: e.pageX + 15,
+        top:  e.pageY - 30
       });
     }else{
       $("#bektooltip").css({
@@ -1381,11 +1400,21 @@ BEK.prototype.KeyWatch = function(){
       $("#refreshNotice").addClass("visible");
       if($(this).attr("data") == "off"){
         $(this).attr("data", "on");
-        self.data[key] = "on";
+
+        if($($(this).parent().find(".category-name")[0]).text() == "Hidden Boards")
+          self.data["hiddenBoards"][key] = "on";
+        else
+          self.data[key] = "on";
+
         Set(self.data);
       }else{
         $(this).attr("data", "off");
-        self.data[key] = "off";
+
+        if($($(this).parent().find(".category-name")[0]).text() == "Hidden Boards")
+          self.data["hiddenBoards"][key] = "off";
+        else
+          self.data[key] = "off";
+
         Set(self.data);
       }
     }
@@ -1455,14 +1484,10 @@ BEK.prototype.PanelCreateTab = function(tabgroup, tab, callback){
 ///////////////////////////////////////////////////////////////////////
 // QueryServer: Makes a connection to the BEK server for information //
 ///////////////////////////////////////////////////////////////////////
-BEK.prototype.QueryServer = function(){
-  var self = this;
-
+BEK.prototype.QueryServer = function(self){
   // Features that can be done right away without needing data from the BEK server
-  self.WaitAndRun(".riot-voting > .total-votes", "ColorVotes");
-  self.WaitAndRun(".riot-voting > .total-votes", "HoverVotes");
-  // self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
-  // self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
+  self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
 
   self.users   = [];
   self.regions = [];
@@ -1682,12 +1707,10 @@ BEK.prototype.FormatSinglePost2 = function(obj, op){
 
   var colorrr = $(username).css("color");
 
-  // Wrenchmen don't have a regular icon so if this person is a Wrenchmen, set their icon to "userGroupIcon"
+  // Get the correct element depending on if the poster is a regular user or belongs to a special group
   var tinyIcon;
-  // if((typeof (tinyIcon = obj.getElementsByClassName("icon")[0])) == "undefined")
-  //   tinyIcon = obj.getElementsByClassName("userGroupIcon")[0];
-  // tinyIcon = $(".icon > img")[0];
-  tinyIcon = $(".icon", obj)[0];
+  if((typeof (tinyIcon = $(".icon", obj)[0])) == "undefined")
+    tinyIcon = $(".userGroupIcon", obj)[0];
 
   // Pop up for when you hover your mouse over a person's name/avatar (only do this once for the op)
   $(tinyIcon).css("z-index", "1");
@@ -1983,10 +2006,12 @@ BEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
       if(staff == "1")
         badges.push(self.BEKgfx + "fekbadge.png");
 
-      var collection = badge.split(",");
-        for(var i = 0; i < collection.length; i++)
-          if(collection[i])
-            badges.push(collection[i]);
+      if(badge){
+        var collection = badge.split(",");
+          for(var i = 0; i < collection.length; i++)
+            if(collection[i])
+              badges.push(collection[i]);
+      }
 
       var wereThereBadges = false;
       if(badges.length)
@@ -2048,31 +2073,21 @@ BEK.prototype.GetBadgesAndTitle = function(usernameT, regionT, profHover, staff,
 ////////////////////////////////////////////////////////////////////////////////////////////////
 BEK.prototype.WaitAndRun = function(selector, callback){
   var self        = this;
-  var timeOut     = 200
-  var currentTime = 0;
+  var currentTime = 0;    // Default to zero
+  var frequency   = 10;   // How often to check in milliseconds
+  var timeOut     = 5000; // When this function should give up
 
+  // Check every 10 milliseconds (100 times a second)
   var interval = setInterval(function(){
-    currentTime = currentTime + 1;
+    currentTime += frequency;
 
     if(currentTime >= timeOut)
       clearInterval(interval);
     else if($(selector).length > 0){
       clearInterval(interval);
-      // console.log("===== callback =====");
-      // console.log(callback);
-      if(callback == "QueryServer")
-        self.QueryServer();
-      else if(callback == "ColorVotes")
-        self.ColorVotes();
-      else if(callback == "HoverVotes")
-        self.HoverVotes();
-      else if(callback == "LoadIndex")
-        self.LoadIndex();
-
-      // console.log(selector);
-      // self.callback();
+      callback(self);
     }
-  }, 10);
+  }, frequency);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2094,8 +2109,7 @@ BEK.prototype.WaitAndRunManual = function(time, callback){
 /////////////////////////////////////////////////////////////
 // ColorVotes: Colors upvotes green and downvotes negative //
 /////////////////////////////////////////////////////////////
-BEK.prototype.ColorVotes = function(){
-  var self = this;
+BEK.prototype.ColorVotes = function(self){
   var totalVotes = $(document).find(".total-votes");
 
   $(totalVotes).each(function(){
@@ -2111,8 +2125,7 @@ BEK.prototype.ColorVotes = function(){
 //////////////////////////////////////////////////////////////////////////////////////////////
 // HoverVotes: Attaches a hover event to the vote numbers to display their individual votes //
 //////////////////////////////////////////////////////////////////////////////////////////////
-BEK.prototype.HoverVotes = function(){
-  var self = this;
+BEK.prototype.HoverVotes = function(self){
   var votingDisplay = "on"; // SAMPLE TEST SETTING, REMOVE LATER!
   if(votingDisplay != "off"){
 
@@ -2122,7 +2135,7 @@ BEK.prototype.HoverVotes = function(){
       else if(this.hasAttribute("hover-event") === false){
         this.setAttribute("hover-event", "true");
         $(this).hover(function(){
-          self.ShowIndividualVotes(this);
+          self.ShowIndividualVotes(self, this);
         }, function(){
           $("#up-down-display").remove();
           $(".total-votes").show();
@@ -2135,9 +2148,8 @@ BEK.prototype.HoverVotes = function(){
 //////////////////////////////////////////////////////////////////////////////////////////
 // ShowIndividualVotes: Shows how many upvotes and downvotes a specific thread/post has //
 //////////////////////////////////////////////////////////////////////////////////////////
-BEK.prototype.ShowIndividualVotes = function(obj){
+BEK.prototype.ShowIndividualVotes = function(self, obj){
   var votingDisplay = "individual"; // TESTING TEMP DEFAULT VARIABLE, REMOVE LATER!
-  var self          = this;
   var voteFinder    = obj.parentElement;
   var uVotes        = voteFinder.getAttribute("data-apollo-up-votes");
   var dVotes        = voteFinder.getAttribute("data-apollo-down-votes");
@@ -2171,15 +2183,13 @@ BEK.prototype.ShowIndividualVotes = function(obj){
 ////////////////////////////////////////////////////
 // LoadIndex: Loads everything for the Index page //
 ////////////////////////////////////////////////////
-BEK.prototype.LoadIndex = function(){
-  var self = this;
-  self.ColorVotes();
-  self.HoverVotes();
+BEK.prototype.LoadIndex = function(self){
+  self.WaitAndRun(".riot-voting > .total-votes",      self.ColorVotes);
+  self.WaitAndRun(".riot-voting > .total-votes",      self.HoverVotes);
+  self.WaitAndRun("#discussion-list .inline-profile", self.HighlightMyThreads);
+  self.WaitAndRun("#discussion-list .inline-profile", self.EnhancedThreadPreview);
+  self.WaitAndRun("#discussion-list .inline-profile", self.HideSubboards);
 
-  // self.WaitAndRun(".riot-voting > .total-votes", self.ColorVotes);
-  // self.WaitAndRun(".riot-voting > .total-votes", self.HoverVotes);
-
-  self.HighlightMyThreads();
 
   // Blacklist
   $(".discussion-list-item").each(function(){
@@ -2208,9 +2218,9 @@ BEK.prototype.LoadIndex = function(){
 ///////////////////////////////////////////////////////////////////////
 // HighlightMyThreads: Highlights your threads as black on the index //
 ///////////////////////////////////////////////////////////////////////
-BEK.prototype.HighlightMyThreads = function(){
-  var self  = this;
-  var color = self.data["Highlight My Threads"];
+BEK.prototype.HighlightMyThreads = function(self){
+  if(self.data["Highlight My Threads"] == "off")
+    return;
 
   if(self.page == "Index"){
     $(".discussion-list-item").each(function(){
@@ -2219,8 +2229,89 @@ BEK.prototype.HighlightMyThreads = function(){
         var name = this.getElementsByClassName("username")[0].textContent;
 
         if(name == self.myName)
-          this.style.setProperty("background-color", color, "important");
-          // this.style.setProperty("background-color", highlightMyThreads, "important");
+          this.style.setProperty("background-color", self.data["Highlight My Threads"], "important");
+      }
+    });
+  }
+}
+
+//////////////////////////////////////////////////////////////////////
+// MiniChampionIcons: Displays champion icons in the thread preview //
+//////////////////////////////////////////////////////////////////////
+function MiniChampionIcons(x){
+  var start = x.indexOf(":") + 1;
+  var end   = x.indexOf("}", start);
+  var icon  = "c" + x.substring(start, end);
+  return `<img src="${self.cIcons}${icon}.jpg">`;
+}
+
+//////////////////////////////////////////////////////////////
+// MiniItemIcons: Displays item icons in the thread preview //
+//////////////////////////////////////////////////////////////
+function MiniItemIcons(x){
+  var start = x.indexOf(":") + 1;
+  var end   = x.indexOf("}", start);
+  var icon  = x.substring(start, end);
+  return `<img src="https://ddragon.leagueoflegends.com/cdn/5.21.1/img/item/${icon}.png" width="16px" height="16px">`;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// MiniSummonerIcons: Displays summoner spell icons in the thread preview //
+////////////////////////////////////////////////////////////////////////////
+function MiniSummonerIcons(x){
+  var start = x.indexOf(":") + 1;
+  var end   = x.indexOf("}", start);
+  var icon  = x.substring(start, end);
+
+  if(icon ==  1) icon = "-16px 0px";
+  if(icon ==  2) icon = "-32px 0px";
+  if(icon ==  3) icon = "-64px 0px";
+  if(icon ==  4) icon = "-80px 0px";
+  if(icon ==  6) icon = "-96px 0px";
+  if(icon ==  7) icon = "-112px 0px";
+  if(icon == 11) icon = "-32px -16px";
+  if(icon == 12) icon = "-48px -16px";
+  if(icon == 13) icon = "-128px 0px";
+  if(icon == 14) icon = "-48px 0px";
+  if(icon == 17) icon = "-144px 0px";
+  if(icon == 21) icon = "0px 0px";
+  if(icon == 30) icon = "0px -16px";
+  if(icon == 31) icon = "-16px -16px";
+
+  if(icon == 32){
+    icon = "-128px -32px";
+    return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell13.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
+  }
+
+  return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell0.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// EnhancedThreadPreview: Displays a fancier preview when you hover the mouse over a thread on the index //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+BEK.prototype.EnhancedThreadPreview = function(self){
+  if(self["data"]["Enhanced Preview"] == "off")
+    return;
+
+  if(self.page == "Index"){
+    $(".title-span").each(function(){
+      if($(this).attr("title")){
+        $(this).attr("ttdata", $(this).attr("title"));
+
+        $(this).parent().parent().parent().mouseenter(function(){
+          var replaceThing = $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons);
+
+          $("#bektooltip").html(`
+            <div id="ttlabel"> ${$(this).find(".username").text()}  </div>
+            <div id="loadtime">${$(this).find(".title-span").text()}</div>
+            <p>${replaceThing}</p>
+            `);
+
+          $("#bektooltip").css({"opacity" : "1"});
+        });
+
+        $(this).parent().parent().parent().mouseleave(function() {$("#bektooltip").css({"opacity":"0"});});
+        this.removeAttribute("title");
       }
     });
   }
@@ -2501,6 +2592,26 @@ BEK.prototype.InitScrollbar = function(element){
   }
 }
 
+///////////////////////////////////////////////////////////////////////////
+// HideSubboards: Hides the sub-boards that the user doesn't want to see //
+///////////////////////////////////////////////////////////////////////////
+BEK.prototype.HideSubboards = function(self){
+  $(".discussion-list-item").each(function(){
+
+    // Always show pinned threads
+    if(!$(this.getElementsByClassName("pin")[0]).length){
+      var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
+
+      // Only hide the thread if it's from a board that is recognized
+      if(typeof subboard !== "undefined"){
+        var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
+        if(self.data["hiddenBoards"][subboard] == "on")
+          $(this).remove();
+      }
+    }
+  });
+}
+
 ///////////////////////////////////////
 // ========== ENTRY POINT ========== //
 ///////////////////////////////////////
@@ -2574,26 +2685,6 @@ function EmptyVoteReplacement(){
       });
     });
   }
-}
-
-///////////////////////////////////////////////////////////////////////////
-// HideSubboards: Hides the sub-boards that the user doesn't want to see //
-///////////////////////////////////////////////////////////////////////////
-function HideSubboards(){
-  $(".discussion-list-item").each(function(){
-
-    // Always show pinned threads
-    if(!$(this.getElementsByClassName("pin")[0]).length){
-      var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1];
-
-      // Only hide the thread if it's from a board that is recognized
-      if(typeof subboard !== "undefined"){
-        var subboard = this.getElementsByClassName("discussion-footer")[0].getElementsByTagName("a")[1].textContent;
-        if(hide[subboard] == "on")
-          $(this).remove();
-      }
-    }
-  });
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2670,7 +2761,8 @@ function IndexBlacklist(){
 // LoadThread: Loads everything for the Thread page //
 //////////////////////////////////////////////////////
 function LoadThread(){
-  alert("YOU SHOULD NOT BE SEEING THIS MESSAGE!");
+  // This only happens when clicking Show More in Discussion Mode
+
   return;
   // Remove all "Posting as X" fields
   $(document).find(".bottom-bar.clearfix.box").find(".left").remove();
@@ -2958,85 +3050,6 @@ function RemoveThumbnailBackground(){
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// EnhancedThreadPreview: Displays a fancier preview when you hover the mouse over a thread on the index //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-function EnhancedThreadPreview(){
-  if(self.page == "Index"){
-    $(".title-span").each(function(){
-      if($(this).attr("title")){
-        $(this).attr("ttdata", $(this).attr("title"));
-
-        $(this).parent().parent().parent().mouseenter(function(){
-          var replaceThing = $(this).find(".title-span").attr("ttdata").replace(/[\n\r]/g, "<br />").replace(/{{champion:??:.*?}}/g, MiniChampionIcons).replace(/{{item:??:.*?}}/g, MiniItemIcons).replace(/{{summoner:??:.*?}}/g, MiniSummonerIcons);
-
-          $("#bektooltip").html(`
-            <div id="ttlabel"> ${$(this).find(".username").text()}  </div>
-            <div id="loadtime">${$(this).find(".title-span").text()}</div>
-            <p>${replaceThing}</p>
-            `);
-
-          $("#bektooltip").css({"opacity" : "1"});
-        });
-
-        $(this).parent().parent().parent().mouseleave(function() {$("#bektooltip").css({"opacity":"0"});});
-        this.removeAttribute("title");
-      }
-    });
-  }
-}
-
-//////////////////////////////////////////////////////////////////////
-// MiniChampionIcons: Displays champion icons in the thread preview //
-//////////////////////////////////////////////////////////////////////
-function MiniChampionIcons(x){
-  var start = x.indexOf(":") + 1;
-  var end   = x.indexOf("}", start);
-  var icon  = "c" + x.substring(start, end);
-  return `<img src="${self.cIcons}${icon}.jpg">`;
-}
-
-//////////////////////////////////////////////////////////////
-// MiniItemIcons: Displays item icons in the thread preview //
-//////////////////////////////////////////////////////////////
-function MiniItemIcons(x){
-  var start = x.indexOf(":") + 1;
-  var end   = x.indexOf("}", start);
-  var icon  = x.substring(start, end);
-  return `<img src="https://ddragon.leagueoflegends.com/cdn/5.21.1/img/item/${icon}.png" width="16px" height="16px">`;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// MiniSummonerIcons: Displays summoner spell icons in the thread preview //
-////////////////////////////////////////////////////////////////////////////
-function MiniSummonerIcons(x){
-  var start = x.indexOf(":") + 1;
-  var end   = x.indexOf("}", start);
-  var icon  = x.substring(start, end);
-
-  if(icon ==  1) icon = "-16px 0px";
-  if(icon ==  2) icon = "-32px 0px";
-  if(icon ==  3) icon = "-64px 0px";
-  if(icon ==  4) icon = "-80px 0px";
-  if(icon ==  6) icon = "-96px 0px";
-  if(icon ==  7) icon = "-112px 0px";
-  if(icon == 11) icon = "-32px -16px";
-  if(icon == 12) icon = "-48px -16px";
-  if(icon == 13) icon = "-128px 0px";
-  if(icon == 14) icon = "-48px 0px";
-  if(icon == 17) icon = "-144px 0px";
-  if(icon == 21) icon = "0px 0px";
-  if(icon == 30) icon = "0px -16px";
-  if(icon == 31) icon = "-16px -16px";
-
-  if(icon == 32){
-    icon = "-128px -32px";
-    return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell13.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
-  }
-
-  return `<span style="background-size: 50%; background: transparent url('//ddragon.leagueoflegends.com/cdn/5.21.1/img/sprite/small_spell0.png') no-repeat scroll ${icon}; background-size: 1000%; width: 16px; height: 16px; display: inline-block;"></span>`;
-}
-
 //////////////////////////////////////////////////////////////////////
 // AddToNavBar: Adds a completely new element to the navigation bar //
 //////////////////////////////////////////////////////////////////////
@@ -3206,47 +3219,49 @@ function AddBoardsNavBar(){
 ///////////////////////////////////////////////////////////////////////////////////////
 // RoleplayingAlert: Creates a banner in the Roleplaying boards to notify newcomers. //
 ///////////////////////////////////////////////////////////////////////////////////////
-function RoleplayingAlert(){
-  CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
-                 `Hello and welcome to the Roleplaying Boards! Before diving in, we ask that you familiarize yourself with the
-                 <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette" style="color:#00C0FF;">Community Rules</a>,
-                 and afterwards the <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers" style="color:#00C0FF;">Guide for Newcomers</a>.
-                 Another helpful thread is <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at" style="color:#00C0FF;">How To Join RPs</a>.
-                 Please check <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium" style="color:#00C0FF;">The Ask Champion Compendium</a> for
-                 availability and details on how to play as a champion. Once you have visited these threads,
-                 this notification will automatically disappear. Thank you, and enjoy your stay!`);
+/*
+  function RoleplayingAlert(){
+    CreateAlertBox("6px", "#003562", "#0000FF", "#FFFFFF",
+                   `Hello and welcome to the Roleplaying Boards! Before diving in, we ask that you familiarize yourself with the
+                   <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette" style="color:#00C0FF;">Community Rules</a>,
+                   and afterwards the <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers" style="color:#00C0FF;">Guide for Newcomers</a>.
+                   Another helpful thread is <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at" style="color:#00C0FF;">How To Join RPs</a>.
+                   Please check <a href="https://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium" style="color:#00C0FF;">The Ask Champion Compendium</a> for
+                   availability and details on how to play as a champion. Once you have visited these threads,
+                   this notification will automatically disappear. Thank you, and enjoy your stay!`);
 
-  var url = window.location.href;
-  if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette"){
-    if(self.RPint === 0 || self.RPint == 2 || self.RPint == 4 || self.RPint == 6 || self.RPint == 8 || self.RPint == 10 || self.RPint == 12 || self.RPint == 14){
-      self.RPint = self.RPint + 1;
-      GM_setValue("_RP", self.RPint);
-      if(self.RPint == 15)
-        alertBanner.remove();
-    }
-  }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers"){
-    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 4 || self.RPint == 5 || self.RPint == 8 || self.RPint == 9 || self.RPint == 12 || self.RPint == 13){
-      self.RPint = self.RPint + 2;
-      GM_setValue("_RP", self.RPint);
-      if(self.RPint == 15)
-        alertBanner.remove();
-    }
-  }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at"){
-    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 8 || self.RPint == 9 || self.RPint == 10 || self.RPint == 11){
-      self.RPint = self.RPint + 4;
-      GM_setValue("_RP", self.RPint);
-      if(self.RPint == 15)
-        alertBanner.remove();
-    }
-  }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium"){
-    if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 4 || self.RPint == 5 || self.RPint == 6 || self.RPint == 7){
-      self.RPint = self.RPint + 8;
-      GM_setValue("_RP", self.RPint);
-      if(self.RPint == 15)
-        alertBanner.remove();
+    var url = window.location.href;
+    if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/L4KZzEqE-community-rules-culture-and-etiquette"){
+      if(self.RPint === 0 || self.RPint == 2 || self.RPint == 4 || self.RPint == 6 || self.RPint == 8 || self.RPint == 10 || self.RPint == 12 || self.RPint == 14){
+        self.RPint = self.RPint + 1;
+        GM_setValue("_RP", self.RPint);
+        if(self.RPint == 15)
+          alertBanner.remove();
+      }
+    }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/ghd7259r-guide-for-newcomers"){
+      if(self.RPint === 0 || self.RPint == 1 || self.RPint == 4 || self.RPint == 5 || self.RPint == 8 || self.RPint == 9 || self.RPint == 12 || self.RPint == 13){
+        self.RPint = self.RPint + 2;
+        GM_setValue("_RP", self.RPint);
+        if(self.RPint == 15)
+          alertBanner.remove();
+      }
+    }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/LtW6jJgO-how-to-join-rps-and-not-get-yelled-at"){
+      if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 8 || self.RPint == 9 || self.RPint == 10 || self.RPint == 11){
+        self.RPint = self.RPint + 4;
+        GM_setValue("_RP", self.RPint);
+        if(self.RPint == 15)
+          alertBanner.remove();
+      }
+    }else if(url == "https://boards.na.leagueoflegends.com/en/c/roleplaying/V0JcVrj0-the-ask-champion-compendium"){
+      if(self.RPint === 0 || self.RPint == 1 || self.RPint == 2 || self.RPint == 3 || self.RPint == 4 || self.RPint == 5 || self.RPint == 6 || self.RPint == 7){
+        self.RPint = self.RPint + 8;
+        GM_setValue("_RP", self.RPint);
+        if(self.RPint == 15)
+          alertBanner.remove();
+      }
     }
   }
-}
+*/
 
 ////////////////////////////////////////
 // ========== CLICK EVENTS ========== //
