@@ -183,9 +183,11 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
     }
   }
 
+  console.log(args);
+
   conn.query(sql, args, function(err, rows){
     for(var i = 0; i < rows.length; i++){
-      var row      = rows[i];
+      var row      = rows[i];);
       var name     = row["name"];
       var region   = row["region"];
       var boardsId = row["boards_id"];

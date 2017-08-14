@@ -18,7 +18,7 @@
     "matches": [
       "https://*.leagueoflegends.com/*"
     ],
-    "css": [
+    "csss": [
       "css/fek-panel.css",
       "css/thread.css"
     ],

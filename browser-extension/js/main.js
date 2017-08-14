@@ -1,5 +1,5 @@
-// var domain = "https://tundrafizz.space";  // The domain of course
-var domain = "https://fizzic.al";      // The domain of course
+var domain = "https://tundrafizz.space";  // The domain of course
+// var domain = "https://fizzic.al";      // The domain of course
 var Get    = chrome.storage.local.get;    // Alias for getting data
 var Set    = chrome.storage.local.set;    // Alias for setting data
 var Remove = chrome.storage.local.remove; // Alias for removing data
@@ -37,7 +37,7 @@ function BEK(){}
 /////////////////////////////////////
 BEK.prototype.Initialize = function(){
   if(typeof disableBEK !== "undefined" && disableBEK) return; // For Wuks
-  // LoadCSS(`${domain}/fek/css/fek-panel.css`);LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
+  LoadCSS(`${domain}/fek/css/fek-panel.css`);LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
 
   var self = this;
 
@@ -108,11 +108,11 @@ BEK.prototype.Initialize = function(){
 // DefaultVariables: Initializes BEK variables //
 /////////////////////////////////////////////////
 BEK.prototype.DefaultVariables = function(){
-  alert("DEFAULT");
   var self = this;
 
   self.data = {
     "version":      self.BEKversion,
+    "togglePanel":  "192",
     "blacklist":    {},
     "hiddenBoards": {}
   };
@@ -466,7 +466,14 @@ BEK.prototype.CreateFeatures = function(){
     $(`[tab="miscellaneous-reset"]`).click(function(){
       var groupView = $(`[group-view="miscellaneous-reset"]`)[0];
 
-      var content = `<input id="ResetSettings" type="button" value="Click this to reset all settings">`;
+      var content = `
+      <div style="margin-bottom: 8px;"><input id="ResetSettings" type="button" value="Reset all settings"></div>
+      <div style="margin-bottom: 8px;"><input id="ChangeHotkey"  type="button" value="Change control panel hotkey"></div>
+      <div id="ChangeHotkeyInput" hidden>
+        <p>Enter in the new hotkey below</p>
+        <input id="NewHotkey" type="text"><br>
+      </div>
+      `;
 
       $(groupView).html(content);
 
@@ -475,6 +482,18 @@ BEK.prototype.CreateFeatures = function(){
           Clear();
           location.reload();
         }
+      });
+
+      $("#ChangeHotkey").click(function(){
+        $("#ChangeHotkeyInput").removeAttr("hidden");
+      });
+
+      $("#NewHotkey").keydown(function(event){
+        $("#NewHotkey").val("");
+        $("#ChangeHotkeyInput").attr("hidden", "hidden");
+        self.data["togglePanel"] = event.keyCode;
+        Set(self.data);
+        alert(`The shortcut key for opening up the BEK control panel has been changed to ${event.key}\n\nRefresh the page for this change to go in effect.`);
       });
     });
   });
@@ -517,7 +536,7 @@ BEK.prototype.CreateFeatures = function(){
   // self.CreateFeature(featureMetaData, function(option){});
 
   // Register the hotkey ~ to toggle the BEK panel on and off
-  self.hotkeys["192"] = function(state, event){
+  self.hotkeys[self.data["togglePanel"]] = function(state, event){
     if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
       self.PanelToggle();
   };
@@ -1073,12 +1092,6 @@ BEK.prototype.CreateFeatures = function(){
       self.LoadWebPanel("donate", contentview);
     });
   });
-
-  // // Register the hotkey ~ to toggle the BEK panel on and off
-  // self.hotkeys["192"] = function(state, event){
-  //   if(state === "keyup" && !$("input").is(":focus") && !$("textarea").is(":focus"))
-  //     PanelToggle();
-  // };
 }
 
 ///////////////////////////////////////////////////////
@@ -1709,6 +1722,14 @@ BEK.prototype.FormatSinglePost2 = function(obj, op){
 
   // Get the correct element depending on if the poster is a regular user or belongs to a special group
   var tinyIcon;
+
+  if($(".riot-fist", obj).length){
+    // console.log("RIOTER");
+    var prependThis = `<img src="https://avatar.leagueoflegends.com/NA/sdsdfdfs.png" style="width: 100px; height: 100px;">`;
+    $($(".riot-fist", obj)[0]).prepend(prependThis);
+    $($(".riot-fist", obj)[0]).css("background-image", "url('http://i.imgur.com/BBis2Vu.jpg')", "!important");
+  }
+
   if((typeof (tinyIcon = $(".icon", obj)[0])) == "undefined")
     tinyIcon = $(".userGroupIcon", obj)[0];
 
