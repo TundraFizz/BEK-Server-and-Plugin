@@ -1,5 +1,5 @@
-var domain = "https://tundrafizz.space";  // The domain of course
-// var domain = "https://fizzic.al";      // The domain of course
+// var domain = "https://tundrafizz.space";  // The domain of course
+var domain = "https://fizzic.al";      // The domain of course
 var Get    = chrome.storage.local.get;    // Alias for getting data
 var Set    = chrome.storage.local.set;    // Alias for setting data
 var Remove = chrome.storage.local.remove; // Alias for removing data
@@ -129,6 +129,7 @@ BEK.prototype.Main = function(){
   var self = this;
   // console.log(self["data"]);
 
+  self.GetAnnouncements();
   self.AddBEKNavBar();
   self.CreateGUI();
   self.CreateFeatures();
@@ -142,6 +143,13 @@ BEK.prototype.Main = function(){
     self.WaitAndRun(".profile-hover", self.QueryServer);
 
   self.RunMutationObserver();
+}
+
+///////////////////////////////////////////////////////
+// GetAnnouncements: Gets announcements from Twitter //
+///////////////////////////////////////////////////////
+BEK.prototype.GetAnnouncements = function(){
+
 }
 
 /////////////////////////////////////////////////////////////
