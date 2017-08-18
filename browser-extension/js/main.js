@@ -37,7 +37,7 @@ function BEK(){}
 /////////////////////////////////////
 BEK.prototype.Initialize = function(){
   if(typeof disableBEK !== "undefined" && disableBEK) return; // For Wuks
-  LoadCSS(`${domain}/fek/css/fek-panel.css`);LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
+  // LoadCSS(`${domain}/fek/css/fek-panel.css`);LoadCSS(`${domain}/fek/css/thread.css`); // CSS should only be loaded for development purposes
 
   var self = this;
 
@@ -397,7 +397,7 @@ BEK.prototype.CreateFeatures = function(){
 
       $(groupView).html(content);
 
-      $(".blacklist-remove").click(function(){
+      $(".blacklist-remove").click(function(event){
         event.preventDefault();
         event.stopPropagation();
         var user = $(this).text();
