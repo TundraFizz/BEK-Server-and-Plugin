@@ -1,0 +1,11 @@
+{
+  "host":                "ENTER_THE_HOST_HERE",
+  "user":                "ENTER_THE_USER_HERE",
+  "password":            "ENTER_THE_PASSWORD_HERE",
+  "database":            "ENTER_THE_DATABASE_HERE",
+
+  "consumer_key":        "ENTER_THE_DATA_HERE",
+  "consumer_secret":     "ENTER_THE_DATA_HERE",
+  "access_token_key":    "ENTER_THE_DATA_HERE",
+  "access_token_secret": "ENTER_THE_DATA_HERE"
+}
