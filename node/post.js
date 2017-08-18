@@ -1,24 +1,31 @@
 var app        = require("../server.js");
+var twitter    = require("twitter");
 var formidable = require("formidable");
 var request    = require("request");
+var moment     = require("moment");
 var mysql      = require("mysql");
 var fs         = require("fs");
 
-function MySqlConnection(){return new Promise((resolve) => {
-  fs.readFile("mysql.csv", "utf-8", (err, data) => {
-    data = data.split(",");
-    data[3] = data[3].trim();
+function MySqlConnection(){
+  fs.readFile("config.json", "utf-8", (error, data) => {
+    if(error){
+      console.log(error);
+      // resolve(1);
+      return;
+    }
+
+    data = JSON.parse(data);
 
     conn = mysql.createConnection({
-      host    : data[0],
-      user    : data[1],
-      password: data[2],
-      database: data[3]
+      host    : data["host"],
+      user    : data["user"],
+      password: data["password"],
+      database: data["database"]
     });
-
-    resolve();
   });
-})}
+}
+
+MySqlConnection();
 
 function FEK(){}
 
@@ -183,11 +190,9 @@ FEK.prototype.GetAvatars = function(){return new Promise((resolve) => {
     }
   }
 
-  console.log(args);
-
   conn.query(sql, args, function(err, rows){
     for(var i = 0; i < rows.length; i++){
-      var row      = rows[i];);
+      var row      = rows[i];
       var name     = row["name"];
       var region   = row["region"];
       var boardsId = row["boards_id"];
@@ -694,14 +699,110 @@ app.post("/webpanel", function(req, res){
   .then(() => res.render(webPanel.response))
 })
 
-// getFriends
-// addFriend
-// acceptFriend
-// removeFriend
-// messages
-// writePM
-// sendPM
-// deletePM
 // wrenchmenIndex
 // wrenchmenThread
 // wrenchmenStatus
+
+function TwitterTracker(){
+  this.LoadConfig()
+  .then((r) => {
+    if(!r)
+      this.Check();
+  });
+}
+
+TwitterTracker.prototype.LoadConfig = function(){return new Promise((resolve) => {
+  fs.readFile("config.json", "utf-8", (error, data) => {
+    if(error){
+      console.log(error);
+      resolve(1);
+      return;
+    }
+
+    this["data"] = JSON.parse(data);
+    resolve(0);
+  });
+})}
+
+TwitterTracker.prototype.Check = function(){return new Promise((resolve) => {
+
+  var client = new twitter({
+    consumer_key:        this["data"]["consumer_key"],
+    consumer_secret:     this["data"]["consumer_secret"],
+    access_token_key:    this["data"]["access_token_key"],
+    access_token_secret: this["data"]["access_token_secret"]
+  });
+
+  setInterval(function(){
+    var params = {screen_name: "TundraFizzTest"};
+
+    client.get("statuses/user_timeline", params, function(error, tweets, response){
+      if(error){
+        console.log(error);
+        return;
+      }
+
+      var tweetContainer = [];
+
+      for(var i = 0; i < tweets.length; i++){
+        var id           = tweets[i].id_str;
+        var createdAt    = tweets[i].created_at;
+        var name         = tweets[i].user.name;
+        var screenName   = tweets[i].user.screen_name;
+        var avatar       = tweets[i].user.profile_image_url_https;
+        var text         = tweets[i].text;
+        var hashtags     = tweets[i].entities.hashtags;
+        var announcement = false;
+
+        createdAt = moment(createdAt, "dd MMM DD HH:mm:ss ZZ YYYY").format();
+
+        for(var j = 0; j < hashtags.length; j++){
+          if(hashtags[j].text.toLowerCase() == "bek")
+            announcement = true;
+
+          for(var k = hashtags[j].indices[0]; k < hashtags[j].indices[1]; k++){
+            var head = text.substring(0, k);
+            var tail = text.substring(k+1, text.length);
+            text = head + " " + tail;
+          }
+        }
+
+        if(announcement){
+          text = text.trim().replace(/\s+/g, " ");
+          var tempObj = {
+            "id":         id,
+            "createdAt":  createdAt,
+            "name":       name,
+            "screenName": screenName,
+            "avatar":     avatar,
+            "text":       text
+          };
+          tweetContainer.push(tempObj);
+        }
+      }
+
+      for(var i = 0; i < tweetContainer.length; i++){
+        var sql  = `SELECT * FROM tweets WHERE id=?`;
+        var args = [tweetContainer[i]["id"]];
+        conn.query(sql, args, (function(i){ return function(err, rows){
+          if(rows.length == 0){
+            var id         = tweetContainer[i]["id"];
+            var createdAt  = tweetContainer[i]["createdAt"];
+            var name       = tweetContainer[i]["name"];
+            var screenName = tweetContainer[i]["screenName"];
+            var avatar     = tweetContainer[i]["avatar"];
+            var text       = tweetContainer[i]["text"];
+
+            var sql  = `INSERT INTO tweets (id, created_at, name, screen_name, profile_image_url, text) VALUES (?,?,?,?,?,?)`;
+            var args = [id, createdAt, name, screenName, avatar, text];
+            conn.query(sql, args);
+          }
+        }})(i));
+      }
+    });
+  }, 5000);
+
+  resolve(0);
+})}
+
+var twitterTracker = new TwitterTracker();
