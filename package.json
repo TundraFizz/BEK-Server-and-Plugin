@@ -7,12 +7,14 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "latest",
-    "formidable":  "latest",
-    "express":     "latest",
-    "request":     "latest",
-    "mysql":       "latest",
-    "cors":        "latest",
-    "ejs":         "latest"
+    "formidable": "latest",
+    "express": "latest",
+    "request": "latest",
+    "twitter": "latest",
+    "moment": "latest",
+    "mysql": "latest",
+    "cors": "latest",
+    "ejs": "latest"
   },
   "devDependencies": {},
   "repository": {
