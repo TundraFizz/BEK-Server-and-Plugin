@@ -1,5 +1,5 @@
-// var domain = "https://tundrafizz.space";  // The domain of course
-var domain = "https://fizzic.al";      // The domain of course
+var domain = "https://tundrafizz.space";  // The domain of course
+// var domain = "https://fizzic.al";      // The domain of course
 var Get    = chrome.storage.local.get;    // Alias for getting data
 var Set    = chrome.storage.local.set;    // Alias for setting data
 var Remove = chrome.storage.local.remove; // Alias for removing data
@@ -129,7 +129,7 @@ BEK.prototype.Main = function(){
   var self = this;
   // console.log(self["data"]);
 
-  self.GetAnnouncements();
+  // self.GetAnnouncements();
   self.AddBEKNavBar();
   self.CreateGUI();
   self.CreateFeatures();
@@ -172,25 +172,16 @@ BEK.prototype.GetAnnouncements = function(){
     // $(`#bek-panel #tab[tab="misc-announcements"]`).append(alertHTML);
 
     var twitterPopup = `
-    <div id="twitterlink" style="position: fixed; bottom: 100px; right: 100px;">
-      <a href="https://twitter.com/${name}" target="_blank">
-        <img src="${avatar}">
-      </a>
+    <div id="bek-fixed-wrapper">
+      <div class="bek-twitter-popup">
+        <div class="bek-top">
+          <div class="bek-float"><img src="${avatar}"></div>
+          <div class="bek-date">${createdAt}</div>
+          <div class="bek-text">${text}</div>
+        </div>
+        <div class="bek-bot">Click here to dismiss the notification</div>
+      </div>
     </div>
-    <h2>
-      ${ParseTwitterDate(createdAt)}
-    </h2>
-    <img id="twitter_img" src="${avatar}">
-    <span id="twitter_text">
-      ${text}
-    </span>
-    <div id="dismiss">
-      Click here to dismiss the notification
-    </div>
-    <span style="opacity:0; clear:both;">
-      .
-    </span>
-    <div id="spike"></div>
     `;
 
     $(twitterPopup).appendTo("body");
