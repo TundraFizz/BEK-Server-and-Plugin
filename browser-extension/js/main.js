@@ -149,7 +149,67 @@ BEK.prototype.Main = function(){
 // GetAnnouncements: Gets announcements from Twitter //
 ///////////////////////////////////////////////////////
 BEK.prototype.GetAnnouncements = function(){
+  var formData = new FormData();
+  SendToServer(`${domain}/querytweets`, formData, function(data){
+    console.log(data);
 
+    if(!data.length)
+      return;
+
+    var id         = data[0]["id"];
+    var createdAt  = data[0]["created_at"];
+    var name       = data[0]["name"];
+    var screenName = data[0]["screen_name"];
+    var avatar     = data[0]["profile_image_url"];
+    var text       = data[0]["text"];
+
+    // The latest announcement has NOT been read yet
+    // Append alert icons for unread announcements
+    // alertHTML = `<span id="bekalert" style="position:relative; top:-2px; padding:3px; padding-left:2px; padding-right:2px; font:8px bold Arial, Helvetica, 'Sans Serif'; border:1px solid #ff8800; margin-left:5px; background:#222222; border-radius:8px; color:#ffffff; text-shadow: 1px 1px rgba(0,0,0,.8);">NEW</span>`;
+
+    // $(`a[href="#bek-panel"]`).eq(0).append(alertHTML);
+    // $(`a[href="#bek-panel"]`).eq(1).append(alertHTML);
+    // $(`#bek-panel #tab[tab="misc-announcements"]`).append(alertHTML);
+
+    var twitterPopup = `
+    <div id="twitterlink" style="position: fixed; bottom: 100px; right: 100px;">
+      <a href="https://twitter.com/${name}" target="_blank">
+        <img src="${avatar}">
+      </a>
+    </div>
+    <h2>
+      ${ParseTwitterDate(createdAt)}
+    </h2>
+    <img id="twitter_img" src="${avatar}">
+    <span id="twitter_text">
+      ${text}
+    </span>
+    <div id="dismiss">
+      Click here to dismiss the notification
+    </div>
+    <span style="opacity:0; clear:both;">
+      .
+    </span>
+    <div id="spike"></div>
+    `;
+
+    $(twitterPopup).appendTo("body");
+
+    // $(`body #twitter_row.popup`).html(`
+    // `);
+
+    $("body #twitter_row.popup").fadeIn();
+
+    $("#dismiss").click(function(event){
+      // if(self.BEKtweets[0])
+      //   GM_setValue("_lastReadTwitter", self.BEKtweets[0].id);
+
+      $("body #twitter_row.popup").fadeOut();
+      $("body #bekalert").each(function(){
+        $(this).fadeOut();
+        });
+    });
+  });
 }
 
 /////////////////////////////////////////////////////////////
