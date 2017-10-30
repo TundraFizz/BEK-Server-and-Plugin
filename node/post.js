@@ -805,4 +805,4 @@ TwitterTracker.prototype.Check = function(){return new Promise((resolve) => {
   resolve(0);
 })}
 
-var twitterTracker = new TwitterTracker();
+// var twitterTracker = new TwitterTracker();

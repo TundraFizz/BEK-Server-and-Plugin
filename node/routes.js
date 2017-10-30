@@ -1,9 +1,9 @@
 //////////////////////////////////
 // Include local libraries here //
 //////////////////////////////////
-var app = require("../server.js");
-var fs = require("fs");
-
+var app     = require("../server.js");
+var request = require("request");
+var fs      = require("fs");
 var desktop = fs.readFileSync("static/navbar.html", "utf8");
 var mobile  = fs.readFileSync("static/navbar-mobile.html", "utf8");
 
@@ -33,6 +33,12 @@ app.get("/about", function(req, res){
 /////////
 app.get("/pax", function(req, res){
   res.render("pax.ejs", {
+    desktop: desktop,
+    mobile: mobile});
+});
+
+app.get("/pax/hotel-chart", function(req, res){
+  res.render("pax-hotel-chart.ejs", {
     desktop: desktop,
     mobile: mobile});
 });

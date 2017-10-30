@@ -1,3 +1,4 @@
+var fs         = require("fs");                   // File system
 var bodyParser = require("body-parser");          // Allows you to read POST data
 var express    = require("express");              // Express
 var cors       = require("cors");                 // CORS
@@ -12,4 +13,12 @@ app.options("*", cors());                         // Allow CORS
 require("./node/post.js");                        // Include POST requests second
 require("./node/routes.js");                      // Include web routes third
 
-app.listen(9001);                                 // Start the server
+// Get the port number from the config file and start the server
+var port = JSON.parse(fs.readFileSync("config.json"))["port"];
+app.listen(port);
+
+
+
+var abc = require("./node/scrape-hotels.js");
+var scrapeHotels = new abc();
+scrapeHotels.YoloSwag();
