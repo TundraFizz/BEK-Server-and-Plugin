@@ -50,12 +50,18 @@ ScrapeHotels.prototype.GetInformation = function(content){return new Promise((re
   $ = cheerio.load(content);
   var name   = $("#hotel-name").html();
   var price  = $(".price-per-night-wrapper > .link-to-rooms").html();
-  var rating = $(".rating-number").html();
+  var rating = $("meta[itemprop='ratingValue']").attr("content");
   console.log(`========== ${name} ==========`);
   console.log(price);
   console.log(rating);
   console.log();
+
   resolve();
+  // fs.writeFile("content.html", content, function(err){
+  //   if(err)return console.log(err);
+  //   console.log("The file was saved!");
+  //   resolve();
+  // });
 })}
 
 ScrapeHotels.prototype.Sample = function(){
