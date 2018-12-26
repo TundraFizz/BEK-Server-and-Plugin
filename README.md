@@ -1,1 +1,3 @@
-Hello there
+# BEK Server and Plugin
+
+Archived; legacy.
